@@ -1,0 +1,10 @@
+web.py
+Jinja2
+Beaker
+SQLAlchemy
+selenium
+nose
+selenose
+pylint
+coverage
+clonedigger

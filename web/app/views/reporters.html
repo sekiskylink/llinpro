@@ -1,0 +1,234 @@
+{% extends "layout.html" %}
+{% from 'layout.html' import navbar, myscripts %}
+
+{% block title %}LLIN.::.Reporters{% endblock%}
+{% block stylesheets %}
+    <!-- Data Tables -->
+    <link href="/static/css/plugins/dataTables/dataTables.bootstrap.css" rel="stylesheet">
+    <link href="/static/css/plugins/dataTables/dataTables.responsive.css" rel="stylesheet">
+    <link href="/static/css/plugins/dataTables/dataTables.tableTools.min.css" rel="stylesheet">
+{% endblock %}
+
+{% block nav %}
+    {% call navbar() %}
+
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    <form role="form" class="form-horizontal" data-toggle="validator">
+        <div class="row">
+            <!-- LEFT -->
+            <div class="col-lg-6">
+                <div class="ibox float-e-margins">
+                    <div class="ibox-title">
+                        <h5>Reporters Form<small> register reporters</small></h5>
+                        <div class="ibox-tools">
+                            <a class="collapse-link">
+                                <i class="fa fa-chevron-up"></i>
+                            </a>
+                        </div>
+                        <div class="ibox-content">
+                            <div class="row">
+                                <div class="form-group"><label for="district" class="col-lg-3 control-label">District:</label>
+                                    <div class="col-lg-9">
+                                        <select name="district" id="district" class="form-control" required>
+                                            <option value="">Select District</option>
+                                            {% for district in districts %}
+                                            <option value="{{ district.id}}">{{ district.name}}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group"><label class="col-lg-3 control-label">Subcounty:</label>
+                                    <div class="col-lg-9">
+                                        <select name="subcounty" id="subcounty" class="form-control">
+                                            <option value="">Select Sub County</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group"><label for="parish" class="col-lg-3 control-label">Parish:</label>
+                                    <div class="col-lg-9">
+                                        <select name="parish" id="parish" class="form-control">
+                                            <option value="">Select Parish</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group"><label for="village" class="col-lg-3 control-label">Village:</label>
+                                    <div class="col-lg-9">
+                                        <select name="village" id="village" class="form-control">
+                                            <option value="">Select Village</option>
+                                        </select>
+                                        <input type="hidden" name="location" id="location"/>
+                                    </div>
+                                </div>
+                                <div class="form-group"><label for="role" class="col-lg-3 control-label">Role:</label>
+                                    <div class="col-lg-9">
+                                        <select name="role" id="role" class="form-control" required>
+                                            <option value="">Select Role</option>
+                                            {% for v in roles %}
+                                            <option value="{{ v.id }}" {% if v.name == role %} selected="yes" {% endif %}>{{ v.name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group"><label for="national_id" class="col-lg-3 control-label">National ID:</label>
+                                    <div class="col-lg-9">
+                                        <input name="national_id" id="national_id" type="text" value="{{ national_id }}" class="form-control"/>
+                                    </div>
+                                </div>
+                                <!--
+                                <div class="form-group"><label for="" class="col-lg-2 control-label"></label>
+                                    <div class="col-lg-10">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="col-lg-offset-2 col-lg-10">
+                                    </div>
+                                </div>
+                                -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- END LEFT -->
+            <!-- RIGHT -->
+            <div class=" col-lg-6">
+                <div class="ibox float-e-margins">
+                    <div class="ibox-title">
+                        <h5>Reporters Form</h5>
+                        <div class="ibox-tools">
+                            <a class="collapse-link">
+                                <i class="fa fa-chevron-up"></i>
+                            </a>
+                            <!--
+                            <a class="close-link">
+                                <i class="fa fa-times"></i>
+                            </a>
+                            -->
+                        </div>
+                    </div>
+                    <div class="ibox-content">
+                        <div class="form-group"><label for="firstname" class="col-lg-3 control-label">First Name:</label>
+                            <div class="col-lg-9">
+                                <input name="firstname" id="firstname" type="text" value="{{ firstname }}" required class="form-control"/>
+                            </div>
+                        </div>
+                        <div class="form-group"><label for="lastname" class="col-lg-3 control-label">Last Name:</label>
+                            <div class="col-lg-9">
+                                <input name="lastname" id="lastname" type="text" value="{{ lastname }}" required class="form-control"/>
+                            </div>
+                        </div>
+
+                        <div class="form-group"><label for="tel" class="col-lg-3 control-label">Telephone:</label>
+                            <div class="col-lg-9">
+                                <input name="telephone" id="tel" type="text" value="{{ telephone }}"
+                                pattern="^256(3[19]|41|7[015789])[0-9]{7}$" required class="form-control"/>
+                            </div>
+                        </div>
+
+                        <div class="form-group"><label for="alt_tel" class="col-lg-3 control-label">Other Tel:</label>
+                            <div class="col-lg-9">
+                                <input name="alt_telephone" id="alt_telephone" type="text" value="{{ alt_telephone }}"
+                                pattern="^256(3[19]|41|7[015789])[0-9]{7}$" class="form-control"/>
+                            </div>
+                        </div>
+                        <div class="form-group"><label for="alt_tel" class="col-lg-3 control-label">Email:</label>
+                            <div class="col-lg-9">
+                                <input name="email" id="email" type="text" value="{{ email }}"
+                                pattern="^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$" class="form-control"/>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-lg-offset-3 col-lg-10">
+                                <button class="btn btn-sm btn-primary" type="submit">Save Reporter</button>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+            <!-- END RIGHT -->
+        </div>
+    </form>
+    <!-- DATA TABLE -->
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+                    <h5>Registered Reporters</h5>
+                    <div class="ibox-tools">
+                        <a class="collapse-link">
+                            <i class="fa fa-chevron-up"></i>
+                        </a>
+                    </div>
+                </div>
+                <div class="ibox-content">
+                    <div class="table-responsive">
+                        <table class="table table-striped table-bordered table-hover dataTables-example" >
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Name</th>
+                                    <th>Telephone</th>
+                                    <th>Role</th>
+                                    <th>Email</th>
+                                    <th>District</th>
+                                    <th>Reporting Location</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            {% for reporter in reporters %}
+                                <tr class="">
+                                    <td>{{ loop.index }}</td>
+                                    <td>{{ reporter.firstname }} &nbsp; {{ reporter.lastname }}</td>
+                                    <td>{{ reporter.telephone }}</td>
+                                    <td>{{ reporter.role }}</td>
+                                    <td>{{ reporter.email }}</td>
+                                    <td>{{ reporter.district }}</td>
+                                    <td>{{ reporter.loc_name }}</td>
+                                    <td>
+                                        <a href="/reporters?ed={{ reporter.id }}" class="" value={{ reporter.id }}><i class="fa fa-edit"></i></a>
+                                                            &nbsp;&nbsp;&nbsp;
+                                        <a href="/reporters?d_id={{ reporter.id }}&page={{ page }}" class="gwe" value={{ reporter.id }}>
+                                            <i class="fa fa-trash-o"></i></a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- END DATA TABLE -->
+{% endblock %}
+
+{% block scripts %}
+    {% call myscripts() %}
+        <!-- Data Tables -->
+        <script src="/static/js/plugins/dataTables/jquery.dataTables.js"></script>
+        <script src="/static/js/plugins/dataTables/dataTables.bootstrap.js"></script>
+        <script src="/static/js/plugins/dataTables/dataTables.responsive.js"></script>
+        <script src="/static/js/plugins/dataTables/dataTables.tableTools.min.js"></script>
+
+        <script src="/static/js/plugins/bootstrap-validator/dist/validator.min.js"></script>
+        <script src="/static/js/llin/reporters.js"></script>
+        <script>
+           $(document).ready(function() {
+            $('.dataTables-example').DataTable({
+                "dom": 'lTfigt',
+                "tableTools": {
+                    "sSwfPath": "/static/js/plugins/dataTables/swf/copy_csv_xls_pdf.swf"
+                }
+            });
+
+        });
+        </script>
+    {% endcall %}
+{% endblock %}
+
+
