@@ -1,3 +1,4 @@
+{% from 'layout.html' import err %}
 <!DOCTYPE html>
 <html>
 
@@ -20,6 +21,8 @@
 
     <div class="middle-box text-center loginscreen animated fadeInDown">
         <div>
+            {{ err(ses.logon_err) }}
+            {{ err(err_msg)}}
             <div>
 
                 <h1 class="logo-name">LLIN</h1>

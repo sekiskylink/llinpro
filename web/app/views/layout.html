@@ -13,6 +13,16 @@
 
     <link href="/static/css/animate.css" rel="stylesheet">
     <link href="/static/css/style.css" rel="stylesheet">
+    <style type="text/css">
+        .error {
+        color: #990000;
+        background-color: #FFF0F0;
+        padding: 7px;
+        margin-top: 5px;
+        margin-bottom: 10px;
+        border: 1px dashed #990000;
+    }
+    </style>
     {% block stylesheets %} {% endblock %}
 
 </head>
@@ -93,29 +103,33 @@
                         LLIN
                     </div>
                 </li>
-                <li class="active">
-                    <a href="index.html"><i class="fa fa-th-large"></i> <span class="nav-label">Dashboards</span> <span class="fa arrow"></span></a>
+                <li class="">
+                    <a href="/dasboard"><i class="fa fa-th-large"></i> <span class="nav-label">Dashboards</span> <span class="fa arrow"></span></a>
                     <ul class="nav nav-second-level">
-                        <li><a href="/dashboard"></a></li>
                         <li class=""><a href="/reports"><i class="fa fa-bar-chart-o"></i>Reports</a></li>
                         <li><a href="/search"><i class="fa fa-search"></i>Search</a></li>
                     </ul>
                 </li>
+                {% if ses.role in ('Micro Planning', 'Administrator') %}
                 <li>
                     <a href="/reporters"><i class="fa fa-group"></i> <span class="nav-label">Reporters</span></a>
                 </li>
                 <li>
                     <a href="/distributionpoints"><i class="fa fa-sitemap"></i> <span class="nav-label">Distribution Points</span>  </a>
                 </li>
+                {% endif %}
+                {% if ses.role in ('Warehouse Manager', 'Administrator') %}
                 <li>
                     <a href="/warehousedata"><i class="fa fa-institution"></i> <span class="nav-label">Warehouse Log</span></a>
                 </li>
                 <li>
                     <a href="/dispatch"><i class="fa fa-truck"></i> <span class="nav-label">Dispatch</span></a>
                 </li>
+                {% endif %}
                 <!-- Put Other links here-->
                     {{ caller() }}
                 <!-- -->
+                {% if ses.role == 'Administrator' %}
                 <li>
                     <a href="#"><i class="fa fa-wrench"></i> <span class="nav-label">Admin</span><span class="fa arrow"></span></a>
                     <ul class="nav nav-second-level collapse">
@@ -125,6 +139,7 @@
                         <li><a href="/auditlog"><i class="fa fa-list"></i>AuditLog</a></li>
                     </ul>
                 </li>
+                {% endif %}
 
             </ul>
 
@@ -154,3 +169,12 @@
             </div>
     </div>
 {%- endmacro %}
+
+{% macro err(err_msg) -%}
+    {% if err_msg %}
+    <div class="alert alert-danger fade in">
+        <button class="close" data-dismiss="alert" type="button">×</button>
+        <p class="text-error">{{ err_msg }}</p>
+    </div>
+    {% endif %}
+{%-endmacro %}
