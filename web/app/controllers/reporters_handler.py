@@ -15,7 +15,8 @@ class Reporters:
         if params.ed:
             res = db.query(
                 "SELECT id, firstname, lastname, telephone, email, national_id, "
-                "reporting_location, distribution_point, role, dpoint FROM reporters_view "
+                "reporting_location, distribution_point, role, dpoint,alternate_tel "
+                "FROM reporters_view "
                 " WHERE id = $id", {'id': edit_val})
             if res:
                 r = res[0]
@@ -25,6 +26,7 @@ class Reporters:
                 email = r.email
                 role = r.role
                 national_id = r.national_id
+                alt_telephone = r.alternate_tel
                 dpoint_id = r.distribution_point
                 dpoint = r.dpoint
         if params.d_id:
@@ -42,7 +44,7 @@ class Reporters:
     def POST(self):
         params = web.input(
             firstname="", lastname="", telephone="", email="", location_id="", dpoint="",
-            national_id="", role="", page="1", ed="", d_id="")
+            national_id="", role="", alt_telephone="", page="1", ed="", d_id="")
         try:
             page = int(params.page)
         except:
@@ -55,12 +57,12 @@ class Reporters:
                 r = db.query(
                     "UPDATE reporters SET firstname=$firstname, lastname=$lastname, "
                     "telephone=$telephone, email=$email, reporting_location=$location, "
-                    "distribution_point=$dpoint, national_id=$nid "
+                    "distribution_point=$dpoint, national_id=$nid, alternate_tel=$alt_tel "
                     "WHERE id=$id", {
                         'firstname': params.firstname, 'lastname': params.lastname,
                         'telephone': params.telephone, 'email': params.email,
                         'location': location, 'dpoint': dpoint, 'nid': params.national_id,
-                        'id': params.ed
+                        'id': params.ed, 'alt_tel': params.alt_telephone
                     })
                 db.query(
                     "UPDATE reporter_groups_reporters SET group_id = $gid "
@@ -71,12 +73,13 @@ class Reporters:
                 dpoint = params.dpoint if params.dpoint else None
                 r = db.query(
                     "INSERT INTO reporters (firstname, lastname, telephone, email, "
-                    " reporting_location, distribution_point, national_id, uuid) VALUES "
+                    " reporting_location, distribution_point, national_id, alternate_tel, uuid) VALUES "
                     " ($firstname, $lastname, $telephone, $email, $location, $dpoint,"
-                    " $nid, uuid_generate_v4()) RETURNING id", {
+                    " $nid, $alt_tel, uuid_generate_v4()) RETURNING id", {
                         'firstname': params.firstname, 'lastname': params.lastname,
                         'telephone': params.telephone, 'email': params.email,
-                        'location': location, 'dpoint': dpoint, 'nid': params.national_id
+                        'location': location, 'dpoint': dpoint, 'nid': params.national_id,
+                        'alt_tel': params.alt_telephone
                     })
                 if r:
                     reporter_id = r[0]['id']
