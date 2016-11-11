@@ -43,7 +43,7 @@ class Index:
             session.logon_err = r[1]
         l = locals()
         del l['self']
-        return render.logon(**l)
+        return render.login(**l)
 
 
 class Logout:

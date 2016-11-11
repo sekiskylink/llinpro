@@ -17,7 +17,8 @@
 {% endblock %}
 
 {% block content %}
-    <form role="form" id="wform" class="form-horizontal" data-toggle="validator">
+    <form role="form" id="wform" class="form-horizontal" data-toggle="validator" action="" method="post">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
         <div class="row">
             <!-- LEFT -->
             <div class="col-lg-6">

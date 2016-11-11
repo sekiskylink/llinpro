@@ -300,7 +300,7 @@ CREATE TABLE warehouses(
     created TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE warehous_branches(
+CREATE TABLE warehouse_branches(
     id SERIAL PRIMARY KEY NOT NULL,
     warehouse_id INTEGER REFERENCES warehouses(id) ON DELETE CASCADE,
     name TEXT NOT NULL DEFAULT '',

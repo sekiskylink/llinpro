@@ -16,7 +16,8 @@
 {% endblock %}
 
 {% block content %}
-    <form role="form" class="form-horizontal" data-toggle="validator">
+    <form role="form" class="form-horizontal" data-toggle="validator" action="" method="post">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
         <div class="row">
             <!-- LEFT -->
             <div class="col-lg-6">
@@ -74,7 +75,8 @@
                                 </div>
                                 <div class="form-group"><label for="national_id" class="col-lg-3 control-label">National ID:</label>
                                     <div class="col-lg-9">
-                                        <input name="national_id" id="national_id" type="text" value="{{ national_id }}" class="form-control"/>
+                                        <input name="national_id" id="national_id" type="text" value="{{ national_id }}"
+                                        pattern="^CM[a-zA-Z0-9]{12}$" class="form-control"/>
                                     </div>
                                 </div>
                                 <!--

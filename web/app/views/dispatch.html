@@ -16,7 +16,8 @@
 {% endblock %}
 
 {% block content %}
-    <form role="form" class="form-horizontal" data-toggle="validator">
+    <form role="form" method="post" action="" class="form-horizontal" data-toggle="validator">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
         <div class="row">
             <!-- LEFT -->
             <div class="col-lg-6">
@@ -53,11 +54,17 @@
                                         <input name="release_order" id="release_order" type="text" value="{{ release_order }}" class="form-control" required/>
                                     </div>
                                 </div>
-                                <div class="form-group">
-                                    <div class="col-lg-offset-3 col-lg-10">
-                                        <button class="btn btn-sm btn-primary" type="submit">Dispatch</button>
+                                <div class="form-group"><label for="waybill" class="col-lg-3 control-label">Waybill:</label>
+                                    <div class="col-lg-9">
+                                        <input name="waybill" id="release_order" type="text" value="{{ waybill }}" class="form-control" required/>
                                     </div>
                                 </div>
+                                <div class="form-group"><label for="quantity" class="col-lg-3 control-label">Quantity:</label>
+                                    <div class="col-lg-9">
+                                        <input name="release_order" id="quantity" type="text" value="{{ quantity }}" class="form-control" required/>
+                                    </div>
+                                </div>
+
                                 <!--
                                 <div class="form-group"><label for="" class="col-lg-2 control-label"></label>
                                     <div class="col-lg-10">
@@ -74,6 +81,62 @@
                 </div>
             </div>
             <!-- END LEFT -->
+            <!-- RIGHT -->
+            <div class="col-lg-6">
+                <div class="ibox float-e-margins">
+                    <div class="ibox-title">
+                        <h5>Dispatch<small> distribute to subcounties</small></h5>
+                        <div class="ibox-tools">
+                            <a class="collapse-link">
+                                <i class="fa fa-chevron-up"></i>
+                            </a>
+                        </div>
+                        <div class="ibox-content">
+                            <div class="row">
+                                <div class="form-group"><label for="warehouse" class="col-lg-3 control-label">Warehouse:</label>
+                                    <div class="col-lg-9">
+                                        <select name="warehouse" id="warehouse" class="form-control" required>
+                                            <option value="">Select Warehouse</option>
+                                            {% for w in warehouses %}
+                                            <option value="{{ w.id}}">{{ w.name}}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group"><label for="branch" class="col-lg-3 control-label">Warehouse Branch:</label>
+                                    <div class="col-lg-9">
+                                        <select name="branch" id="branch" class="form-control" required>
+                                            <option value="">Select Warehouse Branch</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="form-group"><label for="" class="col-lg-3 control-label">:</label>
+                                    <div class="col-lg-9">
+                                        <input name="release_order" id="" type="text" value="{{ '' }}" class="form-control" required/>
+                                    </div>
+                                </div>
+                                <div class="form-group"><label for="waybill" class="col-lg-3 control-label">:</label>
+                                    <div class="col-lg-9">
+                                        <input name="waybill" id="release_order" type="text" value="{{ '' }}" class="form-control" required/>
+                                    </div>
+                                </div>
+                                <div class="form-group"><label for="" class="col-lg-3 control-label">:</label>
+                                    <div class="col-lg-9">
+                                        <input name="release_order" id="quantity" type="text" value="{{ quantity }}" class="form-control" required/>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="col-lg-offset-3 col-lg-10">
+                                        <button class="btn btn-sm btn-primary" type="submit">Dispatch</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- END RIGHT-->
         </div>
     </form>
     <!-- DATA TABLE -->
@@ -81,7 +144,7 @@
         <div class="col-lg-12">
             <div class="ibox float-e-margins">
                 <div class="ibox-title">
-                    <h5>Distribution Points</h5>
+                    <h5>Distribution Log</h5>
                     <div class="ibox-tools">
                         <a class="collapse-link">
                             <i class="fa fa-chevron-up"></i>
@@ -94,9 +157,10 @@
                             <thead>
                                 <tr>
                                     <th>#</th>
-                                    <th>Name</th>
+                                    <th>District</th>
                                     <th>Sub County</th>
-                                    <th>Villages</th>
+                                    <th>Quantity</th>
+                                    <th>Waybill</th>
                                     <th>Action</th>
                                 </tr>
                             </thead>
