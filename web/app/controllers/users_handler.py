@@ -48,13 +48,13 @@ class Users:
     def POST(self):
         params = web.input(
             firstname="", lastname="", telephone="", username="", email="", passwd="",
-            cpasswd="", is_active="", is_super="", page="1", ed="", d_id="")
+            cpasswd="", is_active="", is_super="", page="1", ed="", d_id="", user_role="")
         try:
             page = int(params.page)
         except:
             page = 1
         is_active = 't' if params.is_active == "on" else 'f'
-        role = 'Administrator' if params.is_super == "on" else 'Basic'
+        # role = 'Administrator' if params.is_super == "on" else 'Basic'
         with db.transaction():
             if params.ed:
                 db.query(
@@ -67,7 +67,7 @@ class Users:
                         'firstname': params.firstname, 'lastname': params.lastname,
                         'telephone': params.telephone, 'email': params.email,
                         'username': params.username, 'cpasswd': params.cpasswd,
-                        'role': role, 'is_active': is_active, 'id': params.ed
+                        'role': params.user_role, 'is_active': is_active, 'id': params.ed
                     }
                 )
                 return web.seeother("/users")
@@ -81,7 +81,7 @@ class Users:
                         'firstname': params.firstname, 'lastname': params.lastname,
                         'telephone': params.telephone, 'email': params.email,
                         'username': params.username, 'cpasswd': params.cpasswd,
-                        'role': role, 'is_active': is_active, 'id': params.ed
+                        'role': params.user_role, 'is_active': is_active, 'id': params.ed
                     }
                 )
                 return web.seeother("/users")
