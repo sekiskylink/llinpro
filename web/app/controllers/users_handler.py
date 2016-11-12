@@ -22,7 +22,7 @@ class Users:
                 telephone = u.telephone
                 email = u.email
                 username = u.username
-                role = u.role
+                user_role = u.role
                 is_active = u.is_active
                 is_super = True if u.role == 'Administrator' else False
 
@@ -62,7 +62,7 @@ class Users:
                     "telephone=$telephone, email=$email, username=$username, "
                     "password = crypt($cpasswd, gen_salt('bf')), "
                     "is_active=$is_active, "
-                    "user_role=(SELECT id FROM user_roles WHERE name=$role) "
+                    "user_role=$role "
                     "WHERE id = $id", {
                         'firstname': params.firstname, 'lastname': params.lastname,
                         'telephone': params.telephone, 'email': params.email,
@@ -77,7 +77,7 @@ class Users:
                     "username, password, is_active, user_role) "
                     "VALUES($firstname, $lastname, $telephone, $email, $username, "
                     "crypt($cpasswd, gen_salt('bf')), $is_active, "
-                    "(SELECT id FROM user_roles WHERE name=$role))", {
+                    "$role)", {
                         'firstname': params.firstname, 'lastname': params.lastname,
                         'telephone': params.telephone, 'email': params.email,
                         'username': params.username, 'cpasswd': params.cpasswd,
