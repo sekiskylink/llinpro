@@ -133,6 +133,25 @@ $delim$
     END;
 $delim$ LANGUAGE plpgsql;
 
+CREATE OR REPLACE FUNCTION public.get_descendants(loc_id integer)
+ RETURNS SETOF locations_view AS
+$delim$
+     DECLARE
+        r locations_view%ROWTYPE;
+        our_lft INTEGER;
+        our_rght INTEGER;
+    BEGIN
+        SELECT lft, rght INTO our_lft, our_rght FROM locations_view WHERE id = loc_id;
+        FOR r IN SELECT * FROM locations_view WHERE lft > our_lft AND rght < our_rght
+        LOOP
+            RETURN NEXT r;
+        END LOOP;
+        RETURN;
+    END;
+$delim$ LANGUAGE plpgsql;
+
+
+
 
 CREATE OR REPLACE FUNCTION gen_code() RETURNS TEXT AS
 $delim$
@@ -274,6 +293,7 @@ CREATE TABLE reporters(
     reporting_location BIGINT REFERENCES locations(id), --village
     distribution_point BIGINT REFERENCES distribution_points(id),
     uuid TEXT NOT NULL DEFAULT uuid_generate_v4(),
+    created_by INTEGER REFERENCES users(id), -- like actor id
     created TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
@@ -302,7 +322,7 @@ CREATE TABLE warehouses(
 
 CREATE TABLE warehouse_branches(
     id SERIAL PRIMARY KEY NOT NULL,
-    warehouse_id INTEGER REFERENCES warehouses(id) ON DELETE CASCADE,
+    warehouse_id INTEGER REFERENCES warehouses(id) ON DELETE CASCADE ON UPDATE CASCADE,
     name TEXT NOT NULL DEFAULT '',
     created TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
@@ -310,7 +330,7 @@ CREATE TABLE warehouse_branches(
 
 CREATE TABLE subwarehouse(
     id SERIAL PRIMARY KEY NOT NULL,
-    warehous_branche_id INTEGER REFERENCES warehous_branches(id),
+    warehous_branche_id INTEGER REFERENCES warehouse_branches(id) ON DELETE CASCADE ON UPDATE CASCADE,
     name TEXT NOT NULL DEFAULT '',
     created TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
@@ -360,7 +380,7 @@ CREATE TABLE distribution_log(
 
 CREATE TABLE registration_forms(
     id SERIAL PRIMARY KEY NOT NULL,
-    reporter_id BIGINT REFERENCES reporters(id),
+    reporter_id BIGINT REFERENCES reporters(id) ON DELETE CASCADE,
     serial_number TEXT NOT NULL DEFAULT '',
     created TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
@@ -510,3 +530,22 @@ CREATE VIEW reporters_view AS
         get_district(a.reporting_location) as district, get_reporter_groups(a.id) as role, b.name as loc_name
     FROM reporters a, locations b
     WHERE a.reporting_location = b.id;
+
+CREATE VIEW reporters_view2 AS
+    SELECT a.id, a.firstname, a.lastname, a.telephone, a.alternate_tel, a.email, a.national_id,
+        a.reporting_location, a.created_by,
+        get_district(a.reporting_location) as district, get_reporter_groups(a.id) as role, b.name as loc_name
+    FROM reporters a, locations b
+    WHERE a.reporting_location = b.id;
+
+
+
+CREATE VIEW registration_forms_view AS
+    SELECT
+        a.firstname, a.lastname, a.email, a.uuid, a.telephone, a.alternate_tel,
+        b.serial_number as form_serial, to_char(b.created, 'YYYY-MM-DD HH:MI') as created, c.name as location_name,
+        c.code as location_code, c.uuid as location_uuid, c.id as location_id
+    FROM
+        reporters a, registration_forms b, locations c
+    WHERE
+        a.id = b.reporter_id AND c.id = a.reporting_location;

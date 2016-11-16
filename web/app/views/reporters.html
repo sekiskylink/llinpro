@@ -7,6 +7,11 @@
     <link href="/static/css/plugins/dataTables/dataTables.bootstrap.css" rel="stylesheet">
     <link href="/static/css/plugins/dataTables/dataTables.responsive.css" rel="stylesheet">
     <link href="/static/css/plugins/dataTables/dataTables.tableTools.min.css" rel="stylesheet">
+    <link href="/static/js/plugins/Buttons-1.1.2/css/buttons.dataTables.min.css" rel="stylesheet">
+
+
+    <!-- Sweet Alert -->
+    <link href="/static/css/plugins/sweetalert/sweetalert.css" rel="stylesheet">
 {% endblock %}
 
 {% block nav %}
@@ -174,6 +179,7 @@
                                     <th>#</th>
                                     <th>Name</th>
                                     <th>Telephone</th>
+                                    <th>Other Telephone</th>
                                     <th>Role</th>
                                     <th>Email</th>
                                     <th>District</th>
@@ -187,6 +193,7 @@
                                     <td>{{ loop.index }}</td>
                                     <td>{{ reporter.firstname }} &nbsp; {{ reporter.lastname }}</td>
                                     <td>{{ reporter.telephone }}</td>
+                                    <td>{{ reporter.alternate_tel }}</td>
                                     <td>{{ reporter.role }}</td>
                                     <td>{{ reporter.email }}</td>
                                     <td>{{ reporter.district }}</td>
@@ -194,8 +201,12 @@
                                     <td>
                                         <a href="/reporters?ed={{ reporter.id }}" class="" value={{ reporter.id }}><i class="fa fa-edit"></i></a>
                                                             &nbsp;&nbsp;&nbsp;
+                                        <!--
                                         <a href="/reporters?d_id={{ reporter.id }}&page={{ page }}" class="gwe" value={{ reporter.id }}>
                                             <i class="fa fa-trash-o"></i></a>
+                                        -->
+                                                            &nbsp;&nbsp;&nbsp;
+                                        <button class="gwe" id={{ reporter.id}}><i class="fa fa-trash-o"></i></button>
                                     </td>
                                 </tr>
                             {% endfor %}
@@ -217,16 +228,54 @@
         <script src="/static/js/plugins/dataTables/dataTables.responsive.js"></script>
         <script src="/static/js/plugins/dataTables/dataTables.tableTools.min.js"></script>
 
+        <script type="text/javascript" src="/static/js/plugins/Buttons-1.1.2/js/dataTables.buttons.min.js"></script>
+        <script type="text/javascript" src="/static/js/plugins/Buttons-1.1.2/js/buttons.flash.min.js"></script>
+        <script type="text/javascript" src="/static/js/plugins/jszip.min.js"></script>
+        <script type="text/javascript" src="/static/js/plugins/pdfmake.min.js"></script>
+        <script type="text/javascript" src="/static/js/plugins/vfs_fonts.js"></script>
+        <script type="text/javascript" src="/static/js/plugins/Buttons-1.1.2/js/buttons.html5.min.js"></script>
+        <script type="text/javascript" src="/static/js/plugins/Buttons-1.1.2/js/buttons.print.min.js"></script>
+
         <script src="/static/js/plugins/bootstrap-validator/dist/validator.min.js"></script>
+        <!-- Sweet alert -->
+        <script src="/static/js/plugins/sweetalert/sweetalert.min.js"></script>
+
         <script src="/static/js/llin/reporters.js"></script>
         <script>
            $(document).ready(function() {
             $('.dataTables-example').DataTable({
+                dom: 'Bfrtip',
+                buttons: [
+                    'copy', 'csv', 'excel', 'pdf', 'print'
+                ]
+                /*
                 "dom": 'lTfigt',
                 "tableTools": {
                     "sSwfPath": "/static/js/plugins/dataTables/swf/copy_csv_xls_pdf.swf"
                 }
+                */
             });
+
+            $('.gwe').click(function () {
+            swal({
+                        title: "Are you sure?",
+                        text: "Your will not be able to recover all details taged to the reporter",
+                        type: "warning",
+                        showCancelButton: true,
+                        confirmButtonColor: "#DD6B55",
+                        confirmButtonText: "Yes, delete it!",
+                        cancelButtonText: "No, cancel plx!",
+                        closeOnConfirm: false,
+                        closeOnCancel: false },
+                    function (isConfirm) {
+                        if (isConfirm) {
+                            swal("Deleted!", "Reporter has been deleted.", "success");
+                        } else {
+                            swal("Cancelled", "Reporter details are safe :)", "error");
+                            return false;
+                        }
+                    });
+        });
 
         });
         </script>

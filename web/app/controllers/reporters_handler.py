@@ -33,8 +33,12 @@ class Reporters:
             if session.role in ('Micro Planning', 'Administrator'):
                 db.query("DELETE FROM reporter_groups_reporters WHERE reporter_id=$id", {'id': params.d_id})
                 db.query("DELETE FROM reporters WHERE id=$id", {'id': params.d_id})
+        if session.role == 'Administrator':
+            REPORTER_SQL = "SELECT * FROM reporters_view2"
+        else:
+            REPORTER_SQL = "SELECT * FROM reporters_view2 WHERE created_by = $user"
 
-        reporters = db.query("SELECT * FROM reporters_view")
+        reporters = db.query(REPORTER_SQL, {'user': session.sesid})
         l = locals()
         del l['self']
         return render.reporters(**l)
@@ -42,6 +46,7 @@ class Reporters:
     @csrf_protected
     @require_login
     def POST(self):
+        session = get_session()
         params = web.input(
             firstname="", lastname="", telephone="", email="", location_id="", dpoint="",
             national_id="", role="", alt_telephone="", page="1", ed="", d_id="")
@@ -73,13 +78,13 @@ class Reporters:
                 dpoint = params.dpoint if params.dpoint else None
                 r = db.query(
                     "INSERT INTO reporters (firstname, lastname, telephone, email, "
-                    " reporting_location, distribution_point, national_id, alternate_tel, uuid) VALUES "
+                    " reporting_location, distribution_point, national_id, alternate_tel, uuid, created_by) VALUES "
                     " ($firstname, $lastname, $telephone, $email, $location, $dpoint,"
-                    " $nid, $alt_tel, uuid_generate_v4()) RETURNING id", {
+                    " $nid, $alt_tel, uuid_generate_v4(), $user) RETURNING id", {
                         'firstname': params.firstname, 'lastname': params.lastname,
                         'telephone': params.telephone, 'email': params.email,
                         'location': location, 'dpoint': dpoint, 'nid': params.national_id,
-                        'alt_tel': params.alt_telephone
+                        'alt_tel': params.alt_telephone, 'user': session.sesid
                     })
                 if r:
                     reporter_id = r[0]['id']
