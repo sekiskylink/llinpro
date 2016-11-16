@@ -33,8 +33,8 @@
                         </div>
                         <div class="ibox-content">
                             <div class="row">
-                                <div class="form-group"><label for="district" class="col-lg-3 control-label">District:</label>
-                                    <div class="col-lg-9">
+                                <div class="form-group"><label for="district" class="col-lg-4 control-label">District:</label>
+                                    <div class="col-lg-8">
                                         <select name="district" id="district" class="form-control" required>
                                             <option value="">Select District</option>
                                             {% for district in districts %}
@@ -43,15 +43,15 @@
                                         </select>
                                     </div>
                                 </div>
-                                <div class="form-group"><label for="subcounty" class="col-lg-3 control-label">Subcounty:</label>
-                                    <div class="col-lg-9">
+                                <div class="form-group"><label for="subcounty" class="col-lg-4 control-label">Subcounty:</label>
+                                    <div class="col-lg-8">
                                         <select name="subcounty" id="subcounty" class="form-control" required>
                                             <option value="">Select Sub County</option>
                                         </select>
                                     </div>
                                 </div>
-                                <div class="form-group"><label for="villages" class="col-lg-3 control-label">Villages:</label>
-                                    <div class="col-lg-9">
+                                <div class="form-group"><label for="villages" class="col-lg-4 control-label">Villages:</label>
+                                    <div class="col-lg-8">
                                         <select name="villages" id="villages" multiple="multiple" class="form-control" required>
                                             {% if villages %}
                                             {% for v in villages %}
@@ -78,8 +78,8 @@
                                     </div>
                                 </div>
 
-                                <div class="form-group"><label for="name" class="col-lg-3 control-label">Name:</label>
-                                    <div class="col-lg-9">
+                                <div class="form-group"><label for="name" class="col-lg-4 control-label">Distribution Point Name:</label>
+                                    <div class="col-lg-8">
                                         <input name="name" id="name" type="text" value="{{ name }}" class="form-control" required/>
                                     </div>
                                 </div>
