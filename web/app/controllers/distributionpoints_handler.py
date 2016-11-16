@@ -34,9 +34,20 @@ class DistPoints:
                     {'id': params.d_id})
                 db.query("DELETE FROM distribution_points WHERE id=$id", {'id': params.d_id})
 
-        dpoints = db.query(
-            "SELECT id, name, get_location_name(subcounty) as subcounty, "
-            " get_distribution_point_locations(id) villages FROM distribution_points")
+        if session.role == 'Administrator':
+            dpoints_SQL = (
+                "SELECT id, name, get_location_name(subcounty) as subcounty, "
+                " get_district(subcounty) as district, "
+                " get_distribution_point_locations(id) villages FROM distribution_points "
+                " ORDER by id DESC")
+        else:
+            dpoints_SQL = (
+                "SELECT id, name, get_location_name(subcounty) as subcounty, "
+                " get_district(subcounty) as district, "
+                " get_distribution_point_locations(id) villages FROM distribution_points"
+                " WHERE created_by = $user ORDER BY id DESC")
+
+        dpoints = db.query(dpoints_SQL, {'user': session.sesid})
         l = locals()
         del l['self']
         return render.dpoints(**l)
@@ -44,6 +55,7 @@ class DistPoints:
     @csrf_protected
     @require_login
     def POST(self):
+        session = get_session()
         params = web.input(
             name="", subcounty="", villages=[], page="1", ed="", d_id="")
         try:
@@ -67,11 +79,21 @@ class DistPoints:
                         " VALUES($dpoint, $village)", {'dpoint': params.ed, 'village': val})
                 return web.seeother("/distributionpoints")
             else:
+                has_dp = db.query(
+                    "SELECT a.id, b.name  FROM distribution_points a, locations b "
+                    "WHERE a.name = $name AND a.subcounty = $subcounty "
+                    "AND b.id = a.subcounty", {'name': params.name, 'subcounty': params.subcounty})
+                if has_dp:
+                    session.dp_err = (
+                        "Distribution Points %s of %s subcounty "
+                        "already added!" % (params.name, has_dp[0]['name']))
+                    return web.seeother("/distributionpoints")
+                session.dp_err = ""
                 r = db.query(
-                    "INSERT INTO  distribution_points (name, subcounty, uuid, code) "
-                    " VALUES ($name, $subcounty, uuid_generate_v4(), gen_code())"
+                    "INSERT INTO  distribution_points (name, subcounty, uuid, code, created_by) "
+                    " VALUES ($name, $subcounty, uuid_generate_v4(), gen_code(), $user)"
                     " RETURNING id",
-                    {'name': params.name, 'subcounty': params.subcounty})
+                    {'name': params.name, 'subcounty': params.subcounty, 'user': session.sesid})
                 if r:
                     dpoint_id = r[0]['id']
                     for val in params.villages:

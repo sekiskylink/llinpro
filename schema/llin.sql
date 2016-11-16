@@ -271,6 +271,7 @@ CREATE TABLE distribution_points(
     code TEXT NOT NULL DEFAULT '',
     uuid TEXT NOT NULL DEFAULT uuid_generate_v4(),
     subcounty BIGINT REFERENCES locations(id),
+    created_by INTEGER REFERENCES users(id),
     created TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
