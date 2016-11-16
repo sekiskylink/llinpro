@@ -7,6 +7,7 @@
     <link href="/static/css/plugins/dataTables/dataTables.bootstrap.css" rel="stylesheet">
     <link href="/static/css/plugins/dataTables/dataTables.responsive.css" rel="stylesheet">
     <link href="/static/css/plugins/dataTables/dataTables.tableTools.min.css" rel="stylesheet">
+    <link href="/static/js/plugins/Buttons-1.1.2/css/buttons.dataTables.min.css" rel="stylesheet">
 {% endblock %}
 
 {% block nav %}
@@ -197,15 +198,28 @@
         <script src="/static/js/plugins/dataTables/dataTables.responsive.js"></script>
         <script src="/static/js/plugins/dataTables/dataTables.tableTools.min.js"></script>
 
+        <script type="text/javascript" src="/static/js/plugins/Buttons-1.1.2/js/dataTables.buttons.min.js"></script>
+        <script type="text/javascript" src="/static/js/plugins/Buttons-1.1.2/js/buttons.flash.min.js"></script>
+        <script type="text/javascript" src="/static/js/plugins/jszip.min.js"></script>
+        <script type="text/javascript" src="/static/js/plugins/pdfmake.min.js"></script>
+        <script type="text/javascript" src="/static/js/plugins/vfs_fonts.js"></script>
+        <script type="text/javascript" src="/static/js/plugins/Buttons-1.1.2/js/buttons.html5.min.js"></script>
+        <script type="text/javascript" src="/static/js/plugins/Buttons-1.1.2/js/buttons.print.min.js"></script>
+
         <script src="/static/js/plugins/bootstrap-validator/dist/validator.min.js"></script>
         <script src="/static/js/llin/dpoints.js"></script>
         <script>
            $(document).ready(function() {
             $('.dataTables-example').DataTable({
+                dom: 'Bfrtip',
+                buttons: [
+                    'copy', 'csv', 'excel', 'pdf', 'print'
+                ]
+                /*
                 "dom": 'lTfigt',
                 "tableTools": {
                     "sSwfPath": "/static/js/plugins/dataTables/swf/copy_csv_xls_pdf.swf"
-                }
+                }*/
             });
 
         });
