@@ -8,7 +8,7 @@ class LocationChildren:
     def GET(self, id):
         ret = []
         rs = db.query(
-            "SELECT id, name, tree_parent_id FROM get_children($id);", {'id': id})
+            "SELECT id, name, tree_parent_id FROM get_children($id) ORDER BY name;", {'id': id})
         if rs:
             for r in rs:
                 parent = r['tree_parent_id']
