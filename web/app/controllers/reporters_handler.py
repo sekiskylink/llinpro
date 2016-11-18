@@ -12,6 +12,7 @@ class Reporters:
             "SELECT id, name FROM locations WHERE type_id = "
             "(SELECT id FROM locationtype WHERE name = 'district') ORDER by name")
         roles = db.query("SELECT id, name from reporter_groups order by name")
+        district = {}
         if params.ed:
             res = db.query(
                 "SELECT id, firstname, lastname, telephone, email, national_id, "
@@ -29,6 +30,32 @@ class Reporters:
                 alt_telephone = r.alternate_tel
                 dpoint_id = r.distribution_point
                 dpoint = r.dpoint
+                location = r.reporting_location
+                subcounty = ""
+                district = ""
+                parish = ""
+                village = location
+                villages = []
+                parishes = []
+                subcounties = []
+                ancestors = db.query(
+                    "SELECT id, name, level FROM get_ancestors($loc) "
+                    "WHERE level > 1 ORDER BY level DESC;", {'loc': location})
+                if ancestors:
+                    for loc in ancestors:
+                        if loc['level'] == 5:
+                            village = loc
+                        elif loc['level'] == 4:
+                            parish = loc
+                            villages = db.query("SELECT id, name FROM get_children($id)", {'id': loc['id']})
+                        elif loc['level'] == 3:
+                            subcounty = loc
+                            parishes = db.query("SELECT id, name FROM get_children($id)", {'id': loc['id']})
+                        elif loc['level'] == 2:
+                            district = loc
+                            subcounties = db.query("SELECT id, name FROM get_children($id)", {'id': loc['id']})
+                else:
+                    district = location
         if params.d_id:
             if session.role in ('Micro Planning', 'Administrator'):
                 db.query("DELETE FROM reporter_groups_reporters WHERE reporter_id=$id", {'id': params.d_id})

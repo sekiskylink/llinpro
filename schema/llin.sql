@@ -150,6 +150,23 @@ $delim$
     END;
 $delim$ LANGUAGE plpgsql;
 
+CREATE OR REPLACE FUNCTION public.get_ancestors(loc_id integer)
+ RETURNS SETOF locations_view AS
+$delim$
+     DECLARE
+        r locations_view%ROWTYPE;
+        our_lft INTEGER;
+        our_rght INTEGER;
+    BEGIN
+        SELECT lft, rght INTO our_lft, our_rght FROM locations_view WHERE id = loc_id;
+        FOR r IN SELECT * FROM locations_view WHERE lft <= our_lft AND rght >= our_rght
+        LOOP
+            RETURN NEXT r;
+        END LOOP;
+        RETURN;
+    END;
+$delim$ LANGUAGE plpgsql;
+
 
 
 

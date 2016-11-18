@@ -40,8 +40,8 @@
                                     <div class="col-lg-9">
                                         <select name="district" id="district" class="form-control" required>
                                             <option value="">Select District</option>
-                                            {% for district in districts %}
-                                            <option value="{{ district.id}}">{{ district.name}}</option>
+                                            {% for d in districts %}
+                                            <option value="{{ d.id}}" {% if d.id == district.id %} selected="yes" {% endif %}>{{ d.name}}</option>
                                             {% endfor %}
                                         </select>
                                     </div>
@@ -50,6 +50,9 @@
                                     <div class="col-lg-9">
                                         <select name="subcounty" id="subcounty" class="form-control">
                                             <option value="">Select Sub County</option>
+                                            {% for s in subcounties %}
+                                            <option value="{{ s.id }}" {% if s.id == subcounty.id %} selected="yes" {% endif %}>{{ s.name}}</option>
+                                            {% endfor %}
                                         </select>
                                     </div>
                                 </div>
@@ -57,6 +60,9 @@
                                     <div class="col-lg-9">
                                         <select name="parish" id="parish" class="form-control">
                                             <option value="">Select Parish</option>
+                                            {% for p in parishes %}
+                                            <option value="{{ p.id }}" {% if p.id == parish.id %} selected="yes" {% endif %}>{{ p.name}}</option>
+                                            {% endfor %}
                                         </select>
                                     </div>
                                 </div>
@@ -64,6 +70,9 @@
                                     <div class="col-lg-9">
                                         <select name="village" id="village" class="form-control">
                                             <option value="">Select Village</option>
+                                            {% for v in villages %}
+                                            <option value="{{ v.id }}" {% if v.id == village.id %} selected="yes" {% endif %}>{{ v.name}}</option>
+                                            {% endfor %}
                                         </select>
                                         <input type="hidden" name="location" id="location"/>
                                     </div>
