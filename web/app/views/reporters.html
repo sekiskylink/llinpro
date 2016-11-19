@@ -208,14 +208,15 @@
                                     <td>{{ reporter.district }}</td>
                                     <td>{{ reporter.loc_name }}</td>
                                     <td>
-                                        <a href="/reporters?ed={{ reporter.id }}" class="" value={{ reporter.id }}><i class="fa fa-edit"></i></a>
+                                        <!--<a href="/reporters?ed={{ reporter.id }}" class="" value={{ reporter.id }}><i class="fa fa-edit"></i></a>-->
                                                             &nbsp;&nbsp;&nbsp;
+                                        <button class="btn btn-primary btn-xs edit_btn" id={{ reporter.id}}><i class="fa fa-edit"></i></button>
                                         <!--
                                         <a href="/reporters?d_id={{ reporter.id }}&page={{ page }}" class="gwe" value={{ reporter.id }}>
                                             <i class="fa fa-trash-o"></i></a>
                                         -->
                                                             &nbsp;&nbsp;&nbsp;
-                                        <button class="gwe" id={{ reporter.id}}><i class="fa fa-trash-o"></i></button>
+                                        <button class="btn btn-danger btn-xs delete_btn" id={{ reporter.id}}><i class="fa fa-trash-o"></i></button>
                                     </td>
                                 </tr>
                             {% endfor %}
@@ -265,8 +266,10 @@
                 */
             });
 
-            $('.gwe').click(function () {
-            swal({
+            $('.delete_btn').click(function () {
+                del_id = $(this).attr('id');
+                table_row = $(this).closest('tr');
+                swal({
                         title: "Are you sure?",
                         text: "Your will not be able to recover all details taged to the reporter",
                         type: "warning",
@@ -278,7 +281,18 @@
                         closeOnCancel: false },
                     function (isConfirm) {
                         if (isConfirm) {
-                            swal("Deleted!", "Reporter has been deleted.", "success");
+                            $.get(
+                                '/reporters',
+                                {d_id: del_id, caller: 'api'},
+                                function(data){
+                                    if (data.message == "success"){
+                                        /* remove row from table */
+                                        table_row.remove();
+                                    };
+                                },
+                                'json'
+                            );
+                            swal("Deleted!", "Reporter has been deleted." + del_id, "success");
                         } else {
                             swal("Cancelled", "Reporter details are safe :)", "error");
                             return false;

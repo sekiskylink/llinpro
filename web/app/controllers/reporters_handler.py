@@ -1,12 +1,13 @@
 import web
 from . import csrf_protected, db, require_login, get_session, render
 from app.tools.utils import audit_log
+import json
 
 
 class Reporters:
     @require_login
     def GET(self):
-        params = web.input(page=1, ed="", d_id="")
+        params = web.input(page=1, ed="", d_id="", caller="web")
         edit_val = params.ed
         session = get_session()
         districts = db.query(
@@ -73,6 +74,9 @@ class Reporters:
                     db.query("DELETE FROM reporter_groups_reporters WHERE reporter_id=$id", {'id': params.d_id})
                     db.query("DELETE FROM reporters WHERE id=$id", {'id': params.d_id})
                     audit_log(db, log_dict)
+                    if params.caller == "api":  # return json if API call
+                        web.header("Content-Type", "application/json; charset=utf-8")
+                        return json.dumps({'message': "success"})
         if session.role == 'Administrator':
             REPORTER_SQL = "SELECT * FROM reporters_view2"
         else:
