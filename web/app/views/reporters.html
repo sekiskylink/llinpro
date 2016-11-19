@@ -208,13 +208,8 @@
                                     <td>{{ reporter.district }}</td>
                                     <td>{{ reporter.loc_name }}</td>
                                     <td>
-                                        <!--<a href="/reporters?ed={{ reporter.id }}" class="" value={{ reporter.id }}><i class="fa fa-edit"></i></a>-->
-                                                            &nbsp;&nbsp;&nbsp;
-                                        <button class="btn btn-primary btn-xs edit_btn" id={{ reporter.id}}><i class="fa fa-edit"></i></button>
-                                        <!--
-                                        <a href="/reporters?d_id={{ reporter.id }}&page={{ page }}" class="gwe" value={{ reporter.id }}>
-                                            <i class="fa fa-trash-o"></i></a>
-                                        -->
+                                        <a href="/reporters?ed={{ reporter.id }}" class="btn btn-primary btn-xs" value={{ reporter.id }}>
+                                            <i class="fa fa-edit"></i></a>
                                                             &nbsp;&nbsp;&nbsp;
                                         <button class="btn btn-danger btn-xs delete_btn" id={{ reporter.id}}><i class="fa fa-trash-o"></i></button>
                                     </td>
