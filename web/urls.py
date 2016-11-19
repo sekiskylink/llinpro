@@ -13,6 +13,7 @@ from app.controllers.users_handler import Users
 from app.controllers.groups_handler import Groups
 from app.controllers.dispatch_handler import Dispatch
 from app.controllers.dashboard_handler import Dashboard
+from app.controllers.auditlog_handler import AuditLog
 from app.controllers.settings_handler import Settings
 from app.controllers.distributionpoints_handler import DistPoints
 
@@ -29,9 +30,9 @@ URLS = (
     r'/api/v1/formserials', FormSerials,
     r'/api/v1/forms_endpoint/(\w+)/?', SerialsEndpoint,
     r'/reporters', Reporters,
-    # "/search", "Search",
+    r'/auditlog', AuditLog,
     r'/settings', Settings,
     r'/users', Users,
     r'/groups', Groups,
-    "/logout", Logout,
+    r'/logout', Logout,
 )
