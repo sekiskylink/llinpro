@@ -1,5 +1,6 @@
 import web
 from . import csrf_protected, db, require_login, get_session, render
+from app.tools.utils import audit_log
 
 
 class Reporters:
@@ -58,8 +59,20 @@ class Reporters:
                     district = location
         if params.d_id:
             if session.role in ('Micro Planning', 'Administrator'):
-                db.query("DELETE FROM reporter_groups_reporters WHERE reporter_id=$id", {'id': params.d_id})
-                db.query("DELETE FROM reporters WHERE id=$id", {'id': params.d_id})
+                reporter = db.query(
+                    "SELECT firstname || ' ' || lastname as name , telephone "
+                    "FROM reporters WHERE id = $id", {'id': params.d_id})
+                if reporter:
+                    rx = reporter[0]
+                    log_dict = {
+                        'logtype': 'Web', 'action': 'Delete', 'actor': session.username,
+                        'ip': web.ctx['ip'], 'descr': 'Deleted reporter %s:%s (%s)' % (
+                            params.d_id, rx['name'], rx['telephone']),
+                        'user': session.sesid
+                    }
+                    db.query("DELETE FROM reporter_groups_reporters WHERE reporter_id=$id", {'id': params.d_id})
+                    db.query("DELETE FROM reporters WHERE id=$id", {'id': params.d_id})
+                    audit_log(db, log_dict)
         if session.role == 'Administrator':
             REPORTER_SQL = "SELECT * FROM reporters_view2"
         else:
@@ -75,7 +88,7 @@ class Reporters:
     def POST(self):
         session = get_session()
         params = web.input(
-            firstname="", lastname="", telephone="", email="", location_id="", dpoint="",
+            firstname="", lastname="", telephone="", email="", location="", dpoint="",
             national_id="", role="", alt_telephone="", page="1", ed="", d_id="")
         try:
             page = int(params.page)
@@ -90,15 +103,24 @@ class Reporters:
                     "UPDATE reporters SET firstname=$firstname, lastname=$lastname, "
                     "telephone=$telephone, email=$email, reporting_location=$location, "
                     "distribution_point=$dpoint, national_id=$nid, alternate_tel=$alt_tel "
-                    "WHERE id=$id", {
+                    "WHERE id=$id RETURNING id", {
                         'firstname': params.firstname, 'lastname': params.lastname,
                         'telephone': params.telephone, 'email': params.email,
                         'location': location, 'dpoint': dpoint, 'nid': params.national_id,
                         'id': params.ed, 'alt_tel': params.alt_telephone
                     })
-                db.query(
-                    "UPDATE reporter_groups_reporters SET group_id = $gid "
-                    " WHERE reporter_id = $id ", {'gid': params.role, 'id': params.ed})
+                if r:
+                    db.query(
+                        "UPDATE reporter_groups_reporters SET group_id = $gid "
+                        " WHERE reporter_id = $id ", {'gid': params.role, 'id': params.ed})
+                    log_dict = {
+                        'logtype': 'Web', 'action': 'Update', 'actor': session.username,
+                        'ip': web.ctx['ip'],
+                        'descr': 'Updated reporter %s:%s (%s)' % (
+                            params.ed, params.firstname + ' ' + params.lastname, params.telephone),
+                        'user': session.sesid
+                    }
+                    audit_log(db, log_dict)
                 return web.seeother("/reporters")
             else:
                 location = params.location if params.location else None
@@ -119,6 +141,14 @@ class Reporters:
                         "INSERT INTO reporter_groups_reporters (group_id, reporter_id) "
                         " VALUES ($role, $reporter_id)",
                         {'role': params.role, 'reporter_id': reporter_id})
+                    log_dict = {
+                        'logtype': 'Web', 'action': 'Create', 'actor': session.username,
+                        'ip': web.ctx['ip'],
+                        'descr': 'Created reporter %s:%s (%s)' % (
+                            reporter_id, params.firstname + ' ' + params.lastname, params.telephone),
+                        'user': session.sesid
+                    }
+                    audit_log(db, log_dict)
                 return web.seeother("/reporters")
 
         l = locals()

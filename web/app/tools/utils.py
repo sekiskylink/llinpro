@@ -33,3 +33,12 @@ def auth_user(db, username, password):
         return False, "Wrong username or password"
     else:
         return True, res[0]
+
+
+def audit_log(db, log_dict={}):
+    sql = (
+        "INSERT INTO audit_log (logtype, actor, action, remote_ip, detail, created_by) "
+        " VALUES ($logtype, $actor, $action, $ip, $descr, $user) "
+    )
+    db.query(sql, log_dict)
+    return None
