@@ -8,7 +8,7 @@ class AuditLog:
         params = web.input(d_id="")
         logs = db.query(
             "SELECT remote_ip, logtype, actor, action, to_char(created, 'YYYY-MM-DD HH:MI') "
-            "as created FROM audit_log;")
+            "as created, detail FROM audit_log;")
         l = locals()
         del l['self']
         return render.auditlog(**l)
