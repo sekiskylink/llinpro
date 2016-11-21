@@ -37,6 +37,7 @@
                                 <tr>
                                     <th>#</th>
                                     <th>Remote IP</th>
+                                    <th>Timestamp</th>
                                     <th>Log Type</th>
                                     <th>User</th>
                                     <th>Action</th>
@@ -49,6 +50,7 @@
                                 <tr class="">
                                     <td>{{ loop.index }}</td>
                                     <td>{{ l.remote_ip }}</td>
+                                    <td>{{ l.created }}</td>
                                     <td>{{ l.logtype }}</td>
                                     <td>{{ l.actor }}</td>
                                     <td>{{ l.action }}</td>

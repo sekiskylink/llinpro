@@ -6,7 +6,9 @@ class AuditLog:
     @require_login
     def GET(self):
         params = web.input(d_id="")
-        logs = db.query("SELECT * FROM audit_log;")
+        logs = db.query(
+            "SELECT remote_ip, logtype, actor, action, to_char(created, 'YYYY-MM-DD HH:MI') "
+            "as created FROM audit_log;")
         l = locals()
         del l['self']
         return render.auditlog(**l)
