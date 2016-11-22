@@ -82,6 +82,18 @@ class SubcountyLocations:
         return json.dumps(ret)
 
 
+class WarehouseBranches:
+    def GET(self, id):
+        web.header("Content-Type", "application/json; charset=utf-8")
+        ret = []
+        res = db.query(
+            "SELECT id, name FROM warehouse_branches WHERE warehouse_id = $id",
+            {'id': id})
+        for r in res:
+            ret.append({'id': r.id, 'name': r.name})
+        return json.dumps(ret)
+
+
 class FormSerials:
     def POST(self):
         web.header("Content-Type", "application/json; charset=utf-8")

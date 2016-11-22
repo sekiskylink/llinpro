@@ -14,6 +14,8 @@ SECRET_KEY = ''
 
 PAGE_LIMIT = 25
 
+QUANTITY_PER_BALE = 40
+
 
 def absolute(path):
     """Get the absolute path of the given file/folder.

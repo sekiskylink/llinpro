@@ -334,7 +334,7 @@ CREATE TABLE reporter_groups_reporters(
 
 CREATE TABLE warehouses(
     id SERIAL PRIMARY KEY NOT NULL,
-    name TEXT NOT NULL DEFAULT '',
+    name TEXT NOT NULL UNIQUE,
     created TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -354,22 +354,38 @@ CREATE TABLE subwarehouse(
     updated TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE manufacturers(
+    id SERIAL PRIMARY KEY,
+    name text NOT NULL UNIQUE,
+    created_by INTEGER REFERENCES users(id),
+    created TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
 
-CREATE TABLE national_deliery_log(
+CREATE TABLE funding_sources(
+    id SERIAL PRIMARY KEY,
+    name text NOT NULL UNIQUE,
+    created_by INTEGER REFERENCES users(id),
+    created TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE national_delivery_log(
     id SERIAL PRIMARY KEY NOT NULL,
     po_number TEXT NOT NULL DEFAULT '',
-    funding_source TEXT NOT NULL DEFAULT '',
-    manufacturer TEXT NOT NULL DEFAULT '',
+    funding_source INTEGER NOT NULL REFERENCES funding_sources(id),
+    manufacturer INTEGER NOT NULL REFERENCES manufacturers(id),
     made_in INTEGER REFERENCES countries(id),
     batch_number TEXT NOT NULL DEFAULT '',
     nets_type TEXT NOT NULL DEFAULT '',
     nets_size TEXT NOT NULL DEFAULT '',
     nets_color TEXT NOT NULL DEFAULT '',
-    quantity_bells NUMERIC NOT NULL DEFAULT 0,
+    quantity_bales NUMERIC NOT NULL DEFAULT 0,
     quantity NUMERIC NOT NULL DEFAULT 0,
     entry_date DATE,
-    waybill TEXT NOT NULL DEFAULT '',
-    warehouse TEXT NOT NULL DEFAULT '',
+    waybill TEXT NOT NULL UNIQUE,
+    goods_received_note TEXT NOT NULL UNIQUE,
+    warehouse_branch INTEGER NOT NULL REFERENCES warehouse_branches(id),
     sub_warehouse TEXT NOT NULL DEFAULT '',
     nda_samples INTEGER NOT NULL DEFAULT 0,
     nda_sampling_date DATE,
@@ -378,7 +394,7 @@ CREATE TABLE national_deliery_log(
     unbs_samples INTEGER NOT NULL DEFAULT 0,
     unbs_sampling_date DATE,
     remarks TEXT NOT NULL DEFAULT '',
-    created_by INTEGER REFERENCES users(id), -- like actor id
+    created_by INTEGER REFERENCES users(id),
     created TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
@@ -402,6 +418,8 @@ CREATE TABLE registration_forms(
     serial_number TEXT NOT NULL DEFAULT '',
     created TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
+
+
 
 
 --location stuff

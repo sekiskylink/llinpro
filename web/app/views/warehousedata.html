@@ -1,5 +1,5 @@
 {% extends "layout.html" %}
-{% from 'layout.html' import navbar, myscripts %}
+{% from 'layout.html' import navbar, myscripts, busted %}
 
 {% block title %}LLIN.::.Warehouse Data{% endblock%}
 {% block stylesheets %}
@@ -8,6 +8,10 @@
     <link href="/static/css/plugins/dataTables/dataTables.responsive.css" rel="stylesheet">
     <link href="/static/css/plugins/dataTables/dataTables.tableTools.min.css" rel="stylesheet">
     <link href="/static/css/plugins/datapicker/datepicker3.css" rel="stylesheet">
+    <link href="/static/js/plugins/Buttons-1.1.2/css/buttons.dataTables.min.css" rel="stylesheet">
+
+    <!-- Sweet Alert -->
+    <link href="/static/css/plugins/sweetalert/sweetalert.css" rel="stylesheet">
 {% endblock %}
 
 {% block nav %}
@@ -17,6 +21,7 @@
 {% endblock %}
 
 {% block content %}
+    {% if ses.role in ('Administrator', 'Warehouse Manager') %}
     <form role="form" id="wform" class="form-horizontal" data-toggle="validator" action="" method="post">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
         <div class="row">
@@ -39,12 +44,22 @@
                                 </div>
                                 <div class="form-group"><label for="funding_source" class="col-lg-5 control-label">Funding Source:</label>
                                     <div class="col-lg-7">
-                                    <input name="funding_source" id="funding_source" type="text" value="{{ funding_source }}" required class="form-control"/>
+                                    <select name="funding_source" id="funding_source" class="form-control" required>
+                                        <option value="">Select Funding Source</option>
+                                        {% for f in funding_sources %}
+                                            <option value="{{ f.id }}" {%if f.id == funding_source%}selected="yes"{% endif %}>{{ f.name }}</option>
+                                        {% endfor %}
+                                    </select>
                                     </div>
                                 </div>
                                 <div class="form-group"><label for="manufacturer" class="col-lg-5 control-label">Manufacturer:</label>
                                     <div class="col-lg-7">
-                                    <input name="manufacturer" id="manufacturer" type="text" value="{{ manufacturer }}" required class="form-control"/>
+                                    <select name="manufacturer" id="manufacturer" class="form-control" required>
+                                        <option value="">Select Manufacturer</option>
+                                        {% for m in manufacturers %}
+                                            <option value="{{ m.id }}" {%if m.id == manufacturer %}selected="yes"{% endif %}>{{ m.name }}</option>
+                                        {% endfor %}
+                                    </select>
                                     </div>
                                 </div>
                                 <div class="form-group"><label for="made_in" class="col-lg-5 control-label">Made In:</label>
@@ -52,7 +67,7 @@
                                         <select name="made_in" id="made_in" class="form-control" required>
                                             <option value="">Select Country</option>
                                             {% for c in countries%}
-                                                <option value="{{c.id}}">{{ c.name }}</option>
+                                                <option value="{{c.id}}" {%if c.id == made_in %}selected="yes"{% endif %}>{{ c.name }}</option>
                                             {% endfor %}
                                         </select>
                                     </div>
@@ -66,10 +81,10 @@
                                     <div class="col-lg-7">
                                         <select name="nets_type" id="nets_type" class="form-control">
                                             <option value="">Select Nets Type</option>
-                                            <option value="Olyset">Olyset Net</option>
-                                            <option value="Olyset Plus">Olyset Plus</option>
-                                            <optiom value="PermaNet 2.0">PermaNet 2.0</option>
-                                            <option value="TBA">TBA</option>
+                                            {% for t in ('Olyset', 'Olyset Plus', 'PermaNet 2.0', 'TBA') %}
+                                                <option value="{{t}}" {% if t == nets_type %} selected="yes" {% endif%}>{{t}}</option>
+                                            {% endfor %}
+
                                         </select>
                                     </div>
                                 </div>
@@ -88,9 +103,10 @@
                                         <input name="nets_size" id="nets_size" type="text" value="{{ nets_size }}" class="form-control"/>
                                     </div>
                                 </div>
-                                <div class="form-group"><label for="quantity" class="col-lg-5 control-label">Quantity:</label>
+                                <div class="form-group"><label for="quantity" class="col-lg-5 control-label">Quantity (Bales):</label>
                                     <div class="col-lg-7">
-                                        <input name="quantity" id="quantity" type="text" value="{{quantity }}" required class="form-control"/>
+                                        <input name="quantity" id="quantity" type="number" value="{{quantity }}" required
+                                        pattern="^\d+$" class="form-control"/>
                                     </div>
                                 </div>
                                 <div class="form-group"><label for="waybill" class="col-lg-5 control-label">Waybill:</label>
@@ -104,6 +120,8 @@
                                             required class="form-control"/>
                                     </div>
                                 </div>
+                                <br/>
+                                <br/>
                                 <br/>
                                 <br/>
                             </div>
@@ -130,10 +148,25 @@
                         </div>
                     </div>
                     <div class="ibox-content">
-                        <div class="form-group"><label for="warehouse" class="col-lg-5 control-label">Warehouse Name:</label>
-                            <div class="col-lg-7 input-group">
-                                <input name="warehouse" id="warehouse" type="text" value="{{ warehouse }}" required class="form-control"/>
+                            <div class="form-group"><label for="warehouse" class="col-lg-5 control-label">Warehouse Name:</label>
+                                <div class="col-lg-7 input-group">
+                                    <select name="warehouse" id="warehouse" class="form-control" required>
+                                        <option value="">Select Warehouse </option>
+                                        {% for w in warehouses %}
+                                            <option value="{{ w.id}}" {%if w.id == warehouse %}selected="yes"{% endif%}>{{ w.name}}</option>
+                                        {% endfor %}
+                                    </select>
                                 </div>
+                            </div>
+                           <div class="form-group"><label for="branch" class="col-lg-5 control-label">Warehouse Branch:</label>
+                                    <div class="col-lg-7 input-group">
+                                        <select name="warehouse_branch" id="warehouse_branch" class="form-control" required>
+                                            <option value="">Select Warehouse Branch</option>
+                                            {% for b in branches %}
+                                                <option value="{{ b.id}}" {%if b.id == warehouse_branch %}selected="yes"{% endif%}>{{ b.name}}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
                             </div>
                             <div class="form-group"><label for="sub_warehouse" class="col-lg-5 control-label">Sub Warehouse:</label>
                                 <div class="col-lg-7 input-group">
@@ -143,43 +176,48 @@
                             <div class="form-group"><label for="entry_date" class="col-lg-5 control-label">Entry Date:</label>
                                 <div class="col-lg-7 input-group date">
                                      <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
-                                    <input name="entry_date" id="entry_date" type="text" value="{{ entry_date }}" required class="form-control"/>
+                                     <input name="entry_date" id="entry_date" type="text" value="{{ entry_date }}" required
+                                     placeholder="YYYY-MM-DD" readonly class="form-control"/>
                                 </div>
                             </div>
                             <div class="form-group"><label for="nda_samples" class="col-lg-5 control-label">NDA Samples:</label>
                                 <div class="col-lg-7 input-group">
-                                    <input name="nda_samples" id="nda_samples" type="text" value="{{ nda_samples }}" class="form-control"/>
+                                    <input name="nda_samples" id="nda_samples" type="text" value="{{ nda_samples }}"
+                                    pattern="^\d+$" class="form-control"/>
                                 </div>
                             </div>
                             <div class="form-group" id=""><label for="nda_sampling_date" class="col-lg-5 control-label">NDA Sampling Date:</label>
                                 <div class="col-lg-7 input-group date">
                                      <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
-                                    <input name="nda_sampling_date" id="nda_sampling_date" type="text" value="{{ nda_sampling_date }}" class="form-control"/>
+                                     <input name="nda_sampling_date" id="nda_sampling_date" type="text" value="{{ nda_sampling_date }}"
+                                     placeholder="YYYY-MM-DD" readonly class="form-control"/>
                                 </div>
                             </div>
                             <div class="form-group"><label for="nda_conditional_release_date" class="col-lg-5 control-label">Date of Conditional Release:</label>
                                 <div class="col-lg-7 input-group date">
                                     <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
-                                    <input name="batch_number" id="nda_conditional_release_date" type="text" value="{{ nda_conditional_release_date }}" class="form-control"/>
+                                    <input name="batch_number" id="nda_conditional_release_date" type="text" value="{{ nda_conditional_release_date }}"
+                                    placeholder="YYYY-MM-DD" readonly class="form-control"/>
                                 </div>
                             </div>
                             <div class="form-group"><label for="nda_testing_result_date" class="col-lg-5 control-label">Date of NDA Testing Result:</label>
                                 <div class="col-lg-7 input-group date">
                                     <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
                                     <input name="nda_testing_result_date" id="nda_testing_result_date" type="text" value="{{ nda_testing_result_date}}"
-                                    class="form-control"/>
+                                    placeholder="YYYY-MM-DD" readonly class="form-control"/>
                                 </div>
                             </div>
                             <div class="form-group"><label for="unbs_sampling_date" class="col-lg-5 control-label">Date of UNBS Sampling:</label>
                                 <div class="col-lg-7 input-group date">
                                     <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
                                     <input name="unbs_sampling_date" id="unbs_sampling_date" type="text"
-                                    value="{{ unbs_sampling_date }}" class="form-control"/>
+                                    value="{{ unbs_sampling_date }}" placeholder="YYYY-MM-DD" readonly class="form-control"/>
                                 </div>
                             </div>
                             <div class="form-group"><label for="unbs_samples" class="col-lg-5 control-label">UNBS Samples:</label>
                                 <div class="col-lg-7 input-group">
-                                    <input name="unbs_samples" id="unbs_samples" type="text" value="{{ unbs_samples }}" class="form-control"/>
+                                    <input name="unbs_samples" id="unbs_samples" type="text" value="{{ unbs_samples }}"
+                                    pattern="^\d+$" class="form-control"/>
                                 </div>
                             </div>
                             <div class="form-group"><label for="remarks" class="col-lg-5 control-label">Remarks:</label>
@@ -221,7 +259,8 @@
                                     <th>Funding Source</th>
                                     <th>Manufacturer</th>
                                     <th>Made In</th>
-                                    <th>Quantity</th>
+                                    <th>Qty(Bales)</th>
+                                    <th>Qty(Nets)</th>
                                     <th>Waybill</th>
                                     <th>Warehouse</th>
                                     <th>Action</th>
@@ -232,19 +271,21 @@
                                     <tr>
                                         <td>{{ loop.index }}</td>
                                         <td>{{ d.po_number }}</td>
-                                        <td>{{ d.funding_source }}</td>
-                                        <td>{{ d.manufacturer }}</td>
+                                        <td>{{ d.funding_source_name }}</td>
+                                        <td>{{ d.manufacturer_name }}</td>
                                         <td>{{ d.made_in }}</td>
                                         <td>{{ d.quantity_bales }}</td>
+                                        <td>{{ d.quantity }}</td>
                                         <td>{{ d.waybill }}</td>
                                         <td>{{ d.warehouse }}</td>
                                         <td>
-                                            <a href="/warehousedata?ed={{ d.id }}" class="" value={{ d.id }}><i title="Edit" class="fa fa-edit"></i></a>
+                                            <a href="/warehousedata?ed={{ d.id }}" class="btn btn-info btn-xs" value={{ d.id }}>
+                                                <i title="Edit" class="fa fa-edit"></i></a>
                                             &nbsp;&nbsp;&nbsp;
-                                            <a href="/warehousedata?d_id={{ d.id }}&page={{ page }}" data-target="#confirm" class="gwe"
-                                                value={{ d.id }}><i title="Remove" class="fa fa-trash-o"></i></a>
+                                            <button class="btn btn-danger btn-xs delete_btn" id={{ d.id}}><i class="fa fa-trash-o"></i></button>
                                             &nbsp;&nbsp;&nbsp;
-                                            <a href="/warehousedata" class="details"><i title="Details" class="fa fa-list-alt"></i></a>
+                                            <a href="/warehousedata" class="btn btn-white btn-bitbucket btn-xs">
+                                                <i title="Details" class="fa fa-list-alt"></i></a>
                                         </td>
                                     </tr>
                                 {% endfor %}
@@ -256,32 +297,49 @@
         </div>
     </div>
     <!-- END DATA TABLE -->
+    {% else %}
+        {{ busted() }}
+    {% endif %}
 {% endblock %}
 
 {% block scripts %}
     {% call myscripts() %}
+        <script src="/static/js/plugins/slimscroll/jquery.slimscroll.min.js"></script>
+        <script src="/static/js/plugins/jeditable/jquery.jeditable.js"></script>
+
         <!-- Data Tables -->
         <script src="/static/js/plugins/dataTables/jquery.dataTables.js"></script>
         <script src="/static/js/plugins/dataTables/dataTables.bootstrap.js"></script>
         <script src="/static/js/plugins/dataTables/dataTables.responsive.js"></script>
         <script src="/static/js/plugins/dataTables/dataTables.tableTools.min.js"></script>
 
+        <script type="text/javascript" src="/static/js/plugins/Buttons-1.1.2/js/dataTables.buttons.min.js"></script>
+        <script type="text/javascript" src="/static/js/plugins/Buttons-1.1.2/js/buttons.flash.min.js"></script>
+        <script type="text/javascript" src="/static/js/plugins/jszip.min.js"></script>
+        <script type="text/javascript" src="/static/js/plugins/pdfmake.min.js"></script>
+        <script type="text/javascript" src="/static/js/plugins/vfs_fonts.js"></script>
+        <script type="text/javascript" src="/static/js/plugins/Buttons-1.1.2/js/buttons.html5.min.js"></script>
+        <script type="text/javascript" src="/static/js/plugins/Buttons-1.1.2/js/buttons.print.min.js"></script>
+
         <!-- Jquery Validate -->
         <!--<script src="/static/js/plugins/validate/jquery.validate.min.js"></script>-->
         <script src="/static/js/plugins/bootstrap-validator/dist/validator.min.js"></script>
 
+        <!-- Sweet alert -->
+        <script src="/static/js/plugins/sweetalert/sweetalert.min.js"></script>
+
         <!-- Data picker -->
         <script src="/static/js/plugins/datapicker/bootstrap-datepicker.js"></script>
 
-        <script src="/static/js/llin/reporters.js"></script>
+        <script src="/static/js/llin/warehouses.js"></script>
 
         <script>
            $(document).ready(function() {
             $('.dataTables-example').DataTable({
-                "dom": 'lTfigt',
-                "tableTools": {
-                    "sSwfPath": "/static/js/plugins/dataTables/swf/copy_csv_xls_pdf.swf"
-                }
+                dom: 'Bfrtip',
+                buttons: [
+                    'copy', 'csv', 'excel', 'pdf', 'print'
+                ]
             });
             $('.input-group.date').datepicker({
                 todayBtn: "linked",
@@ -290,6 +348,40 @@
                 calendarWeeks: true,
                 autoclose: true,
                 format: "yyyy-mm-dd"
+            });
+
+            $('.delete_btn').click(function () {
+                del_id = $(this).attr('id');
+                table_row = $(this).closest('tr');
+                swal({
+                        title: "Are you sure?",
+                        text: "Your will not be able to recover this data",
+                        type: "warning",
+                        showCancelButton: true,
+                        confirmButtonColor: "#DD6B55",
+                        confirmButtonText: "Yes, delete it!",
+                        cancelButtonText: "No, cancel plx!",
+                        closeOnConfirm: false,
+                        closeOnCancel: false },
+                    function (isConfirm) {
+                        if (isConfirm) {
+                            $.get(
+                                '/warehousedata',
+                                {d_id: del_id, caller: 'api'},
+                                function(data){
+                                    if (data.message == "success"){
+                                        /* remove row from table */
+                                        table_row.remove();
+                                    };
+                                },
+                                'json'
+                            );
+                            swal("Deleted!", "Warehose data has been deleted." + del_id, "success");
+                        } else {
+                            swal("Cancelled", "Warehouse data details are safe :)", "error");
+                            return false;
+                        }
+                    });
             });
 
 
