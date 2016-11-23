@@ -1,5 +1,5 @@
 {% extends "layout.html" %}
-{% from 'layout.html' import navbar, myscripts %}
+{% from 'layout.html' import navbar, myscripts, err %}
 
 {% block title %}LLIN.::.Reporters{% endblock%}
 {% block stylesheets %}
@@ -21,6 +21,8 @@
 {% endblock %}
 
 {% block content %}
+    {{ err(ses.rdata_err)}}
+
     <form role="form" class="form-horizontal" data-toggle="validator" action="" method="post">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
         <div class="row">

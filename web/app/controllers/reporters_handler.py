@@ -129,6 +129,13 @@ class Reporters:
             else:
                 location = params.location if params.location else None
                 dpoint = params.dpoint if params.dpoint else None
+                has_reporter = db.query(
+                    "SELECT id FROM reporters WHERE telephone = $tel", {'tel': params.telephone})
+                if has_reporter:
+                    session.rdata_err = (
+                        "Reporter with Telephone:%s already registered" % params.telephone
+                    )
+                    return web.seeother("/reporters")
                 r = db.query(
                     "INSERT INTO reporters (firstname, lastname, telephone, email, "
                     " reporting_location, distribution_point, national_id, alternate_tel, uuid, created_by) VALUES "
