@@ -73,7 +73,7 @@ class WarehouseData:
                         web.header("Content-Type", "application/json; charset=utf-8")
                         return json.dumps({'message': "success"})
 
-        warehousedata = db.query("SELECT * FROM national_delivery_log_view")
+        warehousedata = db.query("SELECT * FROM national_delivery_log_view ORDER BY id DESC")
 
         l = locals()
         del l['self']
