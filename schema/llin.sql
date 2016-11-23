@@ -585,3 +585,30 @@ CREATE VIEW registration_forms_view AS
         reporters a, registration_forms b, locations c
     WHERE
         a.id = b.reporter_id AND c.id = a.reporting_location;
+
+CREATE VIEW national_delivery_log_view AS
+    SELECT a.id, a.po_number, d.name as made_in, a.batch_number,
+    a.nets_type, a.nets_size, a.nets_color, a.quantity_bales, a.quantity,
+    a.entry_date, a.waybill, a.goods_received_note,
+    a.warehouse_branch, a.sub_warehouse, a.nda_samples,
+    a.nda_sampling_date, a.nda_conditional_release_date,
+    a.nda_testing_result_date, a.unbs_samples,
+    a.unbs_sampling_date, a.remarks, a.created_by, a.created, a.updated,
+    b.name as manufacturer_name,
+    c.name as funding_source_name,
+    e.name as warehouse, f.name as branch_name
+    FROM
+        national_delivery_log a,
+        manufacturers b,
+        funding_sources c,
+        countries d,
+        warehouses e,
+        warehouse_branches f
+    WHERE
+        a.manufacturer = b.id
+    AND
+        a.funding_source = c.id
+    AND
+        a.made_in = d.id
+    AND
+        (a.warehouse_branch = f.id AND f.warehouse_id = e.id);

@@ -133,14 +133,25 @@ class WarehouseData:
                 if r:
                     data_id = r[0]['id']
                     log_dict = {
-                        'logtype': 'Web', 'action': 'Update', 'actor': session.username,
+                        'logtype': 'Warehouse', 'action': 'Update', 'actor': session.username,
                         'ip': web.ctx['ip'],
                         'descr': 'Updated warehouse data id:%s, Waybill:%s, Qty (bales):%s' % (
                             data_id, params.waybill, params.quantity),
                         'user': session.sesid
                     }
                     audit_log(db, log_dict)
+                return web.seeother("/warehousedata")
             else:
+                has_entry = db.query(
+                    "SELECT id FROM national_delivery_log WHERE waybill=$waybill "
+                    "OR goods_received_note = $grn",
+                    {'waybill': params.waybill, 'grn': params.goods_received_note})
+                if has_entry:
+                    session.wdata_err = (
+                        "Entry with Waybill:%s OR Goods Received Note:%s "
+                        "already entered" % (params.waybill, params.goods_received_note))
+                    return web.seeother("/warehousedata")
+                session.wdata_err = ""
                 r = db.query(
                     "INSERT INTO national_delivery_log (po_number, funding_source, manufacturer, "
                     "made_in, batch_number, nets_type, nets_size, nets_color, quantity_bales, "
@@ -171,7 +182,7 @@ class WarehouseData:
                 if r:
                     data_id = r[0]['id']
                     log_dict = {
-                        'logtype': 'Web', 'action': 'Create', 'actor': session.username,
+                        'logtype': 'Warehouse', 'action': 'Create', 'actor': session.username,
                         'ip': web.ctx['ip'],
                         'descr': 'Added warehouse data entry id:%s, Waybill:%s, Qty (bales):%s' % (
                             data_id, params.waybill, params.quantity),
