@@ -29,9 +29,9 @@ def absolute(path):
 config = {
     'db_name': 'llin',
     'db_host': 'localhost',
-    'db_user': 'postgres',
-    'db_passwd': 'postgres',
-    'db_port': '5432',
+    'db_user': '',
+    'db_passwd': '',
+    'db_port': '',
     'logfile': '/tmp/llin-web.log',
     # Network RegEx for Kannel logs
     'network_regex': {
