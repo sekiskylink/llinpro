@@ -282,11 +282,13 @@
                                         <td>
                                             <a href="/warehousedata?ed={{ d.id }}" class="btn btn-info btn-xs" value={{ d.id }}>
                                                 <i title="Edit" class="fa fa-edit"></i></a>
-                                            &nbsp;&nbsp;&nbsp;
+                                            &nbsp;&nbsp;
                                             <button class="btn btn-danger btn-xs delete_btn" id={{ d.id}}><i class="fa fa-trash-o"></i></button>
-                                            &nbsp;&nbsp;&nbsp;
-                                            <a href="/warehousedata" class="btn btn-white btn-bitbucket btn-xs">
-                                                <i title="Details" class="fa fa-list-alt"></i></a>
+                                            &nbsp;&nbsp;
+                                            <button type="button" class="btn btn-white btn-xs details_btn" id="{{d.id}}" data-toggle="modal"
+                                                data-target="#myModal2">
+                                                 <i title="Details" class="fa fa-list-alt"></i>
+                                            </button>
                                         </td>
                                     </tr>
                                 {% endfor %}
@@ -298,6 +300,24 @@
         </div>
     </div>
     <!-- END DATA TABLE -->
+    <div class="modal inmodal" id="myModal2" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content animated flipInY">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span>
+                        <span class="sr-only">Close</span></button>
+                        <h4 class="modal-title">Warehouse Data Details</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row" id="modal_res">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-white" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
     {% else %}
         {{ busted() }}
     {% endif %}
@@ -340,7 +360,8 @@
                 dom: 'Bfrtip',
                 buttons: [
                     'copy', 'csv', 'excel', 'pdf', 'print'
-                ]
+                ],
+                pageLength: 25
             });
             $('.input-group.date').datepicker({
                 todayBtn: "linked",

@@ -586,14 +586,20 @@ CREATE VIEW registration_forms_view AS
     WHERE
         a.id = b.reporter_id AND c.id = a.reporting_location;
 
+DROP VIEW IF EXISTS national_delivery_log_view;
 CREATE VIEW national_delivery_log_view AS
     SELECT a.id, a.po_number, d.name as made_in, a.batch_number,
     a.nets_type, a.nets_size, a.nets_color, a.quantity_bales, a.quantity,
-    a.entry_date, a.waybill, a.goods_received_note,
-    a.warehouse_branch, a.sub_warehouse, a.nda_samples,
-    a.nda_sampling_date, a.nda_conditional_release_date,
-    a.nda_testing_result_date, a.unbs_samples,
-    a.unbs_sampling_date, a.remarks, a.created_by, a.created, a.updated,
+    to_char(a.entry_date, 'YYYY-MM-DD') as entry_date, a.waybill,
+    a.goods_received_note, a.warehouse_branch, a.sub_warehouse, a.nda_samples,
+    to_char(a.nda_sampling_date, 'YYYY-MM-DD') as nda_sampling_date,
+    to_char(a.nda_conditional_release_date, 'YYYY-MM-DD') as nda_conditional_release_date,
+    to_char(a.nda_testing_result_date,'YYYY-MM-DD') as nda_testing_result_date,
+    a.unbs_samples,
+    to_char(a.unbs_sampling_date, 'YYYY-MM-DD') as unbs_sampling_date,
+    a.remarks, a.created_by,
+    to_char(a.created, 'YYYY-MM-DD') as created,
+    to_char(a.updated, 'YYYY-MM-DD') as updated,
     b.name as manufacturer_name,
     c.name as funding_source_name,
     e.name as warehouse, f.name as branch_name

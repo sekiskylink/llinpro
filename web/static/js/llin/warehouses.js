@@ -20,4 +20,14 @@ $(function(){
             'json'
         );
     });
+
+    $('.details_btn').click(function(){
+        id_val = $(this).attr('id');
+        $.get(
+            '/api/v1/warehouserecord/' + id_val,
+            {},
+            function(data){
+                $('#modal_res').html(data);
+            });
+    });
 });
