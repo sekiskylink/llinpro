@@ -44,6 +44,7 @@ config = {
     # 'default_api_uri': 'http://hiwa.LLIN.co.ug/api/v1/contacts.json',
     'default_api_uri': 'http://localhost:8000/api/v1/contacts.json',
     'api_token': 'c8cde9dbbdda6f544018e9321d017e909b28ec51',
+    'api_url': 'http://localhost:8000/api/v1/'
 }
 
 try:
