@@ -184,7 +184,7 @@
                 </div>
                 <div class="ibox-content">
                     <div class="table-responsive">
-                        <table class="table table-striped table-bordered table-hover dataTables-example" >
+                        <table class="table table-striped table-bordered table-hover dataTables-example" id="mydata">
                             <thead>
                                 <tr>
                                     <th>#</th>
@@ -250,11 +250,12 @@
         <script src="/static/js/llin/reporters.js"></script>
         <script>
            $(document).ready(function() {
-            $('.dataTables-example').DataTable({
+            $('#mydata').DataTable({
                 dom: 'Bfrtip',
                 buttons: [
                     'copy', 'csv', 'excel', 'pdf', 'print'
-                ]
+                ],
+                pageLength: 25
                 /*
                 "dom": 'lTfigt',
                 "tableTools": {
@@ -290,12 +291,17 @@
                                 'json'
                             );
                             swal("Deleted!", "Reporter has been deleted." + del_id, "success");
+                            return false;
                         } else {
-                            swal("Cancelled", "Reporter details are safe :)", "error");
+                            swal("Cancelled", "Reporter details are safe!", "error");
                             return false;
                         }
                     });
-        });
+            });
+
+            $('#mydata').on( 'page.dt', function () {
+                alert('gwe');
+            } );
 
         });
         </script>

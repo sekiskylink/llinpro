@@ -7,6 +7,13 @@ class Dashboard:
     def GET(self):
         params = web.input(page=1, ed="", d_id="")
         edit_val = params.ed
+        total_nets = db.query("SELECT SUM(quantity_bales) as total FROM national_delivery_log")
+        if total_nets:
+            total_nets = total_nets[0]
+        r = db.query("SELECT SUM(quantity_bales) AS total FROM distribution_log_w2sc_view")
+        sc_dist = r[0].total if r else 0
+        r = db.query("SELECT count(distinct id) FROM distribution_log_w2sc_view")
+        sc_count = r[0].count or 0
         l = locals()
         del l['self']
         return render.dashboard(**l)

@@ -136,6 +136,7 @@ class Reporters:
                         "Reporter with Telephone:%s already registered" % params.telephone
                     )
                     return web.seeother("/reporters")
+                session.rdata_err = ""
                 r = db.query(
                     "INSERT INTO reporters (firstname, lastname, telephone, email, "
                     " reporting_location, distribution_point, national_id, alternate_tel, uuid, created_by) VALUES "

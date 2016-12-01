@@ -144,3 +144,70 @@ class SerialsEndpoint:
         for i in r:
             ret.append(dict(i))
         return json.dumps(ret)
+
+
+class WarehouseRecord:
+    def GET(self, id):
+        # web.header("Content-Type", "application/json; charset=utf-8")
+        r = db.query(
+            "SELECT po_number, made_in, funding_source_name, manufacturer_name, nets_type, nets_color, "
+            "nets_size, waybill, goods_received_note, warehouse, branch_name, sub_warehouse, "
+            "quantity_bales, quantity, entry_date, "
+            "nda_samples, nda_sampling_date, nda_conditional_release_date, nda_testing_result_date, "
+            "unbs_samples, unbs_sampling_date, remarks FROM national_delivery_log_view WHERE id = $id", {'id': id})
+        ret = {}
+        html_str = '<table class="table table-striped table-bordered table-hover">'
+        html_str += "<thead><tr><th>Field</th><th>Value</th></tr></thead><tbody>"
+        if r:
+            ret = r[0]
+            html_str += "<tr><td>PO Number</td><td>%s</td></tr>" % ret['po_number']
+            html_str += "<tr><td>Funding Source</td><td>%s</td></tr>" % ret['funding_source_name']
+            html_str += "<tr><td>Manufacturer</td><td>%s</td></tr>" % (ret['manufacturer_name'] + " (" + ret['made_in'] + ")")
+            html_str += "<tr><td>Net Info</td><td>%s</td></tr>" % (
+                "Type: " + ret['nets_type'] + ", Color: " + ret['nets_color'] + ", Size: " + ret['nets_size'])
+            html_str += "<tr><td>Waybill</td><td>Waybill: %s, GRN: %s</td></tr>" % (
+                ret['waybill'], ret['goods_received_note'])
+            # html_str += "<tr><td>Good Received Note</td><td>%s</td></tr>" % ret['goods_received_note']
+            html_str += "<tr><td>Quantity</td><td>%s</td></tr>" % (
+                "Bales: " + str(ret['quantity_bales']) + ", Nets: " + str(ret['quantity']))
+            html_str += "<tr><td>Warehouse</td><td>%s</td></tr>" % (
+                ret['warehouse'] + " - (" + ret['branch_name'] + ") => " + ret['sub_warehouse'])
+            html_str += "<tr><td>Entry Date</td><td>%s</td></tr>" % (ret['entry_date'])
+            html_str += "<tr><td>UNBS </td><td>Samples: %s, Sampling Date: %s</td></tr>" % (
+                ret['unbs_samples'], ret['unbs_sampling_date'])
+            html_str += "<tr><td>NDA </td><td>Samples: %s, Sampling Date: %s</td></tr>" % (
+                ret['nda_samples'], ret['nda_sampling_date'])
+            html_str += "<tr><td>NDA Cond. Release Date</td><td>%s</td></tr>" % (ret['nda_conditional_release_date'])
+            html_str += "<tr><td>NDA Testing Result Date</td><td>%s</td></tr>" % (ret['nda_testing_result_date'])
+            html_str += "<tr><td>Remarks</td><td>%s</td></tr>" % (ret['remarks'])
+        html_str += "</tbody></table>"
+
+        return html_str
+
+
+class DistributionRecord:
+    def GET(self, id):
+        r = db.query("SELECT * FROM distribution_log_w2sc_view WHERE id = $id", {'id': id})
+        html_str = '<table class="table table-striped table-bordered table-hover">'
+        html_str += "<thead><tr><th>Field</th><th>Value</th></tr></thead><tbody>"
+        if r:
+            ret = r[0]
+            html_str += "<tr><td>District</td><td>%s</td></tr>" % ret['district']
+            html_str += "<tr><td>Sub County</td><td>%s</td></tr>" % ret['destination']
+            html_str += "<tr><td>Release Order</td><td>%s</td></tr>" % ret['release_order']
+            html_str += "<tr><td>Waybill</td><td>%s</td></tr>" % ret['waybill']
+            html_str += "<tr><td>Quantity</td><td>Bales: %s, Nets: %s</td></tr>" % (ret['quantity_bales'], ret['quantity_nets'])
+            html_str += "<tr><td>Warehouse</td><td>%s (%s)</td></tr>" % (ret['warehouse'], ret['branch'])
+            html_str += "<tr><td>Departure Date</td><td>%s</td></tr>" % ret['departure_date']
+            html_str += "<tr><td>Departure Time</td><td>%s</td></tr>" % ret['departure_time']
+            html_str += "<tr><td>Quantity Received</td><td>%s</td></tr>" % ret['quantity_received']
+            html_str += "<tr><td>Driver</td><td>Name: %s, Tel:%s</td></tr>" % (ret['delivered_by'], ret['telephone'])
+            html_str += "<tr><td>Remarks</td><td>%s</td></tr>" % ret['remarks']
+            if ret['is_delivered']:
+                label = "<span class='label label-primary'>Delivered</span>"
+                html_str += "<tr><td>Delivered?</td><td>%s</td></tr>" % label
+            else:
+                label = "<span class='label label-danger'>Not Delivered</span>"
+                html_str += "<tr><td>Delivered?</td><td>%s</td></tr>" % label
+        html_str += "</tbody></table>"
+        return html_str

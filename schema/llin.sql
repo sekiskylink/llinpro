@@ -315,6 +315,8 @@ CREATE TABLE reporters(
     created TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
+CREATE INDEX reporters_idx1 ON reporters(telephone);
+CREATE INDEX reporters_idx2 ON reporters(alternate_tel);
 
 CREATE TABLE reporter_groups(
     id SERIAL PRIMARY KEY NOT NULL,
@@ -398,19 +400,64 @@ CREATE TABLE national_delivery_log(
     created TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
+CREATE INDEX national_delivery_log_idx1 ON national_delivery_log(waybill);
+CREATE INDEX national_delivery_log_idx2 ON national_delivery_log(goods_received_note);
+CREATE INDEX national_delivery_log_idx3 ON national_delivery_log(entry_date);
+CREATE INDEX national_delivery_log_idx4 ON national_delivery_log(funding_source);
 
 CREATE TABLE distribution_log(
     id BIGSERIAL PRIMARY KEY NOT NULL,
     source TEXT CHECK (source IN ('national', 'subcounty', 'dp', 'village')),
     dest TEXT CHECK (dest IN ('subcounty', 'dp', 'village', 'household')),
+    release_order TEXT NOT NULL DEFAULT '',
     waybill TEXT NOT NULL DEFAULT '',
-    opening_bal NUMERIC NOT NULL DEFAULT 0,
-    distributed_by INTEGER REFERENCES reporters(id),
+    quantity_bales NUMERIC NOT NULL DEFAULT 0, -- qty sent in bales
+    quantity_nets NUMERIC NOT NULL DEFAULT 0, -- qty total nets
+    warehouse_branch INTEGER REFERENCES warehouse_branches(id), --source warehouse branch
+    departure_date DATE,
+    departure_time TIME,
+    delivered_by INTEGER REFERENCES reporters(id),
     received_by INTEGER REFERENCES reporters(id),
-    quantity NUMERIC NOT NULL DEFAULT 0,
+    destination BIGINT REFERENCES locations(id),
+    track_no_plate TEXT NOT NULL DEFAULT '',
+    remarks TEXT NOT NULL DEFAULT '',
+    arrival_date DATE,
+    arrival_time TIME,
+    is_delivered BOOLEAN DEFAULT 'f',
+    is_received BOOLEAN DEFAULT 'f',
+    has_variance BOOLEAN DEFAULT 'f',
+    quantity_received NUMERIC NOT NULL DEFAULT 0, -- qty received by reporter
     created_by INTEGER REFERENCES users(id),
-    created TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+    created TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE INDEX distribution_log_idx1 ON distribution_log(waybill);
+CREATE INDEX distribution_log_idx2 ON distribution_log(source);
+CREATE INDEX distribution_log_idx3 ON distribution_log(dest);
+CREATE INDEX distribution_log_idx4 ON distribution_log(departure_date);
+CREATE INDEX distribution_log_idx5 ON distribution_log(is_delivered);
+CREATE INDEX distribution_log_idx6 ON distribution_log(warehouse_branch);
+
+DROP VIEW IF EXISTS distribution_log_w2sc_view;
+CREATE VIEW distribution_log_w2sc_view AS
+    -- view to show distribution from warehouse to subcounty
+    SELECT a.id, a.release_order, a.waybill, a.quantity_bales,
+        a.quantity_nets, b.name as warehouse, c.name as branch,
+        a.departure_date, a.departure_time,
+        get_location_name(a.destination) as destination,
+        get_district(a.destination) as district, a.remarks,
+        a.arrival_date, a.arrival_time, a.quantity_received,
+        a.is_delivered, a.is_received, a.created_by,
+        d.firstname as delivered_by, d.telephone,
+        to_char(a.created, 'YYYY-MM-DD') as created,
+        to_char(a.updated, 'YYYY-MM-DD') as updated
+    FROM
+        distribution_log a, warehouses b, warehouse_branches c, reporters d
+    WHERE
+        a.source = 'national' AND a.dest = 'subcounty'
+        AND a.warehouse_branch = c.id AND (b.id = c.warehouse_id)
+        AND a.delivered_by = d.id;
 
 CREATE TABLE registration_forms(
     id SERIAL PRIMARY KEY NOT NULL,

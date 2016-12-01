@@ -1,5 +1,5 @@
 {% extends "layout.html" %}
-{% from 'layout.html' import navbar, myscripts %}
+{% from 'layout.html' import navbar, myscripts, err %}
 
 {% block title %}LLIN.::.Dispatch{% endblock%}
 {% block stylesheets %}
@@ -7,6 +7,12 @@
     <link href="/static/css/plugins/dataTables/dataTables.bootstrap.css" rel="stylesheet">
     <link href="/static/css/plugins/dataTables/dataTables.responsive.css" rel="stylesheet">
     <link href="/static/css/plugins/dataTables/dataTables.tableTools.min.css" rel="stylesheet">
+    <link href="/static/css/plugins/clockpicker/clockpicker.css" rel="stylesheet">
+    <link href="/static/css/plugins/datapicker/datepicker3.css" rel="stylesheet">
+    <link href="/static/js/plugins/Buttons-1.1.2/css/buttons.dataTables.min.css" rel="stylesheet">
+
+    <!-- Sweet Alert -->
+    <link href="/static/css/plugins/sweetalert/sweetalert.css" rel="stylesheet">
 {% endblock %}
 
 {% block nav %}
@@ -16,6 +22,8 @@
 {% endblock %}
 
 {% block content %}
+    {{ err(ses.ddata_err)}}
+
     <form role="form" method="post" action="" class="form-horizontal" data-toggle="validator">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
         <div class="row">
@@ -56,25 +64,24 @@
                                 </div>
                                 <div class="form-group"><label for="waybill" class="col-lg-3 control-label">Waybill:</label>
                                     <div class="col-lg-9">
-                                        <input name="waybill" id="release_order" type="text" value="{{ waybill }}" class="form-control" required/>
+                                        <input name="waybill" id="waybill" type="text" value="{{ waybill }}" class="form-control" required/>
                                     </div>
                                 </div>
-                                <div class="form-group"><label for="quantity" class="col-lg-3 control-label">Quantity:</label>
+                                <div class="form-group"><label for="quantity_bales" class="col-lg-3 control-label">Quantity (Bales):</label>
                                     <div class="col-lg-9">
-                                        <input name="release_order" id="quantity" type="text" value="{{ quantity }}" class="form-control" required/>
+                                        <input name="quantity_bales" id="quantity_bales" type="number" value="{{ quantity }}" class="form-control" required/>
                                     </div>
                                 </div>
-
-                                <!--
-                                <div class="form-group"><label for="" class="col-lg-2 control-label"></label>
-                                    <div class="col-lg-10">
+                                <div class="form-group"><label for="remarks" class="col-lg-3 control-label">Remarks:</label>
+                                    <div class="col-lg-9">
+                                        <textarea name="remarks" id="remarks" type="text" value="{{ remarks }}" class="form-control"></textarea>
                                     </div>
                                 </div>
-                                <div class="form-group">
-                                    <div class="col-lg-offset-2 col-lg-10">
-                                    </div>
-                                </div>
-                                -->
+                                <br/>
+                                <br/>
+                                <br/>
+                                <br/>
+                                <br/>
                             </div>
                         </div>
                     </div>
@@ -93,41 +100,62 @@
                         </div>
                         <div class="ibox-content">
                             <div class="row">
-                                <div class="form-group"><label for="warehouse" class="col-lg-3 control-label">Warehouse:</label>
-                                    <div class="col-lg-9">
+                                <div class="form-group"><label for="warehouse" class="col-lg-5 control-label">Warehouse:</label>
+                                    <div class="col-lg-7 input-group">
                                         <select name="warehouse" id="warehouse" class="form-control" required>
                                             <option value="">Select Warehouse</option>
                                             {% for w in warehouses %}
-                                            <option value="{{ w.id}}">{{ w.name}}</option>
+                                                <option value="{{ w.id}}" {%if w.id == warehouse %}selected="yes"{% endif%}>{{ w.name}}</option>
                                             {% endfor %}
                                         </select>
                                     </div>
                                 </div>
-                                <div class="form-group"><label for="branch" class="col-lg-3 control-label">Warehouse Branch:</label>
-                                    <div class="col-lg-9">
-                                        <select name="branch" id="branch" class="form-control" required>
+                                <div class="form-group"><label for="warehouse_branch" class="col-lg-5 control-label">Warehouse Branch:</label>
+                                    <div class="col-lg-7 input-group">
+                                        <select name="warehouse_branch" id="warehouse_branch" class="form-control" required>
                                             <option value="">Select Warehouse Branch</option>
+                                            {% for b in branches %}
+                                                <option value="{{ b.id}}" {%if b.id == warehouse_branch %}selected="yes"{% endif%}>{{ b.name}}</option>
+                                            {% endfor %}
                                         </select>
                                     </div>
                                 </div>
 
-                                <div class="form-group"><label for="" class="col-lg-3 control-label">:</label>
-                                    <div class="col-lg-9">
-                                        <input name="release_order" id="" type="text" value="{{ '' }}" class="form-control" required/>
+                                <div class="form-group"><label for="departure_date" class="col-lg-5 control-label">Departure Date:</label>
+                                    <div class="col-lg-7 input-group date">
+                                        <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                        <input name="departure_date" id="departure_date" type="text" value="{{ departure_date }}"
+                                        placeholder="YYYY-MM-DD" readonly class="form-control" required/>
                                     </div>
                                 </div>
-                                <div class="form-group"><label for="waybill" class="col-lg-3 control-label">:</label>
-                                    <div class="col-lg-9">
-                                        <input name="waybill" id="release_order" type="text" value="{{ '' }}" class="form-control" required/>
+                                <div class="form-group"><label for="departure_time" class="col-lg-5 control-label">Departure Time:</label>
+                                    <div class="col-lg-7 input-group clockpicker" data-placement="left" data-align="top" data-autoclose="true">
+                                        <span class="input-group-addon">
+                                            <span class="fa fa-clock-o"></span>
+                                        </span>
+                                        <input name="departure_time" id="departure_time" type="text" value="{{ departure_time}}"
+                                            readonly class="form-control">
                                     </div>
                                 </div>
-                                <div class="form-group"><label for="" class="col-lg-3 control-label">:</label>
-                                    <div class="col-lg-9">
-                                        <input name="release_order" id="quantity" type="text" value="{{ quantity }}" class="form-control" required/>
+                                <div class="form-group"><label for="driver" class="col-lg-5 control-label">Driver Name:</label>
+                                    <div class="col-lg-7 input-group">
+                                        <input name="driver" id="driver" type="text" value="{{ driver }}" class="form-control"/>
+                                    </div>
+                                </div>
+                                <div class="form-group"><label for="driver_tel" class="col-lg-5 control-label">Driver Telephone:</label>
+                                    <div class="col-lg-7 input-group">
+                                        <input name="driver_tel" id="driver_tel" type="text" value="{{ driver_tel }}"
+                                        maxlength="13" placeholder="256782XXXXXX" pattern="^\+?256(3[19]|41|7[015789])[0-9]{7}$" class="form-control"/>
+                                    </div>
+                                </div>
+                                <div class="form-group"><label for="no_plate" class="col-lg-5 control-label">Track No. Plate:</label>
+                                    <div class="col-lg-7 input-group">
+                                        <input name="track_no_plate" id="track_no_plate" type="text" value="{{ track_no_plate }}"
+                                        maxlength="7" pattern="^[a-zA-Z0-9]{7}$" class="form-control"/>
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <div class="col-lg-offset-3 col-lg-10">
+                                    <div class="col-lg-offset-5 col-lg-7">
                                         <button class="btn btn-sm btn-primary" type="submit">Dispatch</button>
                                     </div>
                                 </div>
@@ -159,23 +187,36 @@
                                     <th>#</th>
                                     <th>District</th>
                                     <th>Sub County</th>
-                                    <th>Quantity</th>
+                                    <th>Quantity (Bales)</th>
                                     <th>Waybill</th>
+                                    <th>Departure Date</th>
+                                    <th>Status</th>
                                     <th>Action</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {% for d in dpoints %}
+                                {% for d in distribution_log %}
                                     <tr>
                                         <td>{{ loop.index }}</td>
-                                        <td>{{ d.name }} </td>
-                                        <td>{{ d.subcounty }}</td>
-                                        <td>{{ d.villages }}</td>
+                                        <td>{{ d.district }} </td>
+                                        <td>{{ d.destination }}</td>
+                                        <td>{{ d.quantity_bales }}</td>
+                                        <td>{{ d.waybill }}</td>
+                                        <td>{{ d.departure_date }}</td>
                                         <td>
-                                            <a href="/distributionpoints?ed={{ d.id }}" class="" value={{ d.id }}><i class="fa fa-edit"></i></a>
-                                            &nbsp;&nbsp;&nbsp;
-                                            <a href="/distributionpoints?d_id={{d.id }}&page={{ page }}"  class="gwe" value={{ d.id }}>
-                                                        <i class="fa fa-trash-o"></i></a>
+                                            <span class="label label-primary"><i class="fa fa-check"></i></span>
+                                            <span class="label label-danger"><i class="fa fa-question"></i></span>
+                                        </td>
+                                        <td>
+                                            <a href="/dispatch?ed={{ d.id }}" class="btn btn-info btn-xs" value={{ d.id }}>
+                                                <i title="Edit" class="fa fa-edit"></i></a>
+                                            &nbsp;&nbsp;
+                                            <button class="btn btn-danger btn-xs delete_btn" id={{ d.id}}><i class="fa fa-trash-o"></i></button>
+                                            &nbsp;&nbsp;
+                                            <button type="button" class="btn btn-white btn-xs details_btn" id="{{d.id}}" data-toggle="modal"
+                                                data-target="#myModal2">
+                                                 <i title="Details" class="fa fa-list-alt"></i>
+                                            </button>
                                         </td>
                                     </tr>
                                 {% endfor %}
@@ -187,6 +228,24 @@
         </div>
     </div>
     <!-- END DATA TABLE -->
+    <div class="modal inmodal" id="myModal2" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content animated flipInY">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span>
+                        <span class="sr-only">Close</span></button>
+                        <h4 class="modal-title">Distribution Log Details</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row" id="modal_res">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-white" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
 {% endblock %}
 
 {% block scripts %}
@@ -197,15 +256,80 @@
         <script src="/static/js/plugins/dataTables/dataTables.responsive.js"></script>
         <script src="/static/js/plugins/dataTables/dataTables.tableTools.min.js"></script>
 
+        <script type="text/javascript" src="/static/js/plugins/Buttons-1.1.2/js/dataTables.buttons.min.js"></script>
+        <script type="text/javascript" src="/static/js/plugins/Buttons-1.1.2/js/buttons.flash.min.js"></script>
+        <script type="text/javascript" src="/static/js/plugins/jszip.min.js"></script>
+        <script type="text/javascript" src="/static/js/plugins/pdfmake.min.js"></script>
+        <script type="text/javascript" src="/static/js/plugins/vfs_fonts.js"></script>
+        <script type="text/javascript" src="/static/js/plugins/Buttons-1.1.2/js/buttons.html5.min.js"></script>
+        <script type="text/javascript" src="/static/js/plugins/Buttons-1.1.2/js/buttons.print.min.js"></script>
+
         <script src="/static/js/plugins/bootstrap-validator/dist/validator.min.js"></script>
+
+        <!-- Sweet alert -->
+        <script src="/static/js/plugins/sweetalert/sweetalert.min.js"></script>
+
+        <!-- Clock picker -->
+        <script src="/static/js/plugins/clockpicker/clockpicker.js"></script>
+
+        <!-- Data picker -->
+        <script src="/static/js/plugins/datapicker/bootstrap-datepicker.js"></script>
+
+        <script src="/static/js/llin/dispatch.js"></script>
         <script src="/static/js/llin/dpoints.js"></script>
         <script>
            $(document).ready(function() {
             $('.dataTables-example').DataTable({
-                "dom": 'lTfigt',
-                "tableTools": {
-                    "sSwfPath": "/static/js/plugins/dataTables/swf/copy_csv_xls_pdf.swf"
-                }
+                dom: 'Bfrtip',
+                buttons: [
+                    'copy', 'csv', 'excel', 'pdf', 'print'
+                ],
+                pageLength: 25
+            });
+
+            $('.input-group.date').datepicker({
+                todayBtn: "linked",
+                keyboardNavigation: false,
+                forceParse: false,
+                calendarWeeks: true,
+                autoclose: true,
+                format: "yyyy-mm-dd"
+            });
+
+            $('.clockpicker').clockpicker();
+
+            $('.delete_btn').click(function () {
+                del_id = $(this).attr('id');
+                table_row = $(this).closest('tr');
+                swal({
+                        title: "Are you sure?",
+                        text: "Your will not be able to recover this data",
+                        type: "warning",
+                        showCancelButton: true,
+                        confirmButtonColor: "#DD6B55",
+                        confirmButtonText: "Yes, delete it!",
+                        cancelButtonText: "No, cancel plx!",
+                        closeOnConfirm: false,
+                        closeOnCancel: false },
+                    function (isConfirm) {
+                        if (isConfirm) {
+                            $.get(
+                                '/dispatch',
+                                {d_id: del_id, caller: 'api'},
+                                function(data){
+                                    if (data.message == "success"){
+                                        /* remove row from table */
+                                        table_row.remove();
+                                    };
+                                },
+                                'json'
+                            );
+                            swal("Deleted!", "Distribution Log data has been deleted." + del_id, "success");
+                        } else {
+                            swal("Cancelled", "Distribution Log data details are safe :)", "error");
+                            return false;
+                        }
+                    });
             });
 
         });
