@@ -1,5 +1,8 @@
 from settings import config
 import requests
+import web
+import re
+import base64
 
 
 def lit(**keywords):
@@ -42,3 +45,12 @@ def audit_log(db, log_dict={}):
     )
     db.query(sql, log_dict)
     return None
+
+
+def get_basic_auth_credentials():
+    auth = web.ctx.env.get('HTTP_AUTHORIZATION')
+    if not auth:
+        return (None, None)
+    auth = re.sub('^Basic ', '', auth)
+    username, password = base64.decodestring(auth).split(':')
+    return username, password
