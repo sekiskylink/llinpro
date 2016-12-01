@@ -8,6 +8,9 @@
     <link href="/static/css/plugins/dataTables/dataTables.responsive.css" rel="stylesheet">
     <link href="/static/css/plugins/dataTables/dataTables.tableTools.min.css" rel="stylesheet">
     <link href="/static/js/plugins/Buttons-1.1.2/css/buttons.dataTables.min.css" rel="stylesheet">
+
+    <!-- Sweet Alert -->
+    <link href="/static/css/plugins/sweetalert/sweetalert.css" rel="stylesheet">
 {% endblock %}
 
 {% block nav %}
@@ -143,10 +146,10 @@
                                         <td>{{ d.subcounty }}</td>
                                         <td>{{ d.villages }}</td>
                                         <td>
-                                            <a href="/distributionpoints?ed={{ d.id }}" class="" value={{ d.id }}><i class="fa fa-edit"></i></a>
+                                            <a href="/distributionpoints?ed={{ d.id }}" class="btn btn-primary btn-xs" value={{ d.id }}>
+                                                <i class="fa fa-edit"></i></a>
                                             &nbsp;&nbsp;&nbsp;
-                                            <a href="/distributionpoints?d_id={{d.id }}&page={{ page }}"  class="gwe" value={{ d.id }}>
-                                                        <i class="fa fa-trash-o"></i></a>
+                                            <button class="btn btn-danger btn-xs delete_btn" id={{ d.id}}><i class="fa fa-trash-o"></i></button>
                                         </td>
                                     </tr>
                                 {% endfor %}
@@ -177,6 +180,9 @@
         <script type="text/javascript" src="/static/js/plugins/Buttons-1.1.2/js/buttons.print.min.js"></script>
 
         <script src="/static/js/plugins/bootstrap-validator/dist/validator.min.js"></script>
+        <!-- Sweet alert -->
+        <script src="/static/js/plugins/sweetalert/sweetalert.min.js"></script>
+
         <script src="/static/js/llin/dpoints.js"></script>
         <script>
            $(document).ready(function() {
@@ -184,13 +190,44 @@
                 dom: 'Bfrtip',
                 buttons: [
                     'copy', 'csv', 'excel', 'pdf', 'print'
-                ]
-                /*
-                "dom": 'lTfigt',
-                "tableTools": {
-                    "sSwfPath": "/static/js/plugins/dataTables/swf/copy_csv_xls_pdf.swf"
-                }
-                */
+                ],
+                pageLength: 25
+
+            });
+
+            $('.delete_btn').click(function () {
+                del_id = $(this).attr('id');
+                table_row = $(this).closest('tr');
+                swal({
+                        title: "Are you sure?",
+                        text: "Your will not be able to recover all details of this distribution point",
+                        type: "warning",
+                        showCancelButton: true,
+                        confirmButtonColor: "#DD6B55",
+                        confirmButtonText: "Yes, delete it!",
+                        cancelButtonText: "No, cancel plx!",
+                        closeOnConfirm: false,
+                        closeOnCancel: false },
+                    function (isConfirm) {
+                        if (isConfirm) {
+                            $.get(
+                                '/reporters',
+                                {d_id: del_id, caller: 'api'},
+                                function(data){
+                                    if (data.message == "success"){
+                                        /* remove row from table */
+                                        table_row.remove();
+                                    };
+                                },
+                                'json'
+                            );
+                            swal("Deleted!", "Distribution Point has been deleted." + del_id, "success");
+                            return false;
+                        } else {
+                            swal("Cancelled", "Distribution Point details are safe!", "error");
+                            return false;
+                        }
+                    });
             });
 
         });
