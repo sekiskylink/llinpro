@@ -1,7 +1,7 @@
 import json
 from . import db
 import web
-from app.tools.utils import get_basic_auth_credentials, auth_user
+from app.tools.utils import get_basic_auth_credentials, auth_user, format_msisdn
 
 
 class LocationChildren:
@@ -106,10 +106,11 @@ class FormSerials:
             msg = msg_list[0].strip()
             if msg.startswith('.'):
                 msg = msg[1:]
-            phone = params.phone.replace('+', '')
+            phone = format_msisdn(params.phone.replace(' ', ''))
+            phone = phone.replace('+', '')
             r = db.query(
-                "SELECT id FROM reporters WHERE telephone = $tel "
-                "OR alternate_tel = $tel LIMIT 1", {'tel': phone})
+                "SELECT id FROM reporters WHERE replace(telephone, '+', '') = $tel "
+                "OR replace(alternate_tel, '+', '') = $tel LIMIT 1", {'tel': phone})
             if r and msg:
                 if len(msg) > 6:
                     return json.dumps({'message': 'Serial number longer than 6 characters'})

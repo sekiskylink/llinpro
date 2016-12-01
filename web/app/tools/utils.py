@@ -3,6 +3,19 @@ import requests
 import web
 import re
 import base64
+import phonenumbers
+
+
+def format_msisdn(msisdn=None):
+    """ given a msisdn, return in E164 format """
+    assert msisdn is not None
+    msisdn = msisdn.replace(' ', '')
+    num = phonenumbers.parse(msisdn, getattr(config, 'country', 'UG'))
+    is_valid = phonenumbers.is_valid_number(num)
+    if not is_valid:
+        return None
+    return phonenumbers.format_number(
+        num, phonenumbers.PhoneNumberFormat.E164)
 
 
 def lit(**keywords):
