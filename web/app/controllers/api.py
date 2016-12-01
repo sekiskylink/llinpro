@@ -1,6 +1,7 @@
 import json
 from . import db
 import web
+from app.tools.utils import get_basic_auth_credentials, auth_user
 
 
 class LocationChildren:
@@ -102,7 +103,7 @@ class FormSerials:
         msg_list = [v.get('value') for v in values if v.get('label') == 'msg']
         ret = "failed to register form"
         if msg_list:
-            msg = msg_list[0]
+            msg = msg_list[0].strip()
             if msg.startswith('.'):
                 msg = msg[1:]
             phone = params.phone.replace('+', '')
@@ -110,6 +111,8 @@ class FormSerials:
                 "SELECT id FROM reporters WHERE telephone = $tel "
                 "OR alternate_tel = $tel LIMIT 1", {'tel': phone})
             if r and msg:
+                if len(msg) > 6:
+                    return json.dumps({'message': 'Serial number longer than 6 characters'})
                 reporter_id = r[0].id
                 # check if form serial not captured yet
                 res = db.query("SELECT id FROM registration_forms WHERE serial_number = $serial", {'serial': msg})
@@ -127,6 +130,13 @@ class SerialsEndpoint:
     def GET(self, subcount_code):
         params = web.input(from_date="")
         web.header("Content-Type", "application/json; charset=utf-8")
+        username, password = get_basic_auth_credentials()
+        r = auth_user(db, username, password)
+        if not r[0]:
+            web.header('WWW-Authenticate', 'Basic realm="Auth API"')
+            web.ctx.status = '401 Unauthorized'
+            return json.dumps({'detail': 'Authentication failed!'})
+
         y = db.query("SELECT id FROM locations WHERE code = $code", {'code': subcount_code})
         location_id = 0
         if y:
