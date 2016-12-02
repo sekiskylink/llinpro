@@ -8,6 +8,17 @@ import psycopg2
 import psycopg2.extras
 from settings import config
 import phonenumbers
+import getopt
+import sys
+
+cmd = sys.argv[1:]
+opts, args = getopt.getopt(
+    cmd, 'd:',
+    [])
+from_date = '2016-11-01'
+for option, parameter in opts:
+    if option == '-d':
+        from_date = parameter
 
 
 def post_request(data, url=config['default_api_uri']):
@@ -70,11 +81,13 @@ cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
 cur.execute(
     "SELECT a.id, a.firstname || ' ' || a.lastname as name, a.telephone, a.alternate_tel, "
     "a.email, get_district(a.reporting_location) AS district, get_reporter_groups(a.id) AS role, "
-    "b.code as reporting_location FROM reporters a, locations b WHERE a.reporting_location = b.id"
+    "b.code as reporting_location FROM reporters a, locations b WHERE a.reporting_location = b.id "
+    "AND a.created >= %s", [from_date]
 )
 
 print format_msisdn('0782820208')
 res = cur.fetchall()
+print "==>", res
 if res:
     for r in res:
         print r
