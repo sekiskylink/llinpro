@@ -146,7 +146,7 @@ class SerialsEndpoint:
         # r = db.query("SELECT * FROM registration_forms_view WHERE location_code = $code", {'code': subcount_code})
         print location_id
         SQL = (
-            "SELECT firstname, lastname, telephone, location_name, location_code, "
+            "SELECT firstname, lastname, telephone, uuid, location_name, location_code, "
             "location_uuid, form_serial, location_id, email, created "
             " FROM registration_forms_view WHERE (location_id = $id "
             " OR location_id IN (SELECT id FROM get_descendants($id))) ")
