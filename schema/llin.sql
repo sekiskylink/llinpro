@@ -626,7 +626,7 @@ DROP VIEW IF EXISTS registration_forms_view;
 CREATE VIEW registration_forms_view AS
     SELECT
         a.firstname, a.lastname, a.email, a.uuid, a.telephone, a.alternate_tel,
-        b.serial_number as form_serial, to_char(b.created, 'YYYY-MM-DD HH:MI') as created,
+        b.serial_number as form_serial, to_char(b.created, 'YYYY-MM-DD HH24:MI') as created,
         b.created as cdate, c.name as location_name, c.code as location_code,
         c.uuid as location_uuid, c.id as location_id
     FROM
