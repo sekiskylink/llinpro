@@ -3,6 +3,7 @@
 CREATE EXTENSION IF NOT EXISTS pgcrypto;
 CREATE EXTENSION "uuid-ossp";
 CREATE EXTENSION plpythonu;
+CREATE EXTENSION hstore;
 
 -- webpy sessions
 CREATE TABLE sessions (
@@ -311,6 +312,7 @@ CREATE TABLE reporters(
     reporting_location BIGINT REFERENCES locations(id), --village
     distribution_point BIGINT REFERENCES distribution_points(id),
     uuid TEXT NOT NULL DEFAULT uuid_generate_v4(),
+    code TEXT NOT NULL DEFAULT '',
     created_by INTEGER REFERENCES users(id), -- like actor id
     created TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
@@ -466,8 +468,16 @@ CREATE TABLE registration_forms(
     created TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-
-
+-- used for scheduling messages
+CREATE TABLE schedules(
+    id SERIAL PRIMARY KEY NOT NULL,
+    params JSON NOT NULL DEFAULT '{}'::json,
+    run_time TIMESTAMP NOT NULL DEFAULT NOW(),
+    status TEXT NOT NULL DEFAULT 'ready',
+    created_by INTEGER REFERENCES users(id),
+    created TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
 
 --location stuff
 --INSERT INTO locationtree (name)

@@ -4,6 +4,18 @@ import web
 from app.tools.utils import get_basic_auth_credentials, auth_user, format_msisdn
 
 
+def get_webhook_msg(params, label='msg'):
+    """Returns value of given lable from rapidpro webhook data"""
+    values = json.loads(params['values'])  # only way we can get out Rapidpro values in webpy
+    msg_list = [v.get('value') for v in values if v.get('label') == label]
+    if msg_list:
+        msg = msg_list[0].strip()
+        if msg.startswith('.'):
+            msg = msg[1:]
+        return msg
+    return ""
+
+
 class LocationChildren:
     """Returns Children for a node """
     def GET(self, id):
@@ -99,31 +111,47 @@ class FormSerials:
     def POST(self):
         web.header("Content-Type", "application/json; charset=utf-8")
         params = web.input()
-        values = json.loads(params['values'])  # only way we can get out Rapidpro values in webpy
-        msg_list = [v.get('value') for v in values if v.get('label') == 'msg']
+        msg = get_webhook_msg(params, 'msg')  # here we get rapidpro value with label msg
         ret = "failed to register form"
-        if msg_list:
-            msg = msg_list[0].strip()
-            if msg.startswith('.'):
-                msg = msg[1:]
-            phone = format_msisdn(params.phone.replace(' ', ''))
-            phone = phone.replace('+', '')
-            r = db.query(
-                "SELECT id FROM reporters WHERE replace(telephone, '+', '') = $tel "
-                "OR replace(alternate_tel, '+', '') = $tel LIMIT 1", {'tel': phone})
-            if r and msg:
-                if len(msg) > 6:
-                    return json.dumps({'message': 'Serial number longer than 6 characters'})
-                reporter_id = r[0].id
-                # check if form serial not captured yet
-                res = db.query("SELECT id FROM registration_forms WHERE serial_number = $serial", {'serial': msg})
-                if not res:
-                    db.query(
-                        "INSERT INTO registration_forms (reporter_id, serial_number) "
-                        "VALUES ($reporter, $form) ", {'reporter': reporter_id, 'form': msg})
-                    ret = "registration form with serial: %s successfully recorded" % msg
-                else:
-                    ret = "registration form with serial: %s already registered" % msg
+
+        phone = format_msisdn(params.phone.replace(' ', ''))
+        phone = phone.replace('+', '')
+        r = db.query(
+            "SELECT id FROM reporters WHERE replace(telephone, '+', '') = $tel "
+            "OR replace(alternate_tel, '+', '') = $tel LIMIT 1", {'tel': phone})
+        if r and msg:
+            if len(msg) > 6:
+                return json.dumps({'message': 'Serial number longer than 6 characters'})
+            reporter_id = r[0].id
+            # check if form serial not captured yet
+            res = db.query("SELECT id FROM registration_forms WHERE serial_number = $serial", {'serial': msg})
+            if not res:
+                db.query(
+                    "INSERT INTO registration_forms (reporter_id, serial_number) "
+                    "VALUES ($reporter, $form) ", {'reporter': reporter_id, 'form': msg})
+                ret = "registration form with serial: %s successfully recorded" % msg
+            else:
+                ret = "registration form with serial: %s already registered" % msg
+        return json.dumps({"message": ret})
+
+
+class VhtCode:
+    def POST(self):
+        web.header("Content-Type", "application/json; charset=utf-8")
+        params = web.input()
+        msg = get_webhook_msg(params, 'msg')  # here we get rapidpro value with label msg
+        ret = "failed to record VHT number"
+        phone = params.phone.replace('+', '')
+        r = db.query(
+            "SELECT id FROM reporters WHERE replace(telephone, '+', '') = $tel "
+            "OR replace(alternate_tel, '+', '') = $tel LIMIT 1", {'tel': phone})
+        if r and msg:
+            reporter_id = r[0].id
+
+            if len(msg) > 2:
+                return json.dumps({'message': 'VHT number longer than 2 characters'})
+            db.query("UPDATE reporters SET code = $code WHERE id = $id", {'code': msg, 'id': reporter_id})
+            ret = "you have been recorded as VHT: %s" % msg
         return json.dumps({"message": ret})
 
 
@@ -143,8 +171,6 @@ class SerialsEndpoint:
         if y:
             location_id = y[0]['id']
 
-        # r = db.query("SELECT * FROM registration_forms_view WHERE location_code = $code", {'code': subcount_code})
-        print location_id
         SQL = (
             "SELECT firstname, lastname, telephone, uuid, location_name, location_code, "
             "location_uuid, form_serial, location_id, email, created "
@@ -161,7 +187,6 @@ class SerialsEndpoint:
 
 class WarehouseRecord:
     def GET(self, id):
-        # web.header("Content-Type", "application/json; charset=utf-8")
         r = db.query(
             "SELECT po_number, made_in, funding_source_name, manufacturer_name, nets_type, nets_color, "
             "nets_size, waybill, goods_received_note, warehouse, branch_name, sub_warehouse, "
