@@ -172,8 +172,8 @@ class SerialsEndpoint:
             location_id = y[0]['id']
 
         SQL = (
-            "SELECT firstname, lastname, telephone, uuid, location_name, location_code, "
-            "location_uuid, form_serial, location_id, email, created "
+            "SELECT firstname, lastname, telephone, uuid, reporter_code, location_name, "
+            "location_code, location_uuid, form_serial, location_id, email, created "
             " FROM registration_forms_view WHERE (location_id = $id "
             " OR location_id IN (SELECT id FROM get_descendants($id))) ")
         if params.from_date:
