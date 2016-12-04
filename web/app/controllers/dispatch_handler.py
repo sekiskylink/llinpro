@@ -1,7 +1,8 @@
 import web
 from . import csrf_protected, db, require_login, render, get_session
-from settings import QUANTITY_PER_BALE
-from app.tools.utils import audit_log
+from settings import QUANTITY_PER_BALE, config, SMS_OFFSET_TIME
+from app.tools.utils import audit_log, get_location_role_reporters, queue_sms, log_schedule, can_still_distribute
+import datetime
 
 
 class Dispatch:
@@ -14,6 +15,25 @@ class Dispatch:
         districts = db.query(
             "SELECT id, name FROM locations WHERE type_id = "
             "(SELECT id FROM locationtype WHERE name = 'district') ORDER by name")
+        if params.ed:
+            res = db.query(
+                "SELECT * FROM distribution_log WHERE id = $id", {'id': params.ed})
+            if res:
+                # get values to put in edit form
+                r = res[0]
+                dres = db.query(
+                    "SELECT firstname, telephone FROM reporters "
+                    "WHERE id = $id", {'id': r.delivered_by})
+                if dres:
+                    d = dres[0]
+                    driver = d['firstname']
+                    driver_tel = d['telephone']
+                subcounty = r.destination
+                release_order, waybill = (r.release_order, r.waybill)
+                quantity_bales, remarks = (r.quantity_bales, r.remarks)
+                departure_date, departure_time = (r.departure_date, r.departure_time)
+                track_no_plate = r.track_no_plate
+
         distribution_log = db.query(
             "SELECT * FROM distribution_log_w2sc_view WHERE created_by = $user "
             " ORDER by id DESC",
@@ -30,6 +50,7 @@ class Dispatch:
             quantity_bales="", warehouse="", warehouse_branch="", departure_date="",
             departure_time="", driver="", driver_tel="", remarks="", track_no_plate="")
         session = get_session()
+        current_time = datetime.datetime.now()
 
         with db.transaction():
             if params.ed:
@@ -70,6 +91,11 @@ class Dispatch:
                     audit_log(db, log_dict)
                 return web.seeother("/dispatch")
             else:
+                # check whether what we want to distribute is available in stock
+                if not can_still_distribute:
+                    session.ddata_err = ("You cannot distribute more than is available for distribution!")
+                    return web.seeother("/dispatch")
+
                 has_entry = db.query(
                     "SELECT id FROM distribution_log WHERE waybill=$waybill",
                     {'waybill': params.waybill})
@@ -113,6 +139,28 @@ class Dispatch:
                     })
                 if r:
                     log_id = r[0]['id']
+
+                    # sched_time allows to give distribution_log edits sometime #SMS_OFFSET_TIME
+                    sched_time = current_time + datetime.timedelta(minutes=SMS_OFFSET_TIME)
+
+                    district_reporters = get_location_role_reporters(db, params.district, config['district_reporters'])
+                    sms_params = {'text': 'test district SMS', 'to': ','.join(district_reporters)}
+                    sched_id = queue_sms(db, sms_params, sched_time, session.sesid)
+                    log_schedule(db, log_id, sched_id, 'district')
+                    # print "+=======+=======+===>", district_reporters
+
+                    national_reporters = get_location_role_reporters(db, 1, config['national_reporters'])
+                    sms_params = {'text': 'test national SMS', 'to': ','.join(national_reporters)}
+                    sched_id = queue_sms(db, sms_params, sched_time, session.sesid)
+                    log_schedule(db, log_id, sched_id, 'national')
+                    # print "*=======*=======*===>", national_reporters
+
+                    subcounty_reporters = get_location_role_reporters(db, params.subcounty, config['subcounty_reporters'])
+                    sms_params = {'text': 'test subcounty SMS', 'to': ','.join(subcounty_reporters)}
+                    sched_id = queue_sms(db, sms_params, sched_time, session.sesid)
+                    log_schedule(db, log_id, sched_id, 'subcounty')
+                    # print "@=======@=======@===>", subcounty_reporters
+
                     log_dict = {
                         'logtype': 'Distribution', 'action': 'Create', 'actor': session.username,
                         'ip': web.ctx['ip'],

@@ -374,6 +374,17 @@ CREATE TABLE funding_sources(
     updated TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
+-- used for scheduling messages
+CREATE TABLE schedules(
+    id SERIAL PRIMARY KEY NOT NULL,
+    params JSON NOT NULL DEFAULT '{}'::json,
+    run_time TIMESTAMP NOT NULL DEFAULT NOW(),
+    status TEXT NOT NULL DEFAULT 'ready',
+    created_by INTEGER REFERENCES users(id),
+    created TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
 CREATE TABLE national_delivery_log(
     id SERIAL PRIMARY KEY NOT NULL,
     po_number TEXT NOT NULL DEFAULT '',
@@ -441,6 +452,16 @@ CREATE INDEX distribution_log_idx4 ON distribution_log(departure_date);
 CREATE INDEX distribution_log_idx5 ON distribution_log(is_delivered);
 CREATE INDEX distribution_log_idx6 ON distribution_log(warehouse_branch);
 
+CREATE TABLE distribution_log_schedules(
+    id BIGSERIAL PRIMARY KEY NOT NULL,
+    distribution_log_id BIGINT REFERENCES distribution_log(id) ON DELETE CASCADE ON UPDATE CASCADE,
+    schedule_id BIGINT REFERENCES schedules(id) ON DELETE CASCADE ON UPDATE CASCADE,
+    level TEXT NOT NULL,
+    created TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(distribution_log_id, schedule_id, level)
+);
+
 DROP VIEW IF EXISTS distribution_log_w2sc_view;
 CREATE VIEW distribution_log_w2sc_view AS
     -- view to show distribution from warehouse to subcounty
@@ -450,7 +471,7 @@ CREATE VIEW distribution_log_w2sc_view AS
         get_location_name(a.destination) as destination,
         get_district(a.destination) as district, a.remarks,
         a.arrival_date, a.arrival_time, a.quantity_received,
-        a.is_delivered, a.is_received, a.created_by,
+        a.is_delivered, a.is_received, a.has_variance, a.created_by,
         d.firstname as delivered_by, d.telephone,
         to_char(a.created, 'YYYY-MM-DD') as created,
         to_char(a.updated, 'YYYY-MM-DD') as updated
@@ -468,16 +489,7 @@ CREATE TABLE registration_forms(
     created TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
--- used for scheduling messages
-CREATE TABLE schedules(
-    id SERIAL PRIMARY KEY NOT NULL,
-    params JSON NOT NULL DEFAULT '{}'::json,
-    run_time TIMESTAMP NOT NULL DEFAULT NOW(),
-    status TEXT NOT NULL DEFAULT 'ready',
-    created_by INTEGER REFERENCES users(id),
-    created TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
-);
+
 
 --location stuff
 --INSERT INTO locationtree (name)

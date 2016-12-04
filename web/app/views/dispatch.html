@@ -69,12 +69,12 @@
                                 </div>
                                 <div class="form-group"><label for="quantity_bales" class="col-lg-3 control-label">Quantity (Bales):</label>
                                     <div class="col-lg-9">
-                                        <input name="quantity_bales" id="quantity_bales" type="number" value="{{ quantity }}" class="form-control" required/>
+                                        <input name="quantity_bales" id="quantity_bales" type="number" value="{{ quantity_bales }}" class="form-control" required/>
                                     </div>
                                 </div>
                                 <div class="form-group"><label for="remarks" class="col-lg-3 control-label">Remarks:</label>
                                     <div class="col-lg-9">
-                                        <textarea name="remarks" id="remarks" type="text" value="{{ remarks }}" class="form-control"></textarea>
+                                        <textarea name="remarks" id="remarks" type="text"  class="form-control">{{ remarks}}</textarea>
                                     </div>
                                 </div>
                                 <br/>
@@ -204,8 +204,17 @@
                                         <td>{{ d.waybill }}</td>
                                         <td>{{ d.departure_date }}</td>
                                         <td>
-                                            <span class="label label-primary"><i class="fa fa-check"></i></span>
-                                            <span class="label label-danger"><i class="fa fa-question"></i></span>
+                                            {% if d.is_received %}
+                                                <span class="label label-primary"><i title="Received" class="fa fa-truck"></i> Received</span>
+                                            {% else %}
+                                                <span class="label label-danger"><i title="Received" class="fa fa-truck"></i> Not Received</span>
+                                            {% endif%}
+                                            &nbsp;&nbsp;
+                                            {% if d.has_variance %}
+                                                <span class="label label-danger"><i title="Variance" class="fa fa-question"></i> Has Variance</span>
+                                            {% else %}
+                                                <span class="label label-primary"><i title="Variance" class="fa fa-check"></i> No Variance</span>
+                                            {% endif%}
                                         </td>
                                         <td>
                                             <a href="/dispatch?ed={{ d.id }}" class="btn btn-info btn-xs" value={{ d.id }}>

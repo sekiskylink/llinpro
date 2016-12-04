@@ -4,6 +4,8 @@ import web
 import re
 import base64
 import phonenumbers
+import simplejson
+import psycopg2.extras
 
 
 def format_msisdn(msisdn=None):
@@ -67,3 +69,64 @@ def get_basic_auth_credentials():
     auth = re.sub('^Basic ', '', auth)
     username, password = base64.decodestring(auth).split(':')
     return username, password
+
+
+def get_location_role_reporters(db, location_id, roles=[], include_alt=True):
+    """Returns a contacts list of reporters of specified roles attached to a location
+    include_alt allows to add alternate telephone numbers to returned list
+    """
+    SQL = (
+        "SELECT telephone, alternate_tel FROM reporters_view2 WHERE "
+        "role IN (%s) " % ','.join(["'%s'" % i for i in roles]))
+    SQL += " AND reporting_location = $location"
+    res = db.query(SQL, {'location': location_id})
+    ret = []
+    if res:
+        for r in res:
+            telephone = r['telephone']
+            alternate_tel = r['alternate_tel']
+            if telephone:
+                ret.append(format_msisdn(telephone))
+            if alternate_tel and include_alt:
+                ret.append(format_msisdn(alternate_tel))
+    return list(set(ret))
+
+
+def queue_sms(db, params, run_time, user=None):  # params has the text, recipients and other params
+    res = db.query(
+        "INSERT INTO schedules (params, run_time, created_by) "
+        " VALUES($params, $runtime, $user) RETURNING id",
+        {
+            'params': psycopg2.extras.Json(params, dumps=simplejson.dumps),
+            'runtime': run_time,
+            'user': user
+        })
+    if res:
+        return res[0]['id']
+    return None
+
+
+def log_schedule(db, distribution_log_id, sched_id, level):
+    db.query(
+        "INSERT INTO distribution_log_schedules(distribution_log_id, schedule_id, level) "
+        "VALUES($log_id, $sched_id, $level)", {
+            'log_id': distribution_log_id, 'sched_id': sched_id, 'level': level})
+
+
+def can_still_distribute(db, amount, reverse_amount=0):
+    """Checks whether we can actually distribute nets based on stock
+    reverse_amount helps when one is editing a distribution, so it is equal to qty of bales
+    before edit
+    """
+    res = db.query("SELECT SUM(quantity_bales) as total FROM national_delivery_log")
+    if res:
+        total_nets = res[0]['total']
+        r = db.query("SELECT SUM(quantity_bales) AS total FROM distribution_log_w2sc_view")
+        if r:
+            sc_dist = r[0]['total']
+            if reverse_amount:
+                total_nets -= reverse_amount
+                sc_dist -= reverse_amount
+            if (total_nets - (sc_dist + amount)):
+                return True
+    return False

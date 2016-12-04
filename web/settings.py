@@ -15,6 +15,7 @@ SECRET_KEY = ''
 PAGE_LIMIT = 25
 
 QUANTITY_PER_BALE = 40
+SMS_OFFSET_TIME = 5
 
 
 def absolute(path):
@@ -44,7 +45,11 @@ config = {
     # 'default_api_uri': 'http://hiwa.LLIN.co.ug/api/v1/contacts.json',
     'default_api_uri': 'http://localhost:8000/api/v1/contacts.json',
     'api_token': 'c8cde9dbbdda6f544018e9321d017e909b28ec51',
-    'api_url': 'http://localhost:8000/api/v1/'
+    'api_url': 'http://localhost:8000/api/v1/',
+    'national_reporters': ['HMU', 'District Supervisor', 'Subcounty Supervisor', 'Logistics Sub Committee'],
+    'district_reporters': ['DSO', 'DHO', 'DHE', 'RDC'],
+    'subcounty_reporters': ['Subcounty Chief', 'Subcounty Store Manager', 'LC3'],
+    'village_reporters': ['VHT'],
 }
 
 try:
