@@ -11,7 +11,13 @@ class DistPoints:
         districts = db.query(
             "SELECT id, name FROM locations WHERE type_id = "
             "(SELECT id FROM locationtype WHERE name = 'district') ORDER by name")
-        if params.ed:
+        allow_edit = False
+        try:
+            edit_val = int(params.ed)
+            allow_edit = True
+        except ValueError:
+            pass
+        if params.ed and allow_edit:
             res = db.query(
                 "SELECT id, name, subcounty, get_location_name(subcounty) subcounty_name , "
                 " get_district(subcounty) district FROM distribution_points "
@@ -27,7 +33,13 @@ class DistPoints:
                     "(SELECT village_id FROM distribution_point_villages "
                     " WHERE distribution_point = $id)", {'id': params.ed})
 
-        if params.d_id:
+        allow_del = False
+        try:
+            del_val = int(params.d_id)
+            allow_del = True
+        except ValueError:
+            pass
+        if params.d_id and allow_del:
             if session.role in ('Micro Planning', 'Administrator'):
                 db.query(
                     "DELETE FROM distribution_point_villages WHERE distribution_point=$id",
@@ -58,13 +70,15 @@ class DistPoints:
         session = get_session()
         params = web.input(
             name="", subcounty="", villages=[], page="1", ed="", d_id="")
+        allow_edit = False
         try:
-            page = int(params.page)
+            edit_val = int(params.ed)
+            allow_edit = True
         except:
-            page = 1
+            pass
 
         with db.transaction():
-            if params.ed:
+            if params.ed and allow_edit:
                 db.query(
                     "DELETE FROM distribution_point_villages WHERE distribution_point=$id",
                     {'id': params.ed})

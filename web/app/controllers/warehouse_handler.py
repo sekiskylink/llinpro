@@ -21,7 +21,13 @@ class WarehouseData:
         funding_sources = db.query("SELECT id, name FROM funding_sources ORDER by name")
         nda_samples = 0
         unbs_samples = 0
-        if params.ed:
+        allow_edit = False
+        try:
+            edit_val = int(params.ed)
+            allow_edit = True
+        except ValueError:
+            pass
+        if params.ed and allow_edit:
             res = db.query(
                 "SELECT * FROM national_delivery_log WHERE id = $id", {'id': params.ed})
             if res:
@@ -53,7 +59,13 @@ class WarehouseData:
                         "SELECT id, name FROM warehouse_branches WHERE warehouse_id = "
                         "$wid", {'wid': warehouse})
 
-        if params.d_id:
+        allow_del = False
+        try:
+            del_val = int(params.d_id)
+            allow_del = True
+        except ValueError:
+            pass
+        if params.d_id and allow_del:
             if session.role in ('Warehouse Manager', 'Administrator'):
                 res = db.query(
                     "SELECT id, waybill, quantity_bales FROM national_delivery_log "
@@ -91,6 +103,12 @@ class WarehouseData:
             nda_testing_result_date="", unbs_samples="", unbs_sampling_date="",
             remarks="", goods_received_note=""
         )
+        allow_edit = False
+        try:
+            edit_val = int(params.ed)
+            allow_edit = True
+        except ValueError:
+            pass
 
         with db.transaction():
             nda_samples = 0
@@ -102,7 +120,7 @@ class WarehouseData:
             except:
                 pass
             total_nets = (quantity * QUANTITY_PER_BALE) - (nda_samples + unbs_samples)
-            if params.ed:
+            if params.ed and allow_edit:
                 r = db.query(
                     "UPDATE national_delivery_log SET po_number=$po_number, funding_source=$funding_source, "
                     "manufacturer=$manufacturer, made_in=$made_in, batch_number=$batch_number, "

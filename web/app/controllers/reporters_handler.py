@@ -15,7 +15,13 @@ class Reporters:
             "(SELECT id FROM locationtype WHERE name = 'district') ORDER by name")
         roles = db.query("SELECT id, name from reporter_groups order by name")
         district = {}
-        if params.ed:
+        allow_edit = False
+        try:
+            edit_val = int(params.ed)
+            allow_edit = True
+        except ValueError:
+            pass
+        if params.ed and allow_edit:
             res = db.query(
                 "SELECT id, firstname, lastname, telephone, email, national_id, "
                 "reporting_location, distribution_point, role, dpoint,alternate_tel "
@@ -58,7 +64,13 @@ class Reporters:
                             subcounties = db.query("SELECT id, name FROM get_children($id)", {'id': loc['id']})
                 else:
                     district = location
-        if params.d_id:
+        allow_del = False
+        try:
+            del_val = int(params.d_id)
+            allow_del = True
+        except ValueError:
+            pass
+        if params.d_id and allow_del:
             if session.role in ('Micro Planning', 'Administrator'):
                 reporter = db.query(
                     "SELECT firstname || ' ' || lastname as name , telephone "
@@ -94,13 +106,16 @@ class Reporters:
         params = web.input(
             firstname="", lastname="", telephone="", email="", location="", dpoint="",
             national_id="", role="", alt_telephone="", page="1", ed="", d_id="")
+
+        allow_edit = False
         try:
-            page = int(params.page)
+            edit_val = int(params.ed)
+            allow_edit = True
         except:
-            page = 1
+            pass
 
         with db.transaction():
-            if params.ed:
+            if params.ed and allow_edit:
                 location = params.location if params.location else None
                 dpoint = params.dpoint if params.dpoint else None
                 r = db.query(
