@@ -109,6 +109,10 @@ CREATE TABLE locations(
     cdate timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE INDEX locations_idx4 ON locations(lft);
+CREATE INDEX locations_idx5 ON locations(rght);
+CREATE INDEX locations_idx6 ON locations(code);
+
 CREATE VIEW locations_view AS
     SELECT a.*, b.level FROM locations a, locationtype
     WHERE a.type_id = b.id;
@@ -319,6 +323,7 @@ CREATE TABLE reporters(
 );
 CREATE INDEX reporters_idx1 ON reporters(telephone);
 CREATE INDEX reporters_idx2 ON reporters(alternate_tel);
+CREATE INDEX reporters_idx3 ON reporters(created);
 
 CREATE TABLE reporter_groups(
     id SERIAL PRIMARY KEY NOT NULL,
@@ -377,13 +382,16 @@ CREATE TABLE funding_sources(
 -- used for scheduling messages
 CREATE TABLE schedules(
     id SERIAL PRIMARY KEY NOT NULL,
+    type TEXT NOT NULL DEFAULT 'sms', -- also 'push_contact'
     params JSON NOT NULL DEFAULT '{}'::json,
     run_time TIMESTAMP NOT NULL DEFAULT NOW(),
     status TEXT NOT NULL DEFAULT 'ready',
     created_by INTEGER REFERENCES users(id),
+    updated_by INTEGER REFERENCES users(id),
     created TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
+CREATE INDEX schedules_idx ON schedules(run_time);
 
 CREATE TABLE national_delivery_log(
     id SERIAL PRIMARY KEY NOT NULL,

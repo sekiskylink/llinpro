@@ -1,5 +1,5 @@
 {% extends "layout.html" %}
-{% from 'layout.html' import navbar, myscripts, err %}
+{% from 'layout.html' import navbar, myscripts, err, busted %}
 
 {% block title %}LLIN.::.Dispatch{% endblock%}
 {% block stylesheets %}
@@ -22,6 +22,7 @@
 {% endblock %}
 
 {% block content %}
+    {% if ses.role in ('Administrator', 'Warehouse Manager') %}
     {{ err(ses.ddata_err)}}
 
     <form role="form" method="post" action="" class="form-horizontal" data-toggle="validator">
@@ -43,8 +44,8 @@
                                     <div class="col-lg-9">
                                         <select name="district" id="district" class="form-control" required>
                                             <option value="">Select District</option>
-                                            {% for district in districts %}
-                                            <option value="{{ district.id}}">{{ district.name}}</option>
+                                            {% for d in districts %}
+                                                <option value="{{ d.id}}" {% if d.id == district.id %} selected="yes" {% endif %}>{{ d.name}}</option>
                                             {% endfor %}
                                         </select>
                                     </div>
@@ -53,6 +54,9 @@
                                     <div class="col-lg-9">
                                         <select name="subcounty" id="subcounty" class="form-control" required>
                                             <option value="">Select Sub County</option>
+                                            {% for s in subcounties %}
+                                            <option value="{{ s.id }}" {% if s.id == subcounty %} selected="yes" {% endif %}>{{ s.name}}</option>
+                                            {% endfor %}
                                         </select>
                                     </div>
                                 </div>
@@ -70,6 +74,9 @@
                                 <div class="form-group"><label for="quantity_bales" class="col-lg-3 control-label">Quantity (Bales):</label>
                                     <div class="col-lg-9">
                                         <input name="quantity_bales" id="quantity_bales" type="number" value="{{ quantity_bales }}" class="form-control" required/>
+                                        {% if allow_edit %}
+                                        <input name="quantity_bales_old" id="quantity_bales_old" type="hidden" value="{{ quantity_bales }}" class="form-control" required/>
+                                        {% endif %}
                                     </div>
                                 </div>
                                 <div class="form-group"><label for="remarks" class="col-lg-3 control-label">Remarks:</label>
@@ -77,7 +84,6 @@
                                         <textarea name="remarks" id="remarks" type="text"  class="form-control">{{ remarks}}</textarea>
                                     </div>
                                 </div>
-                                <br/>
                                 <br/>
                                 <br/>
                                 <br/>
@@ -156,7 +162,11 @@
                                 </div>
                                 <div class="form-group">
                                     <div class="col-lg-offset-5 col-lg-7">
-                                        <button class="btn btn-sm btn-primary" type="submit">Dispatch</button>
+                                        {% if allow_edit %}
+                                            <button class="btn btn-sm btn-primary" type="submit">Update Dispatch</button>
+                                        {% else %}
+                                            <button class="btn btn-sm btn-primary" type="submit">Dispatch</button>
+                                        {% endif %}
                                     </div>
                                 </div>
                             </div>
@@ -255,6 +265,9 @@
             </div>
         </div>
     </div>
+    {% else %}
+        {{ busted() }}
+    {% endif %}
 {% endblock %}
 
 {% block scripts %}

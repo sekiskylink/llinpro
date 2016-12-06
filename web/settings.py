@@ -42,7 +42,9 @@ config = {
         'utl': '25671',
         'others': '256(3[19]|41|7[015789])'  # opssite of
     },
+    'shortcode': '6400',
     # 'default_api_uri': 'http://hiwa.LLIN.co.ug/api/v1/contacts.json',
+    'smsurl': 'http://localhost:13013/cgi-bin/sendsms?username=foo&password=bar',
     'default_api_uri': 'http://localhost:8000/api/v1/contacts.json',
     'api_token': 'c8cde9dbbdda6f544018e9321d017e909b28ec51',
     'api_url': 'http://localhost:8000/api/v1/',
@@ -50,6 +52,13 @@ config = {
     'district_reporters': ['DSO', 'DHO', 'DHE', 'RDC'],
     'subcounty_reporters': ['Subcounty Chief', 'Subcounty Store Manager', 'LC3'],
     'village_reporters': ['VHT'],
+    'national_sms_template': (
+        "%(subcounty)s sub-county of %(district)s district is being sent %(quantity)s bales of nets. "
+        " Delievery Note Number: %(waybill)s "),
+    'driver_sms_template': (
+        "You're delivering %(quantity)s bales of nets to %(subcounty)s sub-county of %(district)s district. "
+        " Delivery Note Number: %(waybill)s. Once delivered/offloaded, please send "
+        "\"DEL %(waybill)s %(quantity)s\" to %(shortcode)s.")
 }
 
 try:

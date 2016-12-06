@@ -92,18 +92,31 @@ def get_location_role_reporters(db, location_id, roles=[], include_alt=True):
     return list(set(ret))
 
 
-def queue_sms(db, params, run_time, user=None):  # params has the text, recipients and other params
+def queue_schedule(db, params, run_time, user=None, stype='sms'):  # params has the text, recipients and other params
     res = db.query(
-        "INSERT INTO schedules (params, run_time, created_by) "
-        " VALUES($params, $runtime, $user) RETURNING id",
+        "INSERT INTO schedules (params, run_time, type, created_by) "
+        " VALUES($params, $runtime, $type, $user) RETURNING id",
         {
             'params': psycopg2.extras.Json(params, dumps=simplejson.dumps),
             'runtime': run_time,
-            'user': user
+            'user': user,
+            'type': stype
         })
     if res:
         return res[0]['id']
     return None
+
+
+def update_queued_sms(db, sched_id, params, run_time, user=None):
+    db.query(
+        "UPDATE schedules SET params=$params, run_time=$runtime, updated_by=$user, "
+        " status='ready', updated=now() WHERE id=$id",
+        {
+            'params': psycopg2.extras.Json(params, dumps=simplejson.dumps),
+            'runtime': run_time,
+            'user': user,
+            'id': sched_id
+        })
 
 
 def log_schedule(db, distribution_log_id, sched_id, level):
@@ -125,8 +138,11 @@ def can_still_distribute(db, amount, reverse_amount=0):
         if r:
             sc_dist = r[0]['total']
             if reverse_amount:
-                total_nets -= reverse_amount
-                sc_dist -= reverse_amount
-            if (total_nets - (sc_dist + amount)):
-                return True
+                currently_distributed = sc_dist - reverse_amount
+                available = total_nets - currently_distributed
+                # print "****TOTAL:%s====AVAIL:%s======AMOUNT:%s" % (total_nets, available, amount)
+                return available >= amount
+            available = total_nets - sc_dist
+            # print "####TOTAL:%s====AVAIL:%s======AMOUNT:%s" % (total_nets, available, amount)
+            return available >= amount
     return False
