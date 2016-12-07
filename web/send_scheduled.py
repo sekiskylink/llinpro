@@ -49,7 +49,7 @@ for r in res:
     try:
         if r['type'] == 'sms':
             response = sendsms(params)
-            status = 'completed' if response == 'Accepted' else 'failed'
+            status = 'completed' if 'Accepted' in response else 'failed'
             cur.execute("UPDATE schedules SET status = %s WHERE id = %s", [status, r["id"]])
             conn.commit()
             logging.info(
