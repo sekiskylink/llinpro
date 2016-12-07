@@ -85,17 +85,17 @@ cur.execute(
     "AND a.created >= %s", [from_date]
 )
 
-print format_msisdn('0782820208')
 res = cur.fetchall()
 print "==>", res
 if res:
     for r in res:
         print r
+        district = r["district"]
         fields = {
-            "district": r['district'],
             "reporting location": r['reporting_location']
-
         }
+        if district:
+            fields["district"] = district
         phone = format_msisdn(r['telephone'])
         alt_phone = r['alternate_tel']
         if phone:
