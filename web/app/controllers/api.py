@@ -249,3 +249,68 @@ class DistributionRecord:
                 html_str += "<tr><td>Delivered?</td><td>%s</td></tr>" % label
         html_str += "</tbody></table>"
         return html_str
+
+
+class DeliverNets:
+    def POST(self):
+        web.header("Content-Type", "application/json; charset=utf-8")
+        params = web.input()
+        waybill = get_webhook_msg(params, 'waybill')
+        quantity_bales = get_webhook_msg(params, 'quantity_bales')
+
+        phone = params.phone.replace('+', '')
+        # print "WAYBILL:%s.::.QTY:%s.::.%s" % (waybill, quantity_bales, phone)
+        r = db.query(
+            "SELECT id FROM reporters WHERE replace(telephone, '+', '') = $tel "
+            "OR replace(alternate_tel, '+', '') = $tel LIMIT 1", {'tel': phone})
+        if r and waybill and quantity_bales:
+            reporter_id = r[0]['id']
+            res = db.query(
+                "UPDATE distribution_log SET is_delivered='t',arrival_date=NOW(), "
+                "arrival_time=current_time  WHERE delivered_by=$driver_id AND source='national' "
+                "AND dest='subcounty' AND waybill=$waybill RETURNING id, quantity_bales", {
+                    'driver_id': reporter_id, 'waybill': waybill})
+            if res:
+                log = res[0]
+                log_id = log['id']
+                sent_nets = log['quantity_bales']
+                if quantity_bales != sent_nets:
+                    db.query(
+                        "UPDATE distribution_log SET has_variance='t', updated=now() "
+                        "WHERE id = $log_id ", {'log_id': log_id})
+                    ret = (
+                        "You delivered %s bales of nets with waybill %s. "
+                        "Expected value is %s bales. Please resend if "
+                        "there is an error" % (quantity_bales, waybill, sent_nets))
+                    return json.dumps({"message": ret})
+                else:
+                    ret = (
+                        "Delivery of %s bales of nets with waybill %s "
+                        "successfully recorded." % (quantity_bales, waybill))
+                    return json.dumps({"message": ret})
+        ret = "Waybill %s not recorgnized. Please resend if there is an error" % (waybill)
+
+        return json.dumps({"message": ret})
+
+
+class ReceiveNets:
+    def POST(self):
+        web.header("Content-Type", "application/json; charset=utf-8")
+        params = web.input()
+        waybill = get_webhook_msg(params, 'waybill')
+        quantity_bales = get_webhook_msg(params, 'quantity_bales')
+
+        phone = params.phone.replace('+', '')
+        # print "WAYBILL:%s.::.QTY:%s.::.%s" % (waybill, quantity_bales, phone)
+        r = db.query(
+            "SELECT id FROM reporters WHERE replace(telephone, '+', '') = $tel "
+            "OR replace(alternate_tel, '+', '') = $tel LIMIT 1", {'tel': phone})
+        if r and waybill and quantity_bales:
+            reporter_id = r[0]['id']
+            res = db.query(
+                "UPDATE distribution_log SET received_by=$reporter "
+                "WHERE delivered_by=$driver_id AND source='national' "
+                "AND dest='subcounty' AND waybill=$waybill RETURNING id, quantity_bales", {
+                    'reporter': reporter_id, 'waybill': waybill})
+            if res:
+                pass
