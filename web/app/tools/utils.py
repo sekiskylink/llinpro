@@ -131,10 +131,16 @@ def can_still_distribute(db, amount, reverse_amount=0):
     reverse_amount helps when one is editing a distribution, so it is equal to qty of bales
     before edit
     """
-    res = db.query("SELECT SUM(quantity_bales) as total FROM national_delivery_log")
-    if res:
+    res = db.query(
+        "SELECT CASE WHEN SUM(quantity_bales) > 0 THEN SUM(quantity_bales) "
+        "ELSE 0 END AS total FROM national_delivery_log")
+
+    if res and len(res) > 0:
         total_nets = res[0]['total']
-        r = db.query("SELECT SUM(quantity_bales) AS total FROM distribution_log_w2sc_view")
+        SQL = (
+            "SELECT CASE WHEN SUM(quantity_bales) > 0 THEN SUM(quantity_bales) "
+            "ELSE 0 END AS total FROM distribution_log_w2sc_view;")
+        r = db.query(SQL)
         if r:
             sc_dist = r[0]['total']
             if reverse_amount:
