@@ -392,6 +392,8 @@ CREATE TABLE schedules(
     updated TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 CREATE INDEX schedules_idx ON schedules(run_time);
+CREATE INDEX schedules_idx1 ON schedules(type);
+CREATE INDEX schedules_idx2 ON schedules(status);
 
 CREATE TABLE national_delivery_log(
     id SERIAL PRIMARY KEY NOT NULL,
