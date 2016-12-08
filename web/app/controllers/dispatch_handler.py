@@ -93,8 +93,8 @@ class Dispatch:
                     driver_id = q[0]['id']
                 else:
                     q = db.query(
-                        "INSERT INTO reporters (firstname, telephone) "
-                        " VALUES ($name, $tel) RETURNING id",
+                        "INSERT INTO reporters (firstname, telephone, reporting_location) "
+                        " VALUES ($name, $tel, 1) RETURNING id",
                         {'name': params.driver, 'tel': params.driver_tel})
                     driver_id = q[0]['id']
                     db.query(
@@ -257,8 +257,8 @@ class Dispatch:
                     driver_id = q[0]['id']
                 else:
                     q = db.query(
-                        "INSERT INTO reporters (firstname, telephone) "
-                        " VALUES ($name, $tel) RETURNING id",
+                        "INSERT INTO reporters (firstname, telephone, reporting_location) "
+                        " VALUES ($name, $tel, 1) RETURNING id",
                         {'name': params.driver, 'tel': params.driver_tel})
                     driver_id = q[0]['id']
                     db.query(
@@ -269,7 +269,7 @@ class Dispatch:
                     contact_params = {
                         'phone': params.driver_tel,
                         'name': params.driver,
-                        'groups': ['Driver']
+                        'groups': ['Driver'],
                     }
 
                     sync_time = current_time + datetime.timedelta(seconds=5)  # XXX consider making the seconds configurable
