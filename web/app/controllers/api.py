@@ -258,7 +258,7 @@ class DeliverNets:
         waybill = get_webhook_msg(params, 'waybill')
         quantity_bales = get_webhook_msg(params, 'quantity_bales')
         try:
-            quantity_bales = int(quantity_bales)
+            quantity_bales = int(float(quantity_bales))
         except:
             return json.dumps({"message": "The quantity of bales must be a number"})
 
@@ -304,7 +304,7 @@ class ReceiveNets:
         waybill = get_webhook_msg(params, 'waybill')
         quantity_bales = get_webhook_msg(params, 'quantity_bales')
         try:
-            quantity_bales = int(quantity_bales)
+            quantity_bales = int(float(quantity_bales))
         except:
             return json.dumps({"message": "The quantity of bales must be a number"})
 
