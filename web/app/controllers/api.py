@@ -257,6 +257,10 @@ class DeliverNets:
         params = web.input()
         waybill = get_webhook_msg(params, 'waybill')
         quantity_bales = get_webhook_msg(params, 'quantity_bales')
+        try:
+            quantity_bales = int(quantity_bales)
+        except:
+            return json.dumps({"message": "The quantity of bales must be a number"})
 
         phone = params.phone.replace('+', '')
         # print "WAYBILL:%s.::.QTY:%s.::.%s" % (waybill, quantity_bales, phone)
@@ -299,6 +303,10 @@ class ReceiveNets:
         params = web.input()
         waybill = get_webhook_msg(params, 'waybill')
         quantity_bales = get_webhook_msg(params, 'quantity_bales')
+        try:
+            quantity_bales = int(quantity_bales)
+        except:
+            return json.dumps({"message": "The quantity of bales must be a number"})
 
         phone = params.phone.replace('+', '')
         # print "WAYBILL:%s.::.QTY:%s.::.%s" % (waybill, quantity_bales, phone)
