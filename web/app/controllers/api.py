@@ -203,7 +203,7 @@ class DistributionPointsEndpoint:
         if rs:
             for r in rs:
                 villages_sql = (
-                    "SELECT b.code FROM distribution_point_villages a, locations b "
+                    "SELECT b.code, b.name FROM distribution_point_villages a, locations b "
                     "WHERE a.distribution_point = %s AND a.village_id = b.id" % r['id'])
                 dpoint_dict = {
                     "id": r['id'],
@@ -214,7 +214,7 @@ class DistributionPointsEndpoint:
                 }
                 res = db.query(villages_sql)
                 for l in res:
-                    dpoint_dict["villages"].append(l.code)
+                    dpoint_dict["villages"].append({'name': l.name, 'code': l.code})
 
                 ret.append(dpoint_dict)
         return json.dumps(ret)
