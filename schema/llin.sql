@@ -138,7 +138,7 @@ $delim$
     END;
 $delim$ LANGUAGE plpgsql;
 
-CREATE OR REPLACE FUNCTION public.get_descendants(loc_id integer)
+CREATE OR REPLACE FUNCTION public.get_descendants(loc_id bigint)
  RETURNS SETOF locations_view AS
 $delim$
      DECLARE
@@ -148,6 +148,23 @@ $delim$
     BEGIN
         SELECT lft, rght INTO our_lft, our_rght FROM locations_view WHERE id = loc_id;
         FOR r IN SELECT * FROM locations_view WHERE lft > our_lft AND rght < our_rght
+        LOOP
+            RETURN NEXT r;
+        END LOOP;
+        RETURN;
+    END;
+$delim$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION public.get_descendants_including_self(loc_id bigint)
+ RETURNS SETOF locations_view AS
+$delim$
+     DECLARE
+        r locations_view%ROWTYPE;
+        our_lft INTEGER;
+        our_rght INTEGER;
+    BEGIN
+        SELECT lft, rght INTO our_lft, our_rght FROM locations_view WHERE id = loc_id;
+        FOR r IN SELECT * FROM locations_view WHERE lft >= our_lft AND rght <= our_rght
         LOOP
             RETURN NEXT r;
         END LOOP;
@@ -688,7 +705,8 @@ CREATE VIEW reporters_view AS
 CREATE VIEW reporters_view2 AS
     SELECT a.id, a.firstname, a.lastname, a.telephone, a.alternate_tel, a.email, a.national_id,
         a.reporting_location, a.created_by,
-        get_district(a.reporting_location) as district, get_reporter_groups(a.id) as role, b.name as loc_name
+        get_district(a.reporting_location) as district, get_reporter_groups(a.id) as role, b.name as loc_name,
+        b.code as location_code
     FROM reporters a, locations b
     WHERE a.reporting_location = b.id;
 
