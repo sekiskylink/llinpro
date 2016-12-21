@@ -156,7 +156,7 @@ class VhtCode:
 
 
 class SerialsEndpoint:
-    def GET(self, subcount_code):
+    def GET(self, subcounty_code):
         params = web.input(from_date="")
         web.header("Content-Type", "application/json; charset=utf-8")
         username, password = get_basic_auth_credentials()
@@ -166,7 +166,7 @@ class SerialsEndpoint:
             web.ctx.status = '401 Unauthorized'
             return json.dumps({'detail': 'Authentication failed!'})
 
-        y = db.query("SELECT id FROM locations WHERE code = $code", {'code': subcount_code})
+        y = db.query("SELECT id FROM locations WHERE code = $code", {'code': subcounty_code})
         location_id = 0
         if y:
             location_id = y[0]['id']
@@ -182,6 +182,41 @@ class SerialsEndpoint:
         ret = []
         for i in r:
             ret.append(dict(i))
+        return json.dumps(ret)
+
+
+class DistributionPointsEndpoint:
+    def GET(self, subcounty_code):
+        params = web.input()
+        web.header("Content-Type", "application/json; charset=utf-8")
+        username, password = get_basic_auth_credentials()
+        r = auth_user(db, username, password)
+        if not r[0]:
+            web.header('WWW-Authenticate', 'Basic realm="Auth API"')
+            web.ctx.status = '401 Unauthorized'
+            return json.dumps({'detail': 'Authentication failed!'})
+        ret = []
+        rs = db.query(
+            "SELECT a.id, a.name, a.code, a.uuid, b.code as subcounty_code FROM "
+            " distribution_points a, locations b "
+            " WHERE a.subcounty = b.id AND b.code = $code ", {'code': subcounty_code})
+        if rs:
+            for r in rs:
+                villages_sql = (
+                    "SELECT b.code FROM distribution_point_villages a, locations b "
+                    "WHERE a.distribution_point = %s AND a.village_id = b.id" % r['id'])
+                dpoint_dict = {
+                    "id": r['id'],
+                    "name": r['name'],
+                    "uuid": r['uuid'],
+                    "code": r['code'],
+                    "villages": []
+                }
+                res = db.query(villages_sql)
+                for l in res:
+                    dpoint_dict["villages"].append(l.code)
+
+                ret.append(dpoint_dict)
         return json.dumps(ret)
 
 
@@ -311,14 +346,141 @@ class ReceiveNets:
         phone = params.phone.replace('+', '')
         # print "WAYBILL:%s.::.QTY:%s.::.%s" % (waybill, quantity_bales, phone)
         r = db.query(
-            "SELECT id FROM reporters WHERE replace(telephone, '+', '') = $tel "
+            "SELECT id, reporting_location FROM reporters WHERE replace(telephone, '+', '') = $tel "
             "OR replace(alternate_tel, '+', '') = $tel LIMIT 1", {'tel': phone})
         if r and waybill and quantity_bales:
-            reporter_id = r[0]['id']
+            reporter = r[0]
+            reporter_id = reporter['id']
+            dest_location = reporter['reporting_location']
             res = db.query(
                 "UPDATE distribution_log SET received_by=$reporter "
-                "WHERE delivered_by=$driver_id AND source='national' "
-                "AND dest='subcounty' AND waybill=$waybill RETURNING id, quantity_bales", {
-                    'reporter': reporter_id, 'waybill': waybill})
+                "WHERE source='national' AND dest='subcounty' AND "
+                "destination=$dest AND waybill=$waybill RETURNING id, quantity_bales", {
+                    'reporter': reporter_id, 'waybill': waybill, 'dest': dest_location})
             if res:
+                log = res[0]
+                log_id = log['id']
+                sent_nets = log['quantity_bales']
+                if quantity_bales != sent_nets:
+                    db.query(
+                        "UPDATE distribution_log SET has_variance='t', updated=now() "
+                        "WHERE id = $log_id ", {'log_id': log_id})
+                    ret = (
+                        "You received %s bales of nets with waybill %s. "
+                        "Expected value is %s bales. Please resend if "
+                        "there is an error" % (quantity_bales, waybill, sent_nets))
+                    # XXX may notfy some parties
+                    return json.dumps({"message": ret})
+                else:
+                    ret = (
+                        "Receipt of %s bales of nets with waybill %s "
+                        "acknowledged." % (quantity_bales, waybill))
+                    return json.dumps({"message": ret})
+
+        ret = "Waybill %s not recorgnized. Please resend if there is an error" % (waybill)
+        return json.dumps({"message": ret})
+
+
+class DistributeVillageNets:
+    def POST(self):
+        web.header("Content-Type", "application/json; charset=utf-8")
+        params = web.input()
+        waybill = get_webhook_msg(params, 'waybill')
+        quantity_nets = get_webhook_msg(params, 'quantity_nets')
+        try:
+            quantity_nets = int(float(quantity_nets))
+        except:
+            return json.dumps({"message": "The nets distributed must be a number"})
+
+        phone = params.phone.replace('+', '')
+        r = db.query(
+            "SELECT id, reporting_location FROM reporters WHERE replace(telephone, '+', '') = $tel "
+            "OR replace(alternate_tel, '+', '') = $tel LIMIT 1", {'tel': phone})
+        if r and waybill and quantity_nets:
+            reporter = r[0]
+            reporter_id = reporter['id']
+            # dest_location = reporter['reporting_location']
+            res = db.query(
+                "SELECT id FROM distribution_log_sc2v_view WHERE waybill = $waybill AND "
+                "reporter_id = $reporter_id", {'waybill': waybill, 'reporter_id': reporter_id})
+            if res:
+                # entry already exists
+                log_id = res[0]['id']
+                db.query(
+                    "UPDATE distribution_log SET quantity_nets = $nets "
+                    "WHERE id = $id", {'nets': quantity_nets, 'id': log_id})
+                ret = (
+                    "Distribution with Delivery Note No.: %s already recorded by you. "
+                    " %s nets have been recorded. If there's an error, please resend." % (waybill, quantity_nets))
+                return json.dumps({"message": ret})
+            else:
+                dres = db.query(
+                    "INSERT INTO distribution_log (source, dest, waybill, quantity_nets, "
+                    "delivered_by, departure_date, departure_time) VALUES ("
+                    "'subcounty', 'village', $waybill, $nets, $reporter_id, current_date, "
+                    "current_time) RETURNING id", {
+                        'waybill': waybill,
+                        'reporter_id': reporter_id,
+                        'nets': quantity_nets})
+                if dres:
+                    # log_id = dres[0]['id']
+                    ret = (
+                        "Distribution of %s nets with Delivery Note No. %s successfully recorded. "
+                        " A VHT will have to confirm receipt of these nets."
+                        " If there's an error, please resend" % (quantity_nets, waybill))
+                    return json.dumps({"message": ret})
+        else:
+            pass
+        ret = "Something went wrong while recording distribution."
+        return json.dumps({"message": ret})
+
+
+class ReceiveVillageNets:
+    def POST(self):
+        web.header("Content-Type", "application/json; charset=utf-8")
+        params = web.input()
+        waybill = get_webhook_msg(params, 'waybill')
+        quantity_nets = get_webhook_msg(params, 'quantity_nets')
+        try:
+            quantity_nets = int(float(quantity_nets))
+        except:
+            return json.dumps({"message": "The nets received must be a number"})
+
+        phone = params.phone.replace('+', '')
+        r = db.query(
+            "SELECT id, reporting_location FROM reporters WHERE replace(telephone, '+', '') = $tel "
+            "OR replace(alternate_tel, '+', '') = $tel LIMIT 1", {'tel': phone})
+        if r and waybill and quantity_nets:
+            reporter = r[0]
+            # reporter_id = reporter['id']
+            reporting_location = reporter['reporting_location']
+            res = db.query(
+                "SELECT id, quantity_nets FROM distribution_log_sc2v_view WHERE waybill = $waybill AND "
+                "subcounty = (SELECT id FROM get_descendants($loc) WHERE type_id = 4)",
+                {'waybill': waybill, 'loc': reporting_location})
+            if res:
+                # waybill found for that subcounty
+                log = res[0]
+                log_id = log['id']
+                sent_nets = log['quantity_nets']
+                if quantity_nets != sent_nets:
+                    db.query(
+                        "UPDATE distribution_log SET has_variance='t', updated=now() "
+                        "WHERE id = $log_id ", {'log_id': log_id})
+                    ret = (
+                        "You received %s nets with waybill %s. "
+                        "Expected value is %s netss. Please resend if "
+                        "there is an error" % (quantity_nets, waybill, sent_nets))
+                    return json.dumps({"message": ret})
+                else:
+                    ret = (
+                        "Receipt of %s nets with waybill %s "
+                        "successfully recorded." % (quantity_nets, waybill))
+                    return json.dumps({"message": ret})
+            else:
                 pass
+
+
+class DistributeHouseholdeNets:
+    def POST(self):
+        pass

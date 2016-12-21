@@ -7,8 +7,9 @@ class handlers.
 from app.controllers.main_handler import Index, Logout
 from app.controllers.warehouse_handler import WarehouseData
 from app.controllers.api import Location, LocationChildren, DistributionPoints, SubcountyLocations
-from app.controllers.api import FormSerials, SerialsEndpoint, WarehouseBranches
+from app.controllers.api import FormSerials, SerialsEndpoint, WarehouseBranches, DistributionPointsEndpoint
 from app.controllers.api import WarehouseRecord, DistributionRecord, VhtCode, DeliverNets, ReceiveNets
+from app.controllers.api import DistributeVillageNets
 from app.controllers.reporters_handler import Reporters
 from app.controllers.users_handler import Users
 from app.controllers.groups_handler import Groups
@@ -34,9 +35,11 @@ URLS = (
     r'/api/v1/dispatchrecord/(\d+)/?', DistributionRecord,
     r'/api/v1/formserials', FormSerials,
     r'/api/v1/forms_endpoint/(\w+)/?', SerialsEndpoint,
+    r'/api/v1/dpoints_endpoint/(\w+)/?', DistributionPointsEndpoint,
     r'/api/v1/vhtcode', VhtCode,
     r'/api/v1/deliver', DeliverNets,
     r'/api/v1/receive', ReceiveNets,
+    r'/api/v1/distribute', DistributeVillageNets,
     r'/reporters', Reporters,
     r'/auditlog', AuditLog,
     r'/settings', Settings,

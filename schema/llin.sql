@@ -492,6 +492,26 @@ CREATE VIEW distribution_log_w2sc_view AS
         AND a.warehouse_branch = c.id AND (b.id = c.warehouse_id)
         AND a.delivered_by = d.id;
 
+DROP VIEW IF EXISTS distribution_log_sc2v_view; -- subcounty to village
+CREATE VIEW distribution_log_sc2v_view AS
+    -- view to show distribution from subcounty to village
+    SELECT a.id, a.release_order, a.waybill, a.quantity_bales,
+        a.quantity_nets,
+        a.departure_date, a.departure_time,
+        get_location_name(a.destination) as destination,
+        get_district(a.destination) as district, a.remarks,
+        a.arrival_date, a.arrival_time, a.quantity_received,
+        a.is_delivered, a.is_received, a.has_variance, a.created_by,
+        d.firstname as delivered_by, d.telephone,
+        d.id as reporter_id, d.reporting_location as subcounty,
+        to_char(a.created, 'YYYY-MM-DD') as created,
+        to_char(a.updated, 'YYYY-MM-DD') as updated
+    FROM
+        distribution_log a, reporters d
+    WHERE
+        a.source = 'subcounty' AND a.dest = 'village'
+        AND a.delivered_by = d.id;
+
 CREATE TABLE registration_forms(
     id SERIAL PRIMARY KEY NOT NULL,
     reporter_id BIGINT REFERENCES reporters(id) ON DELETE CASCADE,
@@ -566,6 +586,25 @@ AS $function$
         SELECT lft, rght INTO our_lft, our_rght FROM locations WHERE id = loc_id;
         FOR r IN SELECT name FROM locations WHERE lft <= our_lft AND rght >= our_rght AND
             type_id=(SELECT id FROM locationtype WHERE name = 'district')
+        LOOP
+            RETURN r;
+        END LOOP;
+        RETURN '';
+    END;
+$function$;
+
+CREATE OR REPLACE FUNCTION public.get_ancestor_by_type(loc_id bigint, atype text)
+ RETURNS text
+ LANGUAGE plpgsql
+AS $function$
+     DECLARE
+        r TEXT;
+        our_lft INTEGER;
+        our_rght INTEGER;
+    BEGIN
+        SELECT lft, rght INTO our_lft, our_rght FROM locations WHERE id = loc_id;
+        FOR r IN SELECT name FROM locations WHERE lft <= our_lft AND rght >= our_rght AND
+            type_id=(SELECT id FROM locationtype WHERE name = atype)
         LOOP
             RETURN r;
         END LOOP;
