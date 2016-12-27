@@ -82,7 +82,7 @@
                                     <div class="col-lg-7">
                                         <select name="nets_type" id="nets_type" class="form-control">
                                             <option value="">Select Nets Type</option>
-                                            {% for t in ('Olyset', 'Olyset Plus', 'PermaNet 2.0', 'TBA') %}
+                                            {% for t in ('Olyset', 'Olyset Plus', 'PermaNet 2.0', 'PermaNet 3.0', 'Magnet', 'Duranet') %}
                                                 <option value="{{t}}" {% if t == nets_type %} selected="yes" {% endif%}>{{t}}</option>
                                             {% endfor %}
 
@@ -93,7 +93,7 @@
                                     <div class="col-lg-7">
                                         <select name="nets_color" id="nets_color" class="form-control">
                                             <option value="">Select Color</option>
-                                            {% for color in ('Blue', 'Green', 'White') %}
+                                            {% for color in ('Blue', 'Green', 'White', 'White & Blue') %}
                                                 <option value="{{color}}" {% if color == nets_color %} selected="yes" {% endif%}>{{color}}</option>
                                             {% endfor %}
                                         </select>
