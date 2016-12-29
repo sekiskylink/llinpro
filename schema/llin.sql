@@ -459,6 +459,7 @@ CREATE TABLE distribution_log(
     delivered_by INTEGER REFERENCES reporters(id),
     received_by INTEGER REFERENCES reporters(id),
     destination BIGINT REFERENCES locations(id),
+    dest_distribution_point BIGINT REFERENCES distribution_points(id),
     track_no_plate TEXT NOT NULL DEFAULT '',
     remarks TEXT NOT NULL DEFAULT '',
     arrival_date DATE,
@@ -479,11 +480,36 @@ CREATE INDEX distribution_log_idx4 ON distribution_log(departure_date);
 CREATE INDEX distribution_log_idx5 ON distribution_log(is_delivered);
 CREATE INDEX distribution_log_idx6 ON distribution_log(warehouse_branch);
 
+CREATE TABLE village_distribution_log(
+    id BIGSERIAL PRIMARY KEY NOT NULL,
+    distribution_log_id BIGINT NOT NULL REFERENCES distribution_log(id) ON DELETE CASCADE ON UPDATE CASCADE,
+    village_id BIGINT NOT NULL REFERENCES locations(id) ON DELETE CASCADE ON UPDATE CASCADE,
+    quantity_received NUMERIC NOT NULL DEFAULT 0,
+    date DATE,
+    received_by INTEGER REFERENCES reporters(id),
+    created TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(distribution_log_id, village_id)
+);
+
+CREATE TABLE household_distribution_log(
+    id BIGSERIAL PRIMARY KEY NOT NULL,
+    vdist_id BIGINT REFERENCES village_distribution_log(id) ON DELETE CASCADE ON UPDATE CASCADE, -- helps to check if giving more than we have
+    distribution_date DATE,
+    quantity NUMERIC NOT NULL DEFAULT 0,
+    reporter_id BIGINT REFERENCES reporters(id),
+    created TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+
+);
+
 CREATE TABLE distribution_log_schedules(
     id BIGSERIAL PRIMARY KEY NOT NULL,
     distribution_log_id BIGINT REFERENCES distribution_log(id) ON DELETE CASCADE ON UPDATE CASCADE,
     schedule_id BIGINT REFERENCES schedules(id) ON DELETE CASCADE ON UPDATE CASCADE,
     level TEXT NOT NULL,
+    triggered_by BIGINT REFERENCES locations(id), --which administrative level is the person triggering the notification
+    type TEXT NOT NULL DEFAULT '' -- one of 'REC' or 'DIST'
     created TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     UNIQUE(distribution_log_id, schedule_id, level)
@@ -509,9 +535,9 @@ CREATE VIEW distribution_log_w2sc_view AS
         AND a.warehouse_branch = c.id AND (b.id = c.warehouse_id)
         AND a.delivered_by = d.id;
 
-DROP VIEW IF EXISTS distribution_log_sc2v_view; -- subcounty to village
-CREATE VIEW distribution_log_sc2v_view AS
-    -- view to show distribution from subcounty to village
+DROP VIEW IF EXISTS distribution_log_sc2dp_view; -- subcounty to distribution point
+CREATE VIEW distribution_log_sc2dp_view AS
+    -- view to show distribution from subcounty to disribution point
     SELECT a.id, a.release_order, a.waybill, a.quantity_bales,
         a.quantity_nets,
         a.departure_date, a.departure_time,
@@ -526,7 +552,7 @@ CREATE VIEW distribution_log_sc2v_view AS
     FROM
         distribution_log a, reporters d
     WHERE
-        a.source = 'subcounty' AND a.dest = 'village'
+        a.source = 'subcounty' AND a.dest = 'dp'
         AND a.delivered_by = d.id;
 
 CREATE TABLE registration_forms(
@@ -607,6 +633,25 @@ AS $function$
             RETURN r;
         END LOOP;
         RETURN '';
+    END;
+$function$;
+
+CREATE OR REPLACE FUNCTION public.get_district_id(loc_id bigint)
+ RETURNS bigint
+ LANGUAGE plpgsql
+AS $function$
+     DECLARE
+        r BIGINT;
+        our_lft BIGINT;
+        our_rght BIGINT;
+    BEGIN
+        SELECT lft, rght INTO our_lft, our_rght FROM locations WHERE id = loc_id;
+        FOR r IN SELECT id FROM locations WHERE lft <= our_lft AND rght >= our_rght AND
+            type_id=(SELECT id FROM locationtype WHERE name = 'district')
+        LOOP
+            RETURN r;
+        END LOOP;
+        RETURN 0;
     END;
 $function$;
 
@@ -705,7 +750,8 @@ CREATE VIEW reporters_view AS
 CREATE VIEW reporters_view2 AS
     SELECT a.id, a.firstname, a.lastname, a.telephone, a.alternate_tel, a.email, a.national_id,
         a.reporting_location, a.created_by,
-        get_district(a.reporting_location) as district, get_reporter_groups(a.id) as role, b.name as loc_name,
+        get_district(a.reporting_location) as district, get_district_id(a.reporting_location) as district_id,
+        get_reporter_groups(a.id) as role, b.name as loc_name,
         b.code as location_code
     FROM reporters a, locations b
     WHERE a.reporting_location = b.id;

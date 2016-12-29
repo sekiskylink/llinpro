@@ -58,7 +58,17 @@ config = {
     'driver_sms_template': (
         "You're delivering %(quantity)s bales of nets to %(subcounty)s sub-county of %(district)s district. "
         " Delivery Note Number: %(waybill)s. Once delivered/offloaded, please send "
-        "\"DEL %(waybill)s %(quantity)s\" to %(shortcode)s.")
+        "\"DEL %(waybill)s %(quantity)s\" to %(shortcode)s."),
+    'receive_subcounty_nets_sms_template': (
+        "%(subcounty)s sub-county of %(district)s district has received %(quantity)s bales of nets. "
+        " Delievery Note Number: %(waybill)s "),
+    'receive_village_nets_sms_template': (
+        "%(village)s village of %(subcounty)s subcounty has received %(quantity)s nets."
+    ),
+    'household_nets_sms_template': (
+        "VHT (%(vht)s) has distributed %(quantity)s nets in %(village)s village of %(subcounty)s Sub-county"
+    )
+
 }
 
 try:

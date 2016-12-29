@@ -119,11 +119,12 @@ def update_queued_sms(db, sched_id, params, run_time, user=None):
         })
 
 
-def log_schedule(db, distribution_log_id, sched_id, level):
+def log_schedule(db, distribution_log_id, sched_id, level, triggered_by=1):
     db.query(
-        "INSERT INTO distribution_log_schedules(distribution_log_id, schedule_id, level) "
-        "VALUES($log_id, $sched_id, $level)", {
-            'log_id': distribution_log_id, 'sched_id': sched_id, 'level': level})
+        "INSERT INTO distribution_log_schedules(distribution_log_id, schedule_id, level, triggered_by) "
+        "VALUES($log_id, $sched_id, $level, $triggered_by)", {
+            'log_id': distribution_log_id, 'sched_id': sched_id,
+            'level': level, 'triggered_by': triggered_by})
 
 
 def can_still_distribute(db, amount, reverse_amount=0):

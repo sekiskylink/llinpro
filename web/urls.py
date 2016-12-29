@@ -9,7 +9,8 @@ from app.controllers.warehouse_handler import WarehouseData
 from app.controllers.api import Location, LocationChildren, DistributionPoints, SubcountyLocations
 from app.controllers.api import FormSerials, SerialsEndpoint, WarehouseBranches, DistributionPointsEndpoint
 from app.controllers.api import WarehouseRecord, DistributionRecord, VhtCode, DeliverNets, ReceiveNets
-from app.controllers.api import DistributeVillageNets, ReportersEndpoint
+from app.controllers.api import DistributeVillageNets, ReportersEndpoint, ReceiveVillageNets
+from app.controllers.api import DistributeHouseholdNets
 from app.controllers.reporters_handler import Reporters
 from app.controllers.users_handler import Users
 from app.controllers.groups_handler import Groups
@@ -40,6 +41,8 @@ URLS = (
     r'/api/v1/vhtcode', VhtCode,
     r'/api/v1/deliver', DeliverNets,
     r'/api/v1/receive', ReceiveNets,
+    r'/api/v1/got', ReceiveVillageNets,
+    r'/api/v1/gave', DistributeHouseholdNets,
     r'/api/v1/distribute', DistributeVillageNets,
     r'/reporters', Reporters,
     r'/auditlog', AuditLog,

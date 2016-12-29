@@ -172,9 +172,10 @@ class Dispatch:
                         db, params.subcounty, config['subcounty_reporters'])
 
                     scheduled_msgs = db.query(
-                        "SELECT a.schedule_id, a.level FROM distribution_log_schedules a, "
+                        "SELECT a.schedule_id, a.level, a.triggered_by FROM distribution_log_schedules a, "
                         " schedules b WHERE a.distribution_log_id = $log_id AND "
-                        " b.id = a.schedule_id AND b.status = 'ready'", {'log_id': data_id})  # XXX 'ready'
+                        " b.id = a.schedule_id AND b.status = 'ready' "
+                        " AND a.triggered_by = 1", {'log_id': data_id})  # XXX 'ready'
                     if scheduled_msgs:  # we still have ready schedules
                         for s in scheduled_msgs:
                             sched = db.query(
