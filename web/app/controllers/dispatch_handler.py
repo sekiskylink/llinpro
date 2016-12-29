@@ -185,18 +185,18 @@ class Dispatch:
                             # build SMS to send to notifying parties
                             sms_text = config['national_sms_template'] % sms_args
                             if s['level'] == 'national':
-                                sms_params = {'text': sms_text, 'to': ','.join(national_reporters)}
+                                sms_params = {'text': sms_text, 'to': ' '.join(national_reporters)}
                                 update_queued_sms(db, s['schedule_id'], sms_params, sched_time, session.sesid)
 
                             elif s['level'] == 'district':
-                                sms_params = {'text': sms_text, 'to': ','.join(district_reporters)}
+                                sms_params = {'text': sms_text, 'to': ' '.join(district_reporters)}
                                 update_queued_sms(db, s['schedule_id'], sms_params, sched_time, session.sesid)
 
                             elif s['level'] == 'subcounty':
                                 sms_text += (
                                     '\n Once received / offloaded, please send '
                                     '"REC %(waybill)s %(quantity)s" to %(shortcode)s' % sms_args)
-                                sms_params = {'text': sms_text, 'to': ','.join(subcounty_reporters)}
+                                sms_params = {'text': sms_text, 'to': ' '.join(subcounty_reporters)}
                                 update_queued_sms(db, s['schedule_id'], sms_params, sched_time, session.sesid)
 
                             elif s['level'] == 'driver':
@@ -205,12 +205,12 @@ class Dispatch:
                                 update_queued_sms(db, s['schedule_id'], sms_params, sched_time, session.sesid)
                     else:  # no ready schedules were found
                         sms_text = config['national_sms_template'] % sms_args
-                        sms_params = {'text': sms_text, 'to': ','.join(district_reporters)}
+                        sms_params = {'text': sms_text, 'to': ' '.join(district_reporters)}
                         sched_id = queue_schedule(db, sms_params, sched_time, session.sesid)
                         log_schedule(db, data_id, sched_id, 'district')
                         # print "+=======+=======+===>", district_reporters
 
-                        sms_params = {'text': sms_text, 'to': ','.join(national_reporters)}
+                        sms_params = {'text': sms_text, 'to': ' '.join(national_reporters)}
                         sched_id = queue_schedule(db, sms_params, sched_time, session.sesid)
                         log_schedule(db, data_id, sched_id, 'national')
                         # print "*=======*=======*===>", national_reporters
@@ -218,7 +218,7 @@ class Dispatch:
                         sms_text += (
                             '\n Once received / offloaded, please send '
                             '"REC %(waybill)s %(quantity)s" to %(shortcode)s' % sms_args)
-                        sms_params = {'text': sms_text, 'to': ','.join(subcounty_reporters)}
+                        sms_params = {'text': sms_text, 'to': ' '.join(subcounty_reporters)}
                         sched_id = queue_schedule(db, sms_params, sched_time, session.sesid)
                         log_schedule(db, data_id, sched_id, 'subcounty')
                         # print "@=======@=======@===>", subcounty_reporters
@@ -328,13 +328,13 @@ class Dispatch:
                     sms_text = config['national_sms_template'] % sms_args
 
                     district_reporters = get_location_role_reporters(db, params.district, config['district_reporters'])
-                    sms_params = {'text': sms_text, 'to': ','.join(district_reporters)}
+                    sms_params = {'text': sms_text, 'to': ' '.join(district_reporters)}
                     sched_id = queue_schedule(db, sms_params, sched_time, session.sesid)
                     log_schedule(db, log_id, sched_id, 'district')
                     # print "+=======+=======+===>", district_reporters
 
                     national_reporters = get_location_role_reporters(db, 1, config['national_reporters'])
-                    sms_params = {'text': sms_text, 'to': ','.join(national_reporters)}
+                    sms_params = {'text': sms_text, 'to': ' '.join(national_reporters)}
                     sched_id = queue_schedule(db, sms_params, sched_time, session.sesid)
                     log_schedule(db, log_id, sched_id, 'national')
                     # print "*=======*=======*===>", national_reporters
@@ -343,7 +343,7 @@ class Dispatch:
                     sms_text += (
                         '\n Once received / offloaded, please send '
                         '"REC %(waybill)s %(quantity)s" to %(shortcode)s' % sms_args)
-                    sms_params = {'text': sms_text, 'to': ','.join(subcounty_reporters)}
+                    sms_params = {'text': sms_text, 'to': ' '.join(subcounty_reporters)}
                     sched_id = queue_schedule(db, sms_params, sched_time, session.sesid)
                     log_schedule(db, log_id, sched_id, 'subcounty')
                     # print "@=======@=======@===>", subcounty_reporters
