@@ -456,20 +456,20 @@ class ReceiveNets:
                                 # build SMS to send to notifying parties
                                 sms_text = config['receive_subcounty_nets_sms_template'] % sms_args
                                 if s['level'] == 'national':
-                                    sms_params = {'text': sms_text, 'to': ','.join(national_reporters)}
+                                    sms_params = {'text': sms_text, 'to': ' '.join(national_reporters)}
                                     update_queued_sms(db, s['schedule_id'], sms_params, sched_time)
 
                                 elif s['level'] == 'district':
-                                    sms_params = {'text': sms_text, 'to': ','.join(district_reporters)}
+                                    sms_params = {'text': sms_text, 'to': ' '.join(district_reporters)}
                                     update_queued_sms(db, s['schedule_id'], sms_params, sched_time)
 
                         else:
                             sms_text = config['receive_subcounty_nets_sms_template'] % sms_args
-                            sms_params = {'text': sms_text, 'to': ','.join(district_reporters)}
+                            sms_params = {'text': sms_text, 'to': ' '.join(district_reporters)}
                             sched_id = queue_schedule(db, sms_params, sched_time)
                             log_schedule(db, log_id, sched_id, 'district', triggered_by=dest_location)
 
-                            sms_params = {'text': sms_text, 'to': ','.join(national_reporters)}
+                            sms_params = {'text': sms_text, 'to': ' '.join(national_reporters)}
                             sched_id = queue_schedule(db, sms_params, sched_time)
                             log_schedule(db, log_id, sched_id, 'national', dest_location)
 
@@ -491,21 +491,21 @@ class ReceiveNets:
                                 sms_text = config['receive_subcounty_nets_sms_template'] % sms_args
                                 if s['level'] == 'national':
                                     if national_reporters:
-                                        sms_params = {'text': sms_text, 'to': ','.join(national_reporters)}
+                                        sms_params = {'text': sms_text, 'to': ' '.join(national_reporters)}
                                         update_queued_sms(db, s['schedule_id'], sms_params, sched_time)
 
                                 elif s['level'] == 'district':
                                     if district_reporters:
-                                        sms_params = {'text': sms_text, 'to': ','.join(district_reporters)}
+                                        sms_params = {'text': sms_text, 'to': ' '.join(district_reporters)}
                                         update_queued_sms(db, s['schedule_id'], sms_params, sched_time)
                         else:
                             sms_text = config['receive_subcounty_nets_sms_template'] % sms_args
                             if district_reporters:
-                                sms_params = {'text': sms_text, 'to': ','.join(district_reporters)}
+                                sms_params = {'text': sms_text, 'to': ' '.join(district_reporters)}
                                 sched_id = queue_schedule(db, sms_params, sched_time)
                                 log_schedule(db, log_id, sched_id, 'district', triggered_by=dest_location)
                             if national_reporters:
-                                sms_params = {'text': sms_text, 'to': ','.join(national_reporters)}
+                                sms_params = {'text': sms_text, 'to': ' '.join(national_reporters)}
                                 sched_id = queue_schedule(db, sms_params, sched_time)
                                 log_schedule(db, log_id, sched_id, 'national', dest_location)
 
@@ -670,19 +670,19 @@ class ReceiveVillageNets:
                                 # build SMS to send to notifying parties
                                 sms_text = config['receive_village_nets_sms_template'] % sms_args
                                 if s['level'] == 'subcounty':
-                                    sms_params = {'text': sms_text, 'to': ','.join(subcounty_reporters)}
+                                    sms_params = {'text': sms_text, 'to': ' '.join(subcounty_reporters)}
                                     update_queued_sms(db, s['schedule_id'], sms_params, sched_time)
 
                                 elif s['level'] == 'district':
-                                    sms_params = {'text': sms_text, 'to': ','.join(district_reporters)}
+                                    sms_params = {'text': sms_text, 'to': ' '.join(district_reporters)}
                                     update_queued_sms(db, s['schedule_id'], sms_params, sched_time)
                         else:  # no previous schedule that is ready
                             sms_text = config['receive_village_nets_sms_template'] % sms_args
-                            sms_params = {'text': sms_text, 'to': ','.join(district_reporters)}
+                            sms_params = {'text': sms_text, 'to': ' '.join(district_reporters)}
                             sched_id = queue_schedule(db, sms_params, sched_time)
                             log_schedule(db, log_id, sched_id, 'district', triggered_by=reporting_location)
 
-                            sms_params = {'text': sms_text, 'to': ','.join(subcounty_reporters)}
+                            sms_params = {'text': sms_text, 'to': ' '.join(subcounty_reporters)}
                             sched_id = queue_schedule(db, sms_params, sched_time)
                             log_schedule(db, log_id, sched_id, 'subcounty', triggered_by=reporting_location)
                         ret = (
@@ -701,11 +701,11 @@ class ReceiveVillageNets:
                             "Receipt of %s nets with waybill %s "
                             "successfully recorded. If there's an error please resend" % (qty_nets, waybill))
                         sms_text = config['receive_village_nets_sms_template'] % sms_args
-                        sms_params = {'text': sms_text, 'to': ','.join(district_reporters)}
+                        sms_params = {'text': sms_text, 'to': ' '.join(district_reporters)}
                         sched_id = queue_schedule(db, sms_params, sched_time)
                         log_schedule(db, log_id, sched_id, 'district', triggered_by=reporting_location)
 
-                        sms_params = {'text': sms_text, 'to': ','.join(subcounty_reporters)}
+                        sms_params = {'text': sms_text, 'to': ' '.join(subcounty_reporters)}
                         sched_id = queue_schedule(db, sms_params, sched_time)
                         log_schedule(db, log_id, sched_id, 'subcounty', triggered_by=reporting_location)
                         return json.dumps({"message": ret})
@@ -812,19 +812,19 @@ class DistributeHouseholdNets:
                                 # build SMS to send to notifying parties
                                 sms_text = config['household_nets_sms_template'] % sms_args
                                 if s['level'] == 'subcounty':
-                                    sms_params = {'text': sms_text, 'to': ','.join(subcounty_reporters)}
+                                    sms_params = {'text': sms_text, 'to': ' '.join(subcounty_reporters)}
                                     update_queued_sms(db, s['schedule_id'], sms_params, sched_time)
 
                                 elif s['level'] == 'district':
-                                    sms_params = {'text': sms_text, 'to': ','.join(district_reporters)}
+                                    sms_params = {'text': sms_text, 'to': ' '.join(district_reporters)}
                                     update_queued_sms(db, s['schedule_id'], sms_params, sched_time)
                         else:  # no previous schedule that is ready
                             sms_text = config['household_nets_sms_template'] % sms_args
-                            sms_params = {'text': sms_text, 'to': ','.join(district_reporters)}
+                            sms_params = {'text': sms_text, 'to': ' '.join(district_reporters)}
                             sched_id = queue_schedule(db, sms_params, sched_time)
                             log_schedule(db, log_id, sched_id, 'district', triggered_by=reporting_location)
 
-                            sms_params = {'text': sms_text, 'to': ','.join(subcounty_reporters)}
+                            sms_params = {'text': sms_text, 'to': ' '.join(subcounty_reporters)}
                             sched_id = queue_schedule(db, sms_params, sched_time)
                             log_schedule(db, log_id, sched_id, 'subcounty', triggered_by=reporting_location)
 
@@ -843,11 +843,11 @@ class DistributeHouseholdNets:
                             "of %(subcounty)s Subcounty today. If there's an error, please resend" % sms_args)
 
                         sms_text = config['household_nets_sms_template'] % sms_args
-                        sms_params = {'text': sms_text, 'to': ','.join(district_reporters)}
+                        sms_params = {'text': sms_text, 'to': ' '.join(district_reporters)}
                         sched_id = queue_schedule(db, sms_params, sched_time)
                         log_schedule(db, log_id, sched_id, 'district', triggered_by=reporting_location)
 
-                        sms_params = {'text': sms_text, 'to': ','.join(subcounty_reporters)}
+                        sms_params = {'text': sms_text, 'to': ' '.join(subcounty_reporters)}
                         sched_id = queue_schedule(db, sms_params, sched_time)
                         log_schedule(db, log_id, sched_id, 'subcounty', triggered_by=reporting_location)
                         return json.dumps({"message": ret})
