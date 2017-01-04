@@ -88,7 +88,11 @@ class Dispatch:
 
         with db.transaction():
             if params.ed and allow_edit:
-                q = db.query("SELECT id FROM reporters WHERE telephone = $tel", {'tel': params.driver_tel})
+                q = db.query(
+                    "SELECT id FROM reporters WHERE "
+                    "replace(telephone, '+', '') = $tel OR "
+                    "replace(alternate_tel, '+', '') = $tel",
+                    {'tel': params.driver_tel.replace('+', '')})
                 if q:
                     driver_id = q[0]['id']
                 else:

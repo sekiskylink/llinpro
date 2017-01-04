@@ -510,8 +510,11 @@ class ReceiveNets:
                                 log_schedule(db, log_id, sched_id, 'national', dest_location)
 
                         return json.dumps({"message": ret})
-
-        ret = "Waybill %s not recorgnized. Please resend if there is an error" % (waybill)
+                else:
+                    ret = ("No distribution to your subcounty with waybill: %s " % waybill)
+                    return json.dumps({"message": ret})
+            else:
+                ret = "Waybill %s not recorgnized. Please resend if there is an error" % (waybill)
         return json.dumps({"message": ret})
 
 
@@ -593,7 +596,7 @@ class ReceiveVillageNets:
                 reporter = r[0]
                 district_id = reporter["district_id"]
                 district = reporter["district"]
-                # reporter_id = reporter['id']
+                reporter_id = reporter['id']
                 reporting_location = reporter['reporting_location']
                 village = reporter['village']
                 res = db.query(
@@ -693,10 +696,10 @@ class ReceiveVillageNets:
                     else:
                         db.query(
                             "INSERT INTO village_distribution_log(distribution_log_id, village_id, "
-                            " quantity_received, date) VALUES($log_id, $loc, $qty, $date) "
+                            " quantity_received, date, received_by) VALUES($log_id, $loc, $qty, $date, $received_by) "
                             " RETURNING id ", {
                                 'log_id': log_id, 'loc': reporting_location,
-                                'qty': qty_nets, 'date': today})
+                                'qty': qty_nets, 'date': today, 'received_by': reporter_id})
                         ret = (
                             "Receipt of %s nets with waybill %s "
                             "successfully recorded. If there's an error please resend" % (qty_nets, waybill))
