@@ -247,7 +247,7 @@ $delim$
     END;
 $delim$ LANGUAGE plpgsql;
 
-CREATE OR REPLACE FUNCTION delete_node(treeid INT, node_id INT)
+CREATE OR REPLACE FUNCTION delete_node(treeid INT, node_id BIGINT)
     RETURNS boolean AS $delim$
     DECLARE
         node_lft INTEGER;
@@ -509,7 +509,7 @@ CREATE TABLE distribution_log_schedules(
     schedule_id BIGINT REFERENCES schedules(id) ON DELETE CASCADE ON UPDATE CASCADE,
     level TEXT NOT NULL,
     triggered_by BIGINT REFERENCES locations(id), --which administrative level is the person triggering the notification
-    type TEXT NOT NULL DEFAULT '' -- one of 'REC' or 'DIST'
+    --type TEXT NOT NULL DEFAULT '' -- one of 'REC' or 'DIST'
     created TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     UNIQUE(distribution_log_id, schedule_id, level)
