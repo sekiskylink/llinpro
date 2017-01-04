@@ -71,6 +71,18 @@ config = {
 
 }
 
+# the order of fields in the reporter upload excel file
+EXCEL_UPLOAD_ORDER = {
+    'name': 0,
+    'telephone': 1,
+    'alternate_tel': 2,
+    'role': 3,
+    'subcounty': 4,
+    'parish': 5,
+    'village': 6,
+    'village_code': 7
+}
+
 try:
     from local_settings import *
 except ImportError:
