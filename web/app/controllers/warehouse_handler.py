@@ -162,11 +162,11 @@ class WarehouseData:
             else:
                 has_entry = db.query(
                     "SELECT id FROM national_delivery_log WHERE waybill=$waybill "
-                    "OR goods_received_note = $grn",
+                    "AND goods_received_note = $grn",
                     {'waybill': params.waybill, 'grn': params.goods_received_note})
                 if has_entry:
                     session.wdata_err = (
-                        "Entry with Waybill:%s OR Goods Received Note:%s "
+                        "Entry with Waybill:%s AND Goods Received Note:%s "
                         "already entered" % (params.waybill, params.goods_received_note))
                     return web.seeother("/warehousedata")
                 session.wdata_err = ""
@@ -202,8 +202,8 @@ class WarehouseData:
                     log_dict = {
                         'logtype': 'Warehouse', 'action': 'Create', 'actor': session.username,
                         'ip': web.ctx['ip'],
-                        'descr': 'Added warehouse data entry id:%s, Waybill:%s, Qty (bales):%s' % (
-                            data_id, params.waybill, params.quantity),
+                        'descr': 'Added warehouse data entry id:%s, Waybill:%s, GRN:%s, Qty (bales):%s' % (
+                            data_id, params.waybill, params.goods_received_note, params.quantity),
                         'user': session.sesid
                     }
                     audit_log(db, log_dict)

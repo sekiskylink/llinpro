@@ -425,8 +425,8 @@ CREATE TABLE national_delivery_log(
     quantity_bales NUMERIC NOT NULL DEFAULT 0,
     quantity NUMERIC NOT NULL DEFAULT 0,
     entry_date DATE,
-    waybill TEXT NOT NULL UNIQUE,
-    goods_received_note TEXT NOT NULL UNIQUE,
+    waybill TEXT NOT NULL,
+    goods_received_note TEXT NOT NULL,
     warehouse_branch INTEGER NOT NULL REFERENCES warehouse_branches(id),
     sub_warehouse TEXT NOT NULL DEFAULT '',
     nda_samples INTEGER NOT NULL DEFAULT 0,
@@ -438,7 +438,8 @@ CREATE TABLE national_delivery_log(
     remarks TEXT NOT NULL DEFAULT '',
     created_by INTEGER REFERENCES users(id),
     created TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+    updated TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(waybill, goods_received_note)
 );
 CREATE INDEX national_delivery_log_idx1 ON national_delivery_log(waybill);
 CREATE INDEX national_delivery_log_idx2 ON national_delivery_log(goods_received_note);
@@ -562,7 +563,33 @@ CREATE TABLE registration_forms(
     created TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE kannel_stats(
+    id SERIAL PRIMARY KEY NOT NULL,
+    month TEXT NOT NULL DEFAULT '',
+    stats JSON NOT NULL DEFAULT '{}'::json,
+    created TIMESTAMP NOT NULL DEFAULT NOW(),
+    updated TIMESTAMP NOT NULL DEFAULT NOW()
+);
 
+CREATE VIEW sms_stats AS
+    SELECT
+        id,
+        month,
+        stats->>'mtn_in' as mtn_in,
+        stats->>'mtn_out' as mtn_out,
+        stats->>'airtel_in' as airtel_in,
+        stats->>'airtel_out' as airtel_out,
+        stats->>'africel_in' as africel_in,
+        stats->>'africel_out' as africel_out,
+        stats->>'utl_in' as utl_in,
+        stats->>'utl_out' as utl_out,
+        stats->>'others_in' as others_in,
+        stats->>'others_out' as others_out,
+        stats->>'total_in' as total_in,
+        stats->>'total_out' as total_out,
+        created,
+        updated
+    FROM kannel_stats;
 
 --location stuff
 --INSERT INTO locationtree (name)
