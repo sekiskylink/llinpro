@@ -71,8 +71,14 @@ def load_reporters(data):
         _name = d[order['name']].strip()
         _name = ' '.join([pname.capitalize() for pname in _name.split(' ')])
 
-        _phone = '%s' % (str(int(float(d[order['telephone']]))))
-        _phone2 = '%s' % str(int(float(d[order['alternate_tel']]))) if d[order['alternate_tel']] else ''
+        try:
+            _phone = '%s' % (str(int(float(d[order['telephone']]))))
+        except:
+            _phone = ""
+        try:
+            _phone2 = '%s' % str(int(float(d[order['alternate_tel']]))) if d[order['alternate_tel']] else ''
+        except:
+            _phone2 = ""
         _role = d[order['role']].strip()
         _village_code = d[order['village_code']].strip()
 
