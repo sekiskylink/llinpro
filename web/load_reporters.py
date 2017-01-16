@@ -115,8 +115,8 @@ def load_reporters(data):
                 reporter_id = res3["id"]
                 cur.execute(
                     "INSERT INTO reporter_groups_reporters(group_id, reporter_id) "
-                    "VALUES((SELECT id FROM reporter_groups WHERE name = %s), %s)",
-                    [_role, reporter_id])
+                    "VALUES((SELECT id FROM reporter_groups WHERE lower(name) = %s), %s)",
+                    [_role.lower(), reporter_id])
                 conn.commit()
         else:
             reporter_id = res["id"]
@@ -128,8 +128,8 @@ def load_reporters(data):
                 [fname, lname, fphone, fphone2, _village_code, reporter_id])
             cur.execute(
                 "UPDATE reporter_groups_reporters SET group_id = "
-                "(SELECT id FROM reporter_groups WHERE name = %s) WHERE reporter_id = %s ",
-                [_role, reporter_id])
+                "(SELECT id FROM reporter_groups WHERE lower(name) = %s) WHERE reporter_id = %s ",
+                [_role.lower(), reporter_id])
             conn.commit()
 
 l = read_all_reporters(filename)
