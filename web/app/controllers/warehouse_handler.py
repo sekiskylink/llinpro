@@ -5,7 +5,7 @@
 
 import web
 from . import csrf_protected, db, require_login, render, get_session
-from settings import QUANTITY_PER_BALE
+from settings import QUANTITY_PER_BALE, NET_TYPES
 from app.tools.utils import audit_log
 import json
 
@@ -22,6 +22,7 @@ class WarehouseData:
         nda_samples = 0
         unbs_samples = 0
         allow_edit = False
+        net_types = NET_TYPES
         try:
             edit_val = int(params.ed)
             allow_edit = True

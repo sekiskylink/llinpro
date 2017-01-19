@@ -82,7 +82,7 @@
                                     <div class="col-lg-7">
                                         <select name="nets_type" id="nets_type" class="form-control">
                                             <option value="">Select Nets Type</option>
-                                            {% for t in ('Olyset', 'Olyset Plus', 'PermaNet 2.0', 'PermaNet 3.0', 'Magnet', 'Duranet') %}
+                                            {% for t in net_types %}
                                                 <option value="{{t}}" {% if t == nets_type %} selected="yes" {% endif%}>{{t}}</option>
                                             {% endfor %}
 
