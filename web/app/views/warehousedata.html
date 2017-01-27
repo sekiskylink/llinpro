@@ -256,7 +256,7 @@
                             <thead>
                                 <tr>
                                     <th>#</th>
-                                    <th>PO Number</th>
+                                    <th>Entry Date</th>
                                     <th>Funding Source</th>
                                     <th>Manufacturer</th>
                                     <th>Made In</th>
@@ -271,7 +271,7 @@
                                 {% for d in warehousedata %}
                                     <tr>
                                         <td>{{ loop.index }}</td>
-                                        <td>{{ d.po_number }}</td>
+                                        <td>{{ d.entry_date }}</td>
                                         <td>{{ d.funding_source_name }}</td>
                                         <td>{{ d.manufacturer_name }}</td>
                                         <td>{{ d.made_in }}</td>
