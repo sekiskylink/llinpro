@@ -11,15 +11,21 @@ from app.controllers.api import FormSerials, SerialsEndpoint, WarehouseBranches,
 from app.controllers.api import WarehouseRecord, DistributionRecord, VhtCode, DeliverNets, ReceiveNets
 from app.controllers.api import DistributeVillageNets, ReportersEndpoint, ReceiveVillageNets
 from app.controllers.api import DistributeHouseholdNets
+from app.controllers.api2 import LocationsEndpoint
 from app.controllers.reporters_handler import Reporters
 from app.controllers.users_handler import Users
 from app.controllers.groups_handler import Groups
 from app.controllers.dispatch_handler import Dispatch
 from app.controllers.dashboard_handler import Dashboard
 from app.controllers.auditlog_handler import AuditLog
+from app.controllers.smslog_handler import SMSLog
 from app.controllers.settings_handler import Settings
 from app.controllers.distributionpoints_handler import DistPoints
+from app.controllers.coverage_handler import Coverage
+from app.controllers.coveragemap_handler import CoverageMap
 from app.controllers.forgotpass_handler import ForgotPass
+from app.controllers.hotline_handler import Hotline
+from app.controllers.downloads_handler import Downloads
 
 URLS = (
     r'^/', Index,
@@ -27,6 +33,19 @@ URLS = (
     r'/warehousedata', WarehouseData,
     r'/dispatch', Dispatch,
     r'/distributionpoints', DistPoints,
+    r'/smslog', SMSLog,
+    r'/coverage', Coverage,
+    r'/coveragemap', CoverageMap,
+    r'/hotline', Hotline,
+    r'/downloads', Downloads,
+    r'/reporters', Reporters,
+    r'/auditlog', AuditLog,
+    r'/settings', Settings,
+    r'/users', Users,
+    r'/groups', Groups,
+    r'/logout', Logout,
+    r'/forgotpass', ForgotPass,
+    # API stuff follows
     r'/api/v1/loc_children/(\d+)/?', LocationChildren,
     r'/api/v1/location/(\d+)/?', Location,
     r'/api/v1/distribution_points/(\d+)/?', DistributionPoints,
@@ -38,17 +57,11 @@ URLS = (
     r'/api/v1/forms_endpoint/(\w+)/?', SerialsEndpoint,
     r'/api/v1/dpoints_endpoint/(\w+)/?', DistributionPointsEndpoint,
     r'/api/v1/reporters_endpoint/(\w+)/?', ReportersEndpoint,
+    r'/api/v1/locations_endpoint/(\w+)/?', LocationsEndpoint,
     r'/api/v1/vhtcode', VhtCode,
     r'/api/v1/deliver', DeliverNets,
     r'/api/v1/receive', ReceiveNets,
     r'/api/v1/got', ReceiveVillageNets,
     r'/api/v1/gave', DistributeHouseholdNets,
     r'/api/v1/distribute', DistributeVillageNets,
-    r'/reporters', Reporters,
-    r'/auditlog', AuditLog,
-    r'/settings', Settings,
-    r'/users', Users,
-    r'/groups', Groups,
-    r'/logout', Logout,
-    r'/forgotpass', ForgotPass
 )

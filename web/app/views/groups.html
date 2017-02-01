@@ -42,8 +42,61 @@
                                         <input name="descr" id="descr" type="text" value="{{ descr }}" class="form-control"/>
                                     </div>
                                 </div>
+                                <!--
                                 <div class="form-group">
                                     <div class="col-lg-offset-3 col-lg-10">
+                                        <button class="btn btn-sm btn-primary" type="submit">Save Group</button>
+                                    </div>
+                                </div>
+                                -->
+                                <br/>
+                                <br/>
+                                <br/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- END LEFT -->
+
+            <!-- RIGHT -->
+            <div class="col-lg-6">
+                <div class="ibox float-e-margins">
+                    <div class="ibox-title">
+                        <h5>Group Permissions<small></small></h5>
+                        <div class="ibox-tools">
+                            <a class="collapse-link">
+                                <i class="fa fa-chevron-up"></i>
+                            </a>
+                        </div>
+                        <div class="ibox-content">
+                            <div class="row">
+                                <div class="form-group"><label for="name" class="col-lg-5 control-label">Warehouse Management:</label>
+                                    <div class="col-lg-7">
+                                    <input type="checkbox" name="wread" value="r" id="wread"> Read &nbsp; &nbsp; &nbsp;
+                                    <input type="checkbox" name="wmodify" value="w" id="wmodify"> Modify
+                                    </div>
+                                </div>
+
+                                <div class="form-group"><label for="descr" class="col-lg-5 control-label">Reporter Management:</label>
+                                    <div class="col-lg-7">
+                                    <input type="checkbox" name="rread" value="r" id="rread"> Read &nbsp; &nbsp; &nbsp;
+                                    <input type="checkbox" name="rmodify" value="w" id="rmodify"> Modify
+                                    </div>
+                                </div>
+                                <div class="form-group"><label for="descr" class="col-lg-5 control-label">Distribution Point Mgmt:</label>
+                                    <div class="col-lg-7">
+                                    <input type="checkbox" name="dpread" value="r" id="rread"> Read &nbsp; &nbsp; &nbsp;
+                                    <input type="checkbox" name="dpmodify" value="w" id="rmodify"> Modify
+                                    </div>
+                                </div>
+                                <div class="form-group"><label for="descr" class="col-lg-5 control-label">Reports:</label>
+                                    <div class="col-lg-7">
+                                    <input type="checkbox" name="rptread" value="r" id="rptread"> Read
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="col-lg-offset-5 col-lg-7">
                                         <button class="btn btn-sm btn-primary" type="submit">Save Group</button>
                                     </div>
                                 </div>
@@ -53,7 +106,7 @@
                     </div>
                 </div>
             </div>
-            <!-- END LEFT -->
+            <!-- END RIGHT -->
         </div>
     </form>
     <!-- DATA TABLE -->

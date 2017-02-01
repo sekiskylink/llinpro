@@ -1,0 +1,123 @@
+{% extends "layout.html" %}
+{% from 'layout.html' import navbar, myscripts %}
+
+{% block title %}LLIN.::.SMS Log{% endblock%}
+{% block stylesheets %}
+    <!-- Data Tables -->
+    <link href="/static/css/plugins/dataTables/dataTables.bootstrap.css" rel="stylesheet">
+    <link href="/static/css/plugins/dataTables/dataTables.responsive.css" rel="stylesheet">
+    <link href="/static/css/plugins/dataTables/dataTables.tableTools.min.css" rel="stylesheet">
+    <link href="/static/js/plugins/Buttons-1.1.2/css/buttons.dataTables.min.css" rel="stylesheet">
+
+    <!-- Sweet Alert -->
+    <link href="/static/css/plugins/sweetalert/sweetalert.css" rel="stylesheet">
+{% endblock %}
+
+{% block nav %}
+    {% call navbar() %}
+
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+    <div class="row">
+        <div id="graph">
+        </div>
+    </div>
+    <!-- DATA TABLE -->
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+                    <h5>SMS Logs</h5>
+                    <div class="ibox-tools">
+                        <a class="collapse-link">
+                            <i class="fa fa-chevron-up"></i>
+                        </a>
+                    </div>
+                </div>
+                <div class="ibox-content">
+                    <div class="table-responsive">
+                        <table class="table table-striped table-bordered table-hover dataTables-example" >
+                           <thead>
+							<tr>
+								<th>#</th>
+								<th>MONTH</th>
+								<th>MTN IN</th>
+								<th>MTN OUT</th>
+								<th>AIRTEL IN</th>
+								<th>AIRTEL OUT</th>
+								<th>AFRICEL IN</th>
+								<th>AFRICEL OUT</th>
+								<th>UTL IN</th>
+								<th>UTL OUT</th>
+								<th>TOTAL IN</th>
+								<th>TOTAL OUT</th>
+								<th>Action</th></tr>
+							</thead>
+							<tbody>
+							{% for l in res %}
+								<tr>
+									<td>{{ loop.index }}</td>
+									<td>{{ l.month }}</td>
+									<td>{{ l.mtn_in}}</td>
+									<td>{{ l.mtn_out }}</td>
+									<td>{{ l.airtel_in }}</td>
+									<td>{{ l.airtel_out }}</td>
+									<td>{{ l.africel_in }}</td>
+									<td>{{ l.africel_out }}</td>
+									<td>{{ l.utl_in }}</td>
+									<td>{{ l.utl_out }}</td>
+									<td>{{ l.total_in }}</td>
+									<td>{{ l.total_out }}</td>
+									<td>
+										<a href="/refresh" class="btn btn-primary btn-x sregenerate" value={{ l.month }}><i class="fa fa-refresh"></i></a>
+										&nbsp;&nbsp;&nbsp;
+										<a href="/smslogs?d_id={{ l.id }}&page={{ page }}" class="btn btn-danger btn-xs gwe" value={{ l.id }}><i class="icon-signal"></i></a>
+									</td>
+								</tr>
+							{% endfor%}
+							</tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- END DATA TABLE -->
+{% endblock %}
+
+{% block scripts %}
+    {% call myscripts() %}
+        <!-- Data Tables -->
+        <script src="/static/js/plugins/dataTables/jquery.dataTables.js"></script>
+        <script src="/static/js/plugins/dataTables/dataTables.bootstrap.js"></script>
+        <script src="/static/js/plugins/dataTables/dataTables.responsive.js"></script>
+        <script src="/static/js/plugins/dataTables/dataTables.tableTools.min.js"></script>
+
+        <script type="text/javascript" src="/static/js/plugins/Buttons-1.1.2/js/dataTables.buttons.min.js"></script>
+        <script type="text/javascript" src="/static/js/plugins/Buttons-1.1.2/js/buttons.flash.min.js"></script>
+        <script type="text/javascript" src="/static/js/plugins/jszip.min.js"></script>
+        <script type="text/javascript" src="/static/js/plugins/pdfmake.min.js"></script>
+        <script type="text/javascript" src="/static/js/plugins/vfs_fonts.js"></script>
+        <script type="text/javascript" src="/static/js/plugins/Buttons-1.1.2/js/buttons.html5.min.js"></script>
+        <script type="text/javascript" src="/static/js/plugins/Buttons-1.1.2/js/buttons.print.min.js"></script>
+
+        <script src="/static/js/plugins/bootstrap-validator/dist/validator.min.js"></script>
+        <script src="/static/js/llin/smslogs.js"></script>
+        <script>
+           $(document).ready(function() {
+            $('.dataTables-example').DataTable({
+                "dom": 'Bfrtip',
+                buttons: [
+                    'copy', 'csv', 'excel', 'pdf', 'print'
+                ],
+                pageLength: 25
+            });
+
+        });
+        </script>
+    {% endcall %}
+{% endblock %}
+
+

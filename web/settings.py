@@ -82,6 +82,7 @@ EXCEL_UPLOAD_ORDER = {
     'village': 6,
     'village_code': 7
 }
+NET_TYPES = ['Olyset', 'Olyset Plus', 'PermaNet 2.0', 'PermaNet 3.0', 'Magnet', 'Duranet', 'Dawa Plus']
 
 try:
     from local_settings import *

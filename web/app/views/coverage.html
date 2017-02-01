@@ -1,7 +1,7 @@
 {% extends "layout.html" %}
 {% from 'layout.html' import navbar, myscripts %}
 
-{% block title %}LLIN.::.Dashboard{% endblock%}
+{% block title %}LLIN.::.Coverage{% endblock%}
 {% block stylesheets %}
     <!-- Data Tables -->
     <link href="/static/css/plugins/dataTables/dataTables.bootstrap.css" rel="stylesheet">
@@ -16,46 +16,7 @@
 {% endblock %}
 
 {% block content %}
-<div class="row">
-    <div class="col-lg-3">
-        <div class="ibox">
-            <div class="ibox-content">
-                <h5 class="m-b-md">Total Nets (Bales)</h5>
-                <h2 class="text-navy"> {{ total_nets.total }}</h2>
-                <small>Bales of nets received in the country</small>
-            </div>
-        </div>
-    </div>
-    <div class="col-lg-3">
-        <div class="ibox">
-            <div class="ibox-content">
-                <h5 class="m-b-md">Total Nets</h5>
-                <h2 class="text-navy">{{ total_nets.total * 40 }}</h2>
-                <small>Number of nets received in the country </small>
-            </div>
-        </div>
-    </div>
-    <div class="col-lg-3">
-        <div class="ibox">
-            <div class="ibox-content">
-                <h5 class="m-b-md">Nets Distributed to Subcounties</h5>
-                <h2 class="text-navy">{{ sc_dist }}</h2>
-                <small>All nets distrinuted to subcounties</small>
-            </div>
-        </div>
-    </div>
 
-    <div class="col-lg-3">
-        <div class="ibox">
-            <div class="ibox-content">
-                <h5 class="m-b-md">Sub Counties Distributed to.</h5>
-                <h2 class="text-navy">{{ sc_count }}</h2>
-                <small>All districts</small>
-            </div>
-        </div>
-    </div>
-
-</div>
 {% endblock %}
 
 {% block scripts %}

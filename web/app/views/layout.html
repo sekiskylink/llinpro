@@ -106,8 +106,11 @@
                 <li class="">
                     <a href="/dasboard"><i class="fa fa-th-large"></i> <span class="nav-label">Dashboards</span> <span class="fa arrow"></span></a>
                     <ul class="nav nav-second-level">
-                        <li class=""><a href="/reports"><i class="fa fa-bar-chart-o"></i>Reports</a></li>
-                        <li><a href="/search"><i class="fa fa-search"></i>Search</a></li>
+                        <li class=""><a href="/dashboard"><i class="fa fa-bar-chart-o"></i>Dashboard</a></li>
+                        <li class=""><a href="/hotline"><i class="fa fa-exclamation-triangle"></i>Hotline</a></li>
+                        <li class=""><a href="/coverage"><i class="fa fa-table"></i>Coverage Reports</a></li>
+                        <li><a href="/coveragemap"><i class="fa fa-map-marker"></i>Coverage Map</a></li>
+                        <li><a href="/downloads"><i class="fa fa-download"></i>My Downloads</a></li>
                     </ul>
                 </li>
                 {% if ses.role in ('Micro Planning', 'Administrator') %}
@@ -125,10 +128,10 @@
                 <li>
                     <a href="/dispatch"><i class="fa fa-truck"></i> <span class="nav-label">Dispatch</span></a>
                 </li>
+                {% endif %}
                 <li>
                     <a href="/static/help/{{ses.role + " Manual.pdf"}}" target="_blank"><i class="fa fa-book"></i> <span class="nav-label">Help</span></a>
                 </li>
-                {% endif %}
                 <!-- Put Other links here-->
                     {{ caller() }}
                 <!-- -->
@@ -139,6 +142,7 @@
                         <li><a href="/users"><i class="fa fa-user"></i>Users</a></li>
                         <li><a href="/groups"><i class="fa fa-group"></i>Groups</a></li>
                         <li><a href="/settings"><i class="fa fa-gear"></i>Settings</a></li>
+                        <li><a href="/smslog"><i class="fa fa-envelope-o"></i>SMS Log</a></li>
                         <li><a href="/auditlog"><i class="fa fa-list"></i>AuditLog</a></li>
                     </ul>
                 </li>
