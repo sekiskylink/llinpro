@@ -24,7 +24,7 @@ class LocationsEndpoint:
             lft = loc['lft']
             rght = loc['rght']
         SQL = (
-            "SELECT a.id, a.name, a.code, a.uuid, a.lft, a.rght, a.tree_id, a.tree_parent_id"
+            "SELECT a.id, a.name, a.code, a.uuid, a.lft, a.rght, a.tree_id, a.tree_parent_id, "
             "b.code as parent_code, c.level, c.name as type, "
             "to_char(a.cdate, 'YYYY-mm-dd') as created "
             " FROM locations a, locations b, locationtype c"
