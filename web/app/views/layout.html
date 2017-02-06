@@ -121,6 +121,13 @@
                     <a href="/distributionpoints"><i class="fa fa-sitemap"></i> <span class="nav-label">Distribution Points</span>  </a>
                 </li>
                 {% endif %}
+
+                {% if ses.role in () %}
+                <li>
+                    <a href="/adminunits"><i class="fa fa-map-marker"></i><span class="nav-label">Admin Units</span></a>
+                </li>
+                {% endif %}
+
                 {% if ses.role in ('Warehouse Manager', 'Administrator') %}
                 <li>
                     <a href="/warehousedata"><i class="fa fa-institution"></i> <span class="nav-label">Warehouse Log</span></a>
@@ -142,6 +149,7 @@
                         <li><a href="/users"><i class="fa fa-user"></i>Users</a></li>
                         <li><a href="/groups"><i class="fa fa-group"></i>Groups</a></li>
                         <li><a href="/settings"><i class="fa fa-gear"></i>Settings</a></li>
+                        <li><a href="/adminunits"><i class="fa fa-map-marker"></i>Admin Units</a></li>
                         <li><a href="/smslog"><i class="fa fa-envelope-o"></i>SMS Log</a></li>
                         <li><a href="/auditlog"><i class="fa fa-list"></i>AuditLog</a></li>
                     </ul>

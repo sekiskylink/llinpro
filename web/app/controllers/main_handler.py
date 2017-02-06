@@ -43,6 +43,8 @@ class Index:
                 return web.seeother("/warehousedata")
             elif info.role == 'Micro Planning':
                 return web.seeother("/reporters")
+            elif info.role == 'Data Manager':
+                return web.seeother("/adminunits")
             else:
                 return web.seeother("/dashboard")
         else:

@@ -1,7 +1,8 @@
 import json
 from . import db
 import web
-# from settings import config
+from settings import config
+import os
 from app.tools.utils import get_basic_auth_credentials, auth_user
 
 
@@ -43,3 +44,25 @@ class LocationsEndpoint:
         for i in r:
             ret.append(dict(i))
         return json.dumps(ret)
+
+
+class LocationsCSVEndpoint:
+    def GET(self):
+        # params = web.input()
+        username, password = get_basic_auth_credentials()
+        r = auth_user(db, username, password)
+        if not r[0]:
+            web.header("Content-Type", "application/json; charset=utf-8")
+            web.header('WWW-Authenticate', 'Basic realm="Auth API"')
+            web.ctx.status = '401 Unauthorized'
+            return json.dumps({'detail': 'Authentication failed!'})
+        y = db.query("COPY(SELECT * FROM locations) to '/tmp/llin.csv'  with delimiter ',' csv header;")
+        if y:
+            static_directory = config.get('static_directory', '/var/www/llinpro/web/static')
+            os.popen("zip /tmp/llin.csv.zip /tmp/llin.csv; cp /tmp/llin.csv.zip %s" % static_directory)
+            web.header("Content-Type", "application/zip; charset=utf-8")
+            # web.header('Content-disposition', 'attachment; filename=%s.csv'%file_name)
+            web.seeother("/static/llin.csv.zip")
+        else:
+            web.header("Content-Type", "application/json; charset=utf-8")
+            return json.dumps({'detail': 'CSV download service failed!'})
