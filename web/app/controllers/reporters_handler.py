@@ -90,9 +90,9 @@ class Reporters:
                         web.header("Content-Type", "application/json; charset=utf-8")
                         return json.dumps({'message': "success"})
         if session.role == 'Administrator':
-            REPORTER_SQL = "SELECT * FROM reporters_view2 LIMIT 50"
+            REPORTER_SQL = "SELECT * FROM reporters_view2 ORDER BY id DESC LIMIT 50"
         else:
-            REPORTER_SQL = "SELECT * FROM reporters_view2 WHERE created_by = $user LIMIT 50"
+            REPORTER_SQL = "SELECT * FROM reporters_view2 WHERE created_by = $user ORDER BY id DESC LIMIT 50"
 
         reporters = db.query(REPORTER_SQL, {'user': session.sesid})
         l = locals()
