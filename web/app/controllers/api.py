@@ -237,7 +237,7 @@ class ReportersEndpoint:
         reporter_role = params.role
         SQL = (
             "SELECT firstname, lastname, telephone, alternate_tel, email, national_id, "
-            "reporting_location, district, role, loc_name, location_code FROM reporters_view2 "
+            "reporting_location, district, role, loc_name, location_code FROM reporters_view4 "
             "WHERE reporting_location IN (SELECT id FROM get_descendants_including_self(( SELECT id FROM "
             "locations WHERE code=$location_code))) ")
         if reporter_role:
@@ -395,7 +395,7 @@ class ReceiveNets:
             r = db.query(
                 "SELECT id, reporting_location, district_id, "
                 "district, loc_name subcounty "
-                "FROM reporters_view2 WHERE replace(telephone, '+', '') = $tel "
+                "FROM reporters_view4 WHERE replace(telephone, '+', '') = $tel "
                 "OR replace(alternate_tel, '+', '') = $tel LIMIT 1", {'tel': phone})
             if r and waybill and quantity_bales:
                 reporter = r[0]
@@ -533,12 +533,12 @@ class DistributeVillageNets:
         phone = params.phone.replace('+', '')
         with db.transaction():
             r = db.query(
-                "SELECT id, reporting_location FROM reporters WHERE replace(telephone, '+', '') = $tel "
+                "SELECT id, reporting_location, district_id, FROM reporters WHERE replace(telephone, '+', '') = $tel "
                 "OR replace(alternate_tel, '+', '') = $tel LIMIT 1", {'tel': phone})
             if r and waybill and nets:
                 reporter = r[0]
                 reporter_id = reporter['id']
-                # dest_location = reporter['reporting_location']
+                district_id = reporter['district_id']
                 res = db.query(
                     "SELECT id FROM distribution_log_sc2dp_view WHERE waybill = $waybill AND "
                     "reporter_id = $reporter_id", {'waybill': waybill, 'reporter_id': reporter_id})
@@ -555,12 +555,12 @@ class DistributeVillageNets:
                 else:
                     dres = db.query(
                         "INSERT INTO distribution_log (source, dest, waybill, quantity_nets, "
-                        "delivered_by, departure_date, departure_time) VALUES ("
+                        "delivered_by, departure_date, departure_time, district_id) VALUES ("
                         "'subcounty', 'dp', $waybill, $nets, $reporter_id, current_date, "
-                        "current_time) RETURNING id", {
+                        "current_time, $district_id) RETURNING id", {
                             'waybill': waybill,
                             'reporter_id': reporter_id,
-                            'nets': nets})
+                            'nets': nets, 'district_id': district_id})
                     if dres:
                         # log_id = dres[0]['id']
                         ret = (
@@ -590,7 +590,7 @@ class ReceiveVillageNets:
             r = db.query(
                 "SELECT id, reporting_location, district_id, "
                 "district, loc_name village "
-                "FROM reporters_view2 WHERE replace(telephone, '+', '') = $tel "
+                "FROM reporters_view4 WHERE replace(telephone, '+', '') = $tel "
                 "OR replace(alternate_tel, '+', '') = $tel LIMIT 1", {'tel': phone})
             if r and waybill and qty_nets:
                 reporter = r[0]
@@ -731,7 +731,7 @@ class DistributeHouseholdNets:
             r = db.query(
                 "SELECT id, firstname, reporting_location, district_id, "
                 "district, loc_name village "
-                "FROM reporters_view2 WHERE replace(telephone, '+', '') = $tel "
+                "FROM reporters_view4 WHERE replace(telephone, '+', '') = $tel "
                 "OR replace(alternate_tel, '+', '') = $tel LIMIT 1", {'tel': phone})
             if r and qty_nets:
                 reporter = r[0]

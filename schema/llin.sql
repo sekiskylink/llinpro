@@ -308,6 +308,7 @@ CREATE TABLE distribution_points(
     code TEXT NOT NULL DEFAULT '',
     uuid TEXT NOT NULL DEFAULT uuid_generate_v4(),
     subcounty BIGINT REFERENCES locations(id),
+    district_id BIGINT REFERENCES locations(id),
     created_by INTEGER REFERENCES users(id),
     created TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
@@ -341,6 +342,8 @@ CREATE TABLE reporters(
     distribution_point BIGINT REFERENCES distribution_points(id),
     uuid TEXT NOT NULL DEFAULT uuid_generate_v4(),
     code TEXT NOT NULL DEFAULT '',
+    district text not null default '',
+    reporting_location_name text not null default '',
     created_by INTEGER REFERENCES users(id), -- like actor id
     created TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
@@ -467,6 +470,7 @@ CREATE TABLE distribution_log(
     delivered_by INTEGER REFERENCES reporters(id),
     received_by INTEGER REFERENCES reporters(id),
     destination BIGINT REFERENCES locations(id),
+    district BIGINT REFERENCES locations(id),
     dest_distribution_point BIGINT REFERENCES distribution_points(id),
     track_no_plate TEXT NOT NULL DEFAULT '',
     remarks TEXT NOT NULL DEFAULT '',
@@ -530,7 +534,7 @@ CREATE VIEW distribution_log_w2sc_view AS
         a.quantity_nets, b.name as warehouse, c.name as branch,
         a.departure_date, a.departure_time,
         get_location_name(a.destination) as destination,
-        get_district(a.destination) as district, a.remarks,
+        get_location_name(a.district_id) as district, a.remarks,
         a.arrival_date, a.arrival_time, a.quantity_received,
         a.is_delivered, a.is_received, a.has_variance, a.created_by,
         d.firstname as delivered_by, d.telephone,
@@ -550,7 +554,7 @@ CREATE VIEW distribution_log_sc2dp_view AS
         a.quantity_nets,
         a.departure_date, a.departure_time,
         get_location_name(a.destination) as destination,
-        get_district(a.destination) as district, a.remarks,
+        get_location_name(a.district_id) as district, a.remarks,
         a.arrival_date, a.arrival_time, a.quantity_received,
         a.is_delivered, a.is_received, a.has_variance, a.created_by,
         d.firstname as delivered_by, d.telephone,
@@ -784,11 +788,24 @@ CREATE VIEW reporters_view AS
 CREATE VIEW reporters_view2 AS
     SELECT a.id, a.firstname, a.lastname, a.telephone, a.alternate_tel, a.email, a.national_id,
         a.reporting_location, a.created_by,
-        get_district(a.reporting_location) as district, get_district_id(a.reporting_location) as district_id,
+        --get_district(a.reporting_location) as district,
+        --get_district_id(a.reporting_location) as district_id,
         get_reporter_groups(a.id) as role, b.name as loc_name,
         b.code as location_code
     FROM reporters a, locations b
     WHERE a.reporting_location = b.id;
+
+CREATE VIEW reporters_view4 AS
+    SELECT a.id, a.firstname, a.lastname, a.telephone, a.alternate_tel, a.email, a.national_id,
+        a.reporting_location, a.created_by, c.name as district, a.district_id,
+        --get_district(a.reporting_location) as district,
+        --get_district_id(a.reporting_location) as district_id,
+        get_reporter_groups(a.id) as role, b.name as loc_name,
+        b.code as location_code
+    FROM reporters a, locations b, locations c
+    WHERE a.reporting_location = b.id and (a.district_id = c.id);
+
+
 
 
 DROP VIEW IF EXISTS registration_forms_view;

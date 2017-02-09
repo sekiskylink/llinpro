@@ -105,7 +105,7 @@ class Reporters:
         session = get_session()
         params = web.input(
             firstname="", lastname="", telephone="", email="", location="", dpoint="",
-            national_id="", role="", alt_telephone="", page="1", ed="", d_id="")
+            national_id="", role="", alt_telephone="", page="1", ed="", d_id="", district="")
 
         allow_edit = False
         try:
@@ -122,11 +122,12 @@ class Reporters:
                     "UPDATE reporters SET firstname=$firstname, lastname=$lastname, "
                     "telephone=$telephone, email=$email, reporting_location=$location, "
                     "distribution_point=$dpoint, national_id=$nid, alternate_tel=$alt_tel "
+                    "district_id = $district_id "
                     "WHERE id=$id RETURNING id", {
                         'firstname': params.firstname, 'lastname': params.lastname,
                         'telephone': params.telephone, 'email': params.email,
                         'location': location, 'dpoint': dpoint, 'nid': params.national_id,
-                        'id': params.ed, 'alt_tel': params.alt_telephone
+                        'id': params.ed, 'alt_tel': params.alt_telephone, 'district_id': params.district
                     })
                 if r:
                     db.query(
@@ -154,13 +155,14 @@ class Reporters:
                 session.rdata_err = ""
                 r = db.query(
                     "INSERT INTO reporters (firstname, lastname, telephone, email, "
-                    " reporting_location, distribution_point, national_id, alternate_tel, uuid, created_by) VALUES "
+                    " reporting_location, distribution_point, national_id, alternate_tel, uuid, "
+                    " created_by, district_id) VALUES "
                     " ($firstname, $lastname, $telephone, $email, $location, $dpoint,"
-                    " $nid, $alt_tel, uuid_generate_v4(), $user) RETURNING id", {
+                    " $nid, $alt_tel, uuid_generate_v4(), $user, $district_id) RETURNING id", {
                         'firstname': params.firstname, 'lastname': params.lastname,
                         'telephone': params.telephone, 'email': params.email,
                         'location': location, 'dpoint': dpoint, 'nid': params.national_id,
-                        'alt_tel': params.alt_telephone, 'user': session.sesid
+                        'alt_tel': params.alt_telephone, 'user': session.sesid, 'district_id': params.district
                     })
                 if r:
                     reporter_id = r[0]['id']

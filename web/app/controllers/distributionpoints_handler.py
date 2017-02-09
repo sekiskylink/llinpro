@@ -20,7 +20,7 @@ class DistPoints:
         if params.ed and allow_edit:
             res = db.query(
                 "SELECT id, name, subcounty, get_location_name(subcounty) subcounty_name , "
-                " get_district(subcounty) district FROM distribution_points "
+                " get_location_name(district_id) district FROM distribution_points "
                 " WHERE id = $id", {'id': edit_val})
             if res:
                 r = res[0]
@@ -49,13 +49,13 @@ class DistPoints:
         if session.role == 'Administrator':
             dpoints_SQL = (
                 "SELECT id, name, get_location_name(subcounty) as subcounty, "
-                " get_district(subcounty) as district, "
+                " get_location_name(district_id) as district, "
                 " get_distribution_point_locations(id) villages FROM distribution_points "
                 " ORDER by id DESC")
         else:
             dpoints_SQL = (
                 "SELECT id, name, get_location_name(subcounty) as subcounty, "
-                " get_district(subcounty) as district, "
+                " get_location_name(district_id) as district, "
                 " get_distribution_point_locations(id) villages FROM distribution_points"
                 " WHERE created_by = $user ORDER BY id DESC")
 
@@ -104,10 +104,11 @@ class DistPoints:
                     return web.seeother("/distributionpoints")
                 session.dp_err = ""
                 r = db.query(
-                    "INSERT INTO  distribution_points (name, subcounty, uuid, code, created_by) "
-                    " VALUES ($name, $subcounty, uuid_generate_v4(), gen_code(), $user)"
-                    " RETURNING id",
-                    {'name': params.name, 'subcounty': params.subcounty, 'user': session.sesid})
+                    "INSERT INTO  distribution_points (name, subcounty, district_id, uuid, code, created_by) "
+                    " VALUES ($name, $subcounty, $district, uuid_generate_v4(), gen_code(), $user)"
+                    " RETURNING id", {
+                        'name': params.name, 'subcounty': params.subcounty,
+                        'district': params.district, 'user': session.sesid})
                 if r:
                     dpoint_id = r[0]['id']
                     for val in params.villages:

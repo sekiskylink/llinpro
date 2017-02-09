@@ -128,6 +128,7 @@ class Dispatch:
                     "destination=$destination, waybill=$waybill, warehouse_branch = $branch, "
                     "departure_date=$ddate, departure_time=$dtime, remarks=$remarks, "
                     "quantity_bales=$quantity_bales, quantity_nets=$quantity_nets, "
+                    " district_id=$district "
                     "delivered_by=$delivered_by WHERE id = $id RETURNING id", {
                         'release_order': params.release_order,
                         'destination': params.subcounty, 'waybill': params.waybill,
@@ -135,7 +136,7 @@ class Dispatch:
                         'dtime': params.departure_time, 'remarks': params.remarks,
                         'quantity_bales': params.quantity_bales,
                         'quantity_nets': (QUANTITY_PER_BALE * int(params.quantity_bales)),
-                        'delivered_by': driver_id,
+                        'delivered_by': driver_id, 'district': params.district,
                         'id': params.ed
                     })
 
@@ -152,8 +153,8 @@ class Dispatch:
 
                     # get district name to use in SMS
                     dist = db.query(
-                        "SELECT get_district($subcounty) as name;",
-                        {'subcounty': params.subcounty})
+                        "SELECT get_location_name($district) as name;",
+                        {'district': params.district})
                     if dist:
                         district = dist[0]['name']
 
@@ -283,10 +284,11 @@ class Dispatch:
                 r = db.query(
                     "INSERT INTO distribution_log (source, dest, release_order, waybill, "
                     " quantity_bales, quantity_nets, remarks, warehouse_branch, "
-                    " departure_date, departure_time, destination, delivered_by, created_by, track_no_plate) "
+                    " departure_date, departure_time, destination, delivered_by, created_by, "
+                    " district_id, track_no_plate) "
                     "VALUES('national', 'subcounty', $release_order, $waybill, $quantity_bales, "
                     "$quantity_nets, $remarks, $branch, $ddate, $dtime, $destination, "
-                    "$delivered_by, $user, $noplate) "
+                    "$delivered_by, $user, $district, $noplate) "
                     "RETURNING id",
                     {
                         'release_order': params.release_order, 'waybill': params.waybill,
@@ -298,7 +300,7 @@ class Dispatch:
                         'destination': params.subcounty,
                         'delivered_by': driver_id,
                         'user': session.sesid,
-                        'noplate': params.track_no_plate
+                        'noplate': params.track_no_plate, 'district': params.district
                     })
                 if r:
                     log_id = r[0]['id']
@@ -313,8 +315,8 @@ class Dispatch:
 
                     # get district name to use in SMS
                     dist = db.query(
-                        "SELECT get_district($subcounty) as name;",
-                        {'subcounty': params.subcounty})
+                        "SELECT get_location_name($district) as name;",
+                        {'district': params.district})
                     if dist:
                         district = dist[0]['name']
 
