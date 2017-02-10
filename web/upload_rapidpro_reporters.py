@@ -10,12 +10,17 @@ from settings import config
 import phonenumbers
 import getopt
 import sys
+import datetime
 
 cmd = sys.argv[1:]
 opts, args = getopt.getopt(
     cmd, 'd:',
     [])
-from_date = '2016-11-01'
+
+now = datetime.datetime.now()
+sdate = now - datetime.timedelta(days=1, minutes=5)
+from_date = sdate.strftime('%Y-%m-%d %H:%M')
+
 for option, parameter in opts:
     if option == '-d':
         from_date = parameter
