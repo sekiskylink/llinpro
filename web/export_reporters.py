@@ -26,7 +26,7 @@ SQL = (
 
 if districts:
     SQL += " AND district IN (%s)" % ','.join(["'%s'" % i for i in districts.split(',')])
-    fname = '_'.join(districts)
+    fname = '_'.join(districts.split(','))
 else:
     fname = 'reporters_all'
 
@@ -47,7 +47,7 @@ for i in xrange(row_len):
     for k in xrange(len(headings)):
         row.write(k, data[i][k])
 sheet1.flush_row_data()
-book.save("%s/downloads/%s" % (
+book.save("%s/downloads/%s.xls" % (
     config.get('static_directory', '/var/www/llinpro/web/static'), fname))
 
 conn.close()
