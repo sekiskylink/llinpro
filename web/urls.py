@@ -11,7 +11,7 @@ from app.controllers.api import FormSerials, SerialsEndpoint, WarehouseBranches,
 from app.controllers.api import WarehouseRecord, DistributionRecord, VhtCode, DeliverNets, ReceiveNets
 from app.controllers.api import DistributeVillageNets, ReportersEndpoint, ReceiveVillageNets
 from app.controllers.api import DistributeHouseholdNets
-from app.controllers.api2 import LocationsEndpoint, LocationsCSVEndpoint
+from app.controllers.api2 import LocationsEndpoint, LocationsCSVEndpoint, ReportersXLEndpoint
 from app.controllers.reporters_handler import Reporters
 from app.controllers.users_handler import Users
 from app.controllers.groups_handler import Groups
@@ -63,6 +63,7 @@ URLS = (
     r'/api/v1/reporters_endpoint/(\w+)/?', ReportersEndpoint,
     r'/api/v1/locations_endpoint/(\w+)/?', LocationsEndpoint,
     r'/api/v1/locations_csvendpoint', LocationsCSVEndpoint,
+    r'/api/v1/reporters_xlendpoint', ReportersXLEndpoint,
     r'/api/v1/vhtcode', VhtCode,
     r'/api/v1/deliver', DeliverNets,
     r'/api/v1/receive', ReceiveNets,

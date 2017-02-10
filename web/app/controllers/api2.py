@@ -56,13 +56,19 @@ class LocationsCSVEndpoint:
             web.header('WWW-Authenticate', 'Basic realm="Auth API"')
             web.ctx.status = '401 Unauthorized'
             return json.dumps({'detail': 'Authentication failed!'})
-        y = db.query("COPY(SELECT * FROM locations) to '/tmp/llin.csv'  with delimiter ',' csv header;")
-        if y:
-            # static_directory = config.get('static_directory', '/var/www/llinpro/web/static')
-            # os.popen("zip /tmp/llin.csv.zip /tmp/llin.csv; cp /tmp/llin.csv.zip %s" % static_directory)
-            web.header("Content-Type", "application/zip; charset=utf-8")
-            # web.header('Content-disposition', 'attachment; filename=%s.csv'%file_name)
-            web.seeother("/static/downloads/llin.csv.zip")
-        else:
+        web.header("Content-Type", "application/zip; charset=utf-8")
+        web.seeother("/static/downloads/llin.csv.zip")
+
+
+class ReportersXLEndpoint:
+    def GET(self):
+        username, password = get_basic_auth_credentials()
+        r = auth_user(db, username, password)
+        if not r[0]:
             web.header("Content-Type", "application/json; charset=utf-8")
-            return json.dumps({'detail': 'CSV download service failed!'})
+            web.header('WWW-Authenticate', 'Basic realm="Auth API"')
+            web.ctx.status = '401 Unauthorized'
+            return json.dumps({'detail': 'Authentication failed!'})
+        web.header("Content-Type", "application/zip; charset=utf-8")
+        # web.header('Content-disposition', 'attachment; filename=%s.csv'%file_name)
+        web.seeother("/static/downloads/reporters_all.xls.zip")
