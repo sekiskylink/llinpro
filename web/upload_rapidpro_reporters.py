@@ -84,8 +84,14 @@ conn = psycopg2.connect(
 cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
 
 cur.execute(
+    "UPDATE reporters set reporting_location = get_subcounty_id(reporting_location) "
+    "WHERE id in (SELECT reporter_id FROM reporter_groups_reporters WHERE group_id = "
+    "(SELECT id FROM reporter_groups WHERE name = 'Subcounty Store Manager'))")
+conn.commit()
+
+cur.execute(
     "SELECT a.id, a.firstname || ' ' || a.lastname as name, a.telephone, a.alternate_tel, "
-    "a.email, get_district(a.reporting_location) AS district, get_reporter_groups(a.id) AS role, "
+    "a.email, get_location_name(a.district_id) AS district, get_reporter_groups(a.id) AS role, "
     "b.code as reporting_location FROM reporters a, locations b WHERE a.reporting_location = b.id "
     "AND a.created >= %s", [from_date]
 )
