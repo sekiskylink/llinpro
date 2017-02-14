@@ -128,7 +128,7 @@ class Dispatch:
                     "destination=$destination, waybill=$waybill, warehouse_branch = $branch, "
                     "departure_date=$ddate, departure_time=$dtime, remarks=$remarks, "
                     "quantity_bales=$quantity_bales, quantity_nets=$quantity_nets, "
-                    " district_id=$district "
+                    " district_id=$district, "
                     "delivered_by=$delivered_by WHERE id = $id RETURNING id", {
                         'release_order': params.release_order,
                         'destination': params.subcounty, 'waybill': params.waybill,
