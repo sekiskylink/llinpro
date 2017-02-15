@@ -123,20 +123,15 @@ CREATE OR REPLACE FUNCTION public.get_children(loc_id integer)
 $delim$
      DECLARE
         r locations_view%ROWTYPE;
-        our_lft INTEGER;
-        our_rght INTEGER;
-        lvl INTEGER;
     BEGIN
-        --SELECT INTO our_lft lft FROM locations WHERE id = loc_id;
-        --SELECT INTO our_rght rght FROM locations WHERE id = loc_id;
-        SELECT lft, rght, level  INTO our_lft, our_rght, lvl FROM locations_view WHERE id = loc_id;
-        FOR r IN SELECT * FROM locations_view WHERE lft > our_lft AND rght < our_rght AND level = lvl + 1
+        FOR r IN SELECT * FROM locations_view WHERE tree_parent_id = loc_id
         LOOP
             RETURN NEXT r;
         END LOOP;
         RETURN;
     END;
 $delim$ LANGUAGE plpgsql;
+
 
 CREATE OR REPLACE FUNCTION public.get_descendants(loc_id bigint)
  RETURNS SETOF locations_view AS
@@ -534,6 +529,7 @@ CREATE VIEW distribution_log_w2sc_view AS
         a.quantity_nets, b.name as warehouse, c.name as branch,
         a.departure_date, a.departure_time,
         get_location_name(a.destination) as destination,
+        a.destination destination_id,
         get_location_name(a.district_id) as district, a.remarks,
         a.arrival_date, a.arrival_time, a.quantity_received,
         a.is_delivered, a.is_received, a.has_variance, a.created_by,
@@ -660,17 +656,14 @@ CREATE OR REPLACE FUNCTION public.get_district(loc_id bigint)
  LANGUAGE plpgsql
 AS $function$
      DECLARE
-        r TEXT;
+        r TEXT := '';
         our_lft INTEGER;
         our_rght INTEGER;
     BEGIN
         SELECT lft, rght INTO our_lft, our_rght FROM locations WHERE id = loc_id;
-        FOR r IN SELECT name FROM locations WHERE lft <= our_lft AND rght >= our_rght AND
-            type_id=(SELECT id FROM locationtype WHERE name = 'district')
-        LOOP
-            RETURN r;
-        END LOOP;
-        RETURN '';
+        SELECT name into r FROM locations WHERE lft <= our_lft AND rght >= our_rght AND
+            type_id=(SELECT id FROM locationtype WHERE name = 'district');
+        RETURN r;
     END;
 $function$;
 
@@ -684,12 +677,25 @@ AS $function$
         our_rght BIGINT;
     BEGIN
         SELECT lft, rght INTO our_lft, our_rght FROM locations WHERE id = loc_id;
-        FOR r IN SELECT id FROM locations WHERE lft <= our_lft AND rght >= our_rght AND
-            type_id=(SELECT id FROM locationtype WHERE name = 'district')
-        LOOP
-            RETURN r;
-        END LOOP;
-        RETURN 0;
+        SELECT id INTO r FROM locations WHERE lft <= our_lft AND rght >= our_rght AND
+            type_id=(SELECT id FROM locationtype WHERE name = 'district');
+        RETURN r;
+    END;
+$function$;
+
+CREATE OR REPLACE FUNCTION public.get_subcounty_id(loc_id bigint)
+ RETURNS bigint
+ LANGUAGE plpgsql
+AS $function$
+     DECLARE
+        r BIGINT;
+        our_lft BIGINT;
+        our_rght BIGINT;
+    BEGIN
+        SELECT lft, rght INTO our_lft, our_rght FROM locations WHERE id = loc_id;
+        SELECT id INTO r FROM locations WHERE lft <= our_lft AND rght >= our_rght AND
+            type_id=(SELECT id FROM locationtype WHERE name = 'subcounty');
+        RETURN r;
     END;
 $function$;
 
@@ -698,17 +704,14 @@ CREATE OR REPLACE FUNCTION public.get_ancestor_by_type(loc_id bigint, atype text
  LANGUAGE plpgsql
 AS $function$
      DECLARE
-        r TEXT;
+        r TEXT := '';
         our_lft INTEGER;
         our_rght INTEGER;
     BEGIN
         SELECT lft, rght INTO our_lft, our_rght FROM locations WHERE id = loc_id;
-        FOR r IN SELECT name FROM locations WHERE lft <= our_lft AND rght >= our_rght AND
-            type_id=(SELECT id FROM locationtype WHERE name = atype)
-        LOOP
-            RETURN r;
-        END LOOP;
-        RETURN '';
+        SELECT name INTO r FROM locations WHERE lft <= our_lft AND rght >= our_rght AND
+            type_id=(SELECT id FROM locationtype WHERE name = atype);
+        RETURN r;
     END;
 $function$;
 

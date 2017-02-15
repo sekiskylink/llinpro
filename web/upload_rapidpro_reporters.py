@@ -85,8 +85,8 @@ cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
 
 cur.execute(
     "UPDATE reporters set reporting_location = get_subcounty_id(reporting_location) "
-    "WHERE id in (SELECT reporter_id FROM reporter_groups_reporters WHERE group_id = "
-    "(SELECT id FROM reporter_groups WHERE name = 'Subcounty Store Manager'))")
+    "WHERE id in (SELECT reporter_id FROM reporter_groups_reporters WHERE group_id IN "
+    "(SELECT id FROM reporter_groups WHERE name IN ('Subcounty Store Manager', 'Subcounty Chief')))")
 conn.commit()
 
 cur.execute(
