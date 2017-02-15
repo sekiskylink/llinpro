@@ -52,11 +52,11 @@ class Stores:
                     district = edit_val
         if session.role == 'Administrator':
             stores = db.query(
-                "SELECT id, name, get_district(location) district, "
+                "SELECT id, name, get_location_name(district_id) district, "
                 " get_location_name(location) as location_name FROM stores")
         else:
             stores = db.query(
-                "SELECT id, name, get_district(location) district, "
+                "SELECT id, name, get_location_name(district_id) district, "
                 "get_location_name(location) location_name FROM stores WHERE created_by = $user",
                 {'user': session.sesid})
         l = locals()
@@ -67,7 +67,7 @@ class Stores:
     @require_login
     def POST(self):
         session = get_session()
-        params = web.input(ed="", d_id="", store_name="", location="")
+        params = web.input(ed="", d_id="", store_name="", location="", district="")
         allow_edit = False
         try:
             edit_val = int(params.ed)
@@ -78,8 +78,10 @@ class Stores:
         with db.transaction():
             if params.ed and allow_edit:
                 r = db.query(
-                    "UPDATE stores SET name = $name WHERE id = $id",
-                    {'name': params.store_name, 'id': params.location})
+                    "UPDATE stores SET name = $name, location = $loc, district_id = $district "
+                    "WHERE id = $id", {
+                        'name': params.store_name, 'id': edit_val,
+                        'loc': params.location, 'district': params.district})
                 if r:
                     log_dict = {
                         'logtype': 'Web', 'action': 'Edit', 'actor': session.username,
@@ -94,9 +96,10 @@ class Stores:
                 parent = params.location if params.location else 0
                 store_name = params.store_name
                 r = db.query(
-                    "INSERT INTO stores(name, location, created_by) "
-                    "VALUES ($name, $loc, $user);", {
-                        'name': store_name, 'loc': parent, 'user': session.sesid})
+                    "INSERT INTO stores(name, location, district_id, created_by) "
+                    "VALUES ($name, $loc, $district, $user);", {
+                        'name': store_name, 'loc': parent,
+                        'user': session.sesid, 'district': params.district})
                 if r:
                     log_dict = {
                         'logtype': 'Web', 'action': 'Create', 'actor': session.username,

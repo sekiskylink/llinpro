@@ -321,6 +321,7 @@ CREATE TABLE stores(
     id SERIAL PRIMARY KEY NOT NULL,
     name TEXT NOT NULL DEFAULT '',
     location BIGINT NOT NULL REFERENCES locations ON DELETE CASCADE,
+    district_id BIGINT REFERENCES locations,
     created_by INTEGER REFERENCES users(id),
     created TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
@@ -337,7 +338,7 @@ CREATE TABLE reporters(
     distribution_point BIGINT REFERENCES distribution_points(id),
     uuid TEXT NOT NULL DEFAULT uuid_generate_v4(),
     code TEXT NOT NULL DEFAULT '',
-    district text not null default '',
+    district_id BIGINT REFERENCES locations,
     reporting_location_name text not null default '',
     created_by INTEGER REFERENCES users(id), -- like actor id
     created TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
