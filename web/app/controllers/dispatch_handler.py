@@ -61,10 +61,13 @@ class Dispatch:
                         "SELECT id, name FROM warehouse_branches WHERE warehouse_id = "
                         "$wid", {'wid': warehouse})
 
-        distribution_log = db.query(
-            "SELECT * FROM distribution_log_w2sc_view WHERE created_by = $user "
-            " ORDER by id DESC",
-            {'user': session.sesid})
+        if session.role == 'Administrator':
+            log_SQL = ("SELECT * FROM distribution_log_w2sc_view ORDER BY id DESC")
+        else:
+            log_SQL = (
+                "SELECT * FROM distribution_log_w2sc_view WHERE created_by = $user "
+                "ORDER BY id DESC")
+        distribution_log = db.query(log_SQL, {'user': session.sesid})
         l = locals()
         del l['self']
         return render.dispatch(**l)
