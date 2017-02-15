@@ -121,7 +121,7 @@ class Reporters:
                 r = db.query(
                     "UPDATE reporters SET firstname=$firstname, lastname=$lastname, "
                     "telephone=$telephone, email=$email, reporting_location=$location, "
-                    "distribution_point=$dpoint, national_id=$nid, alternate_tel=$alt_tel "
+                    "distribution_point=$dpoint, national_id=$nid, alternate_tel=$alt_tel, "
                     "district_id = $district_id "
                     "WHERE id=$id RETURNING id", {
                         'firstname': params.firstname, 'lastname': params.lastname,
