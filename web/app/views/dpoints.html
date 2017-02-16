@@ -58,7 +58,7 @@
                                 </div>
                                 <div class="form-group"><label for="villages" class="col-lg-4 control-label">Villages:</label>
                                     <div class="col-lg-8">
-                                        <select name="villages" id="villages" multiple="multiple" class="form-control" required>
+                                        <select name="villages" id="villages" multiple="multiple" class="form-control" size="15" required>
                                             {% if villages %}
                                             {% for v in villages %}
                                                 <option value="{{ v.id }}">{{ v.name }}</option>
