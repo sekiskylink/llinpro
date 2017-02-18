@@ -116,7 +116,7 @@ def load_reporters(data):
                     "reporting_location, distritct_id) VALUES(%s, %s, %s, %s, "
                     "(SELECT id FROM locations WHERE code = %s), get_district_id("
                     "(SELECT id FROM locations WHERE code = %s))) RETURNING id",
-                    [fname, lname, fphone, fphone2, _village_code])
+                    [fname, lname, fphone, fphone2, _village_code, _village_code])
                 res3 = cur.fetchone()
                 conn.commit()
                 reporter_id = res3["id"]
