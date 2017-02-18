@@ -113,7 +113,7 @@ def load_reporters(data):
                 # we're confident reporter numbers are not in yet
                 cur.execute(
                     "INSERT INTO reporters(firstname, lastname, telephone, alternate_tel, "
-                    "reporting_location, distritct_id) VALUES(%s, %s, %s, %s, "
+                    "reporting_location, district_id) VALUES(%s, %s, %s, %s, "
                     "(SELECT id FROM locations WHERE code = %s), get_district_id("
                     "(SELECT id FROM locations WHERE code = %s))) RETURNING id",
                     [fname, lname, fphone, fphone2, _village_code, _village_code])
