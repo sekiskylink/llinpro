@@ -65,7 +65,7 @@ def load_reporters(data):
     IGNORED_ENTRIES = []
     for d in data:
         if not d[order['name']] or not d[order['telephone']]:
-            print "no name"
+            print "No name or missing telephone"
             IGNORED_ENTRIES.append(d)
             continue
         _name = d[order['name']].strip()
@@ -113,8 +113,9 @@ def load_reporters(data):
                 # we're confident reporter numbers are not in yet
                 cur.execute(
                     "INSERT INTO reporters(firstname, lastname, telephone, alternate_tel, "
-                    "reporting_location) VALUES(%s, %s, %s, %s, "
-                    "(SELECT id FROM locations WHERE code = %s)) RETURNING id",
+                    "reporting_location, distritct_id) VALUES(%s, %s, %s, %s, "
+                    "(SELECT id FROM locations WHERE code = %s), get_district_id("
+                    "(SELECT id FROM locations WHERE code = %s))) RETURNING id",
                     [fname, lname, fphone, fphone2, _village_code])
                 res3 = cur.fetchone()
                 conn.commit()
