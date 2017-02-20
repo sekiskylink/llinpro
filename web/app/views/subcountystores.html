@@ -161,17 +161,16 @@
         <script src="/static/js/plugins/bootstrap-validator/dist/validator.min.js"></script>
         <script src="/static/js/llin/reporters.js"></script>
         <script>
-           $(document).ready(function() {
-			/*
-            $('.dataTables-example').DataTable({
-                "dom": 'lTfigt',
-                "tableTools": {
-                    "sSwfPath": "/static/js/plugins/dataTables/swf/copy_csv_xls_pdf.swf"
-                }
-            });
-			*/
+            $(document).ready(function() {
+			   	$('#mydata').DataTable({
+                	dom: 'Bfrtip',
+                	buttons: [
+                    	'copy', 'csv', 'excel', 'pdf', 'print'
+                	],
+                	pageLength: 25
+            	});
 
-        });
+            });
         </script>
     {% endcall %}
 {% endblock %}
