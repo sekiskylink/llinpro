@@ -30,4 +30,32 @@ $(function(){
                 $('#modal_res').html(data);
             });
     });
+
+    $('.sms_btn').click(function(){
+        id_val = $(this).attr('id');
+        $('#modal_res2').html("");
+        $.get(
+            '/api/v1/dispatchsms/' + id_val,
+            {},
+            function(data){
+                var d = JSON.parse(data);
+                txt = d["sms"];
+                to_subcounty = d["to_subcounty"];
+                $('#sms').text(txt);
+                $('#to_subcounty').val(to_subcounty);
+            });
+    });
+
+    $('#sendsms').click(function(){
+        $('#modal_res2').css({'color': 'green'});
+        to_subcounty = $('#to_subcounty').val()
+        sms = $('#sms').val()
+        $.post(
+            '/api/v1/dispatchsms/0',
+            {to_subcounty:to_subcounty, sms:sms},
+            function(data){
+            $('#modal_res2').html(data);
+        });
+        return false;
+    });
 });

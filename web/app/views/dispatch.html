@@ -236,6 +236,11 @@
                                                 data-target="#myModal2">
                                                  <i title="Details" class="fa fa-list-alt"></i>
                                             </button>
+                                            &nbsp;&nbsp;
+                                            <button type="button" class="btn btn-white btn-xs sms_btn" id="{{d.id}}" data-toggle="modal"
+                                                data-target="#myModal3">
+                                                 <i title="SMS" class="fa fa-envelope-o"></i>
+                                            </button>
                                         </td>
                                     </tr>
                                 {% endfor %}
@@ -265,6 +270,36 @@
             </div>
         </div>
     </div>
+    <form role="form" action="" method="post" id="form2" class="form-horizontal">
+    <div class="modal inmodal" id="myModal3" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content animated flipInY">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span>
+                        <span class="sr-only">Close</span></button>
+                        <h4 class="modal-title">Send SMS</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row" id="modal_res2">
+                    </div>
+                    <div class="row">
+                        <p>Send subcounty store manager and subcounty chief SMS to confirm receipt of nets</p>
+                        <div class="form-group"><label for="remarks" class="col-lg-3 control-label">Inquiry SMS:</label>
+                            <div class="col-lg-9">
+                                <textarea name="sms" id="sms" type="text"  rows="4" class="form-control"></textarea>
+                                <input type="hidden" name="to_subcounty" id="to_subcounty"/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-white" data-dismiss="modal">Close</button>
+                    <button class="btn btn-primary" type="submit" id="sendsms">Send</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    </form>
     {% else %}
         {{ busted() }}
     {% endif %}
