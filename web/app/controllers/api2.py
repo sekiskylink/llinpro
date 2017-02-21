@@ -1,10 +1,12 @@
 import json
-from . import db, get_session
+from . import db, get_session, require_login
 import web
 from settings import config
 from app.tools.utils import get_basic_auth_credentials, auth_user
 from app.tools.utils import get_location_role_reporters, queue_schedule
 import datetime
+from StringIO import StringIO
+import csv
 
 
 class LocationsEndpoint:
@@ -83,18 +85,17 @@ class DispatchSMS:
             "WHERE id = $id", {'id': id})
         if r:
             res = r[0]
-            msg = "Please send 'REC %s %s' to %s if you received %s bales of nets with waybill %s."
+            msg = 'Please send "REC %s %s" to %s if you received %s bales of nets with waybill %s.'
             to_subcounty = res['destination_id']
             msg = msg % (
                 res['waybill'], res['quantity_bales'],
                 config.get('shortcode', '6400'),
                 res['quantity_bales'], res['waybill'])
-            ret = {'sms': msg, 'to_subcounty': to_subcounty}
+            ret = {"sms": msg, "to_subcounty": to_subcounty}
             return json.dumps(ret)
 
     def POST(self, id):
         params = web.input(to_subcounty="", sms="")
-        print "XXXXXXXXXX", params.to_subcounty, params.sms
         session = get_session()
         subcounty_reporters = get_location_role_reporters(
             db, params.to_subcounty, config['subcounty_reporters'])
@@ -105,3 +106,21 @@ class DispatchSMS:
         sched_time = current_time + datetime.timedelta(minutes=1)
         queue_schedule(db, sms_params, sched_time, session.sesid)
         return "<h4>Successfully sent notification SMS</h4>"
+
+
+class DispatchSummary:
+    @require_login
+    def GET(self):
+        r = db.query(
+            "SELECT district, destination subcounty, sum(quantity_bales) total_bales "
+            "FROM distribution_log_w2sc_view "
+            "GROUP by district, destination "
+            "ORDER by district, subcounty")
+        csv_file = StringIO()
+        csv_writer = csv.writer(csv_file)
+        csv_writer.writerow(['District', 'SubCounty', 'Total Bales'])
+        for i in r:
+            csv_writer.writerow([i['district'], i['subcounty'], i['total_bales']])
+        web.header('Content-Type', 'text/csv')
+        web.header('Content-disposition', 'attachment; filename=SubcountyDispatchSummary.csv')
+        return csv_file.getvalue()
