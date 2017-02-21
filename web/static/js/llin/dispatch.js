@@ -38,9 +38,9 @@ $(function(){
             '/api/v1/dispatchsms/' + id_val,
             {},
             function(data){
-                var d = JSON.parse(data);
-                txt = d["sms"];
-                to_subcounty = d["to_subcounty"];
+                // var d = JSON.parse(data);
+                txt = data["sms"];
+                to_subcounty = data["to_subcounty"];
                 $('#sms').text(txt);
                 $('#to_subcounty').val(to_subcounty);
             });
