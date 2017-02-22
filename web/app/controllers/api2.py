@@ -2,7 +2,7 @@ import json
 from . import db, get_session, require_login
 import web
 from settings import config
-from app.tools.utils import get_basic_auth_credentials, auth_user
+from app.tools.utils import get_basic_auth_credentials, auth_user, get_webhook_msg
 from app.tools.utils import get_location_role_reporters, queue_schedule
 import datetime
 from StringIO import StringIO
@@ -124,3 +124,31 @@ class DispatchSummary:
         web.header('Content-Type', 'text/csv')
         web.header('Content-disposition', 'attachment; filename=SubcountyDispatchSummary.csv')
         return csv_file.getvalue()
+
+
+class Remarks:
+    def POST(self):
+        web.header("Content-Type", "application/json; charset=utf-8")
+        params = web.input()
+        remark = get_webhook_msg(params, 'msg')
+        phone = params.phone.replace('+', '')
+        with db.transaction():
+            r = db.query(
+                "SELECT id, reporting_location, district_id, "
+                "district, loc_name "
+                "FROM reporters_view4 WHERE replace(telephone, '+', '') = $tel "
+                "OR replace(alternate_tel, '+', '') = $tel LIMIT 1", {'tel': phone})
+            if r:
+                reporter = r[0]
+                db.query(
+                    "INSERT INTO alerts(district_id, reporting_location, alert) "
+                    "VALUES($district_id, $loc, $msg) ",
+                    {
+                        'district_id': reporter['district_id'],
+                        'loc': reporter['reporting_location'],
+                        'msg': remark})
+            else:
+                db.query(
+                    "INSERT INTO alerts (alert) VALUES($msg)", {'msg': remark})
+            ret = ("Thank you for your report, this report will be sent to relevant authorities.")
+            return json.dumps({"message": ret})

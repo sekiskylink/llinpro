@@ -1,5 +1,6 @@
 from settings import config
 import requests
+import json
 import web
 import re
 import base64
@@ -22,6 +23,18 @@ def format_msisdn(msisdn=None):
 
 def lit(**keywords):
     return keywords
+
+
+def get_webhook_msg(params, label='msg'):
+    """Returns value of given lable from rapidpro webhook data"""
+    values = json.loads(params['values'])  # only way we can get out Rapidpro values in webpy
+    msg_list = [v.get('value') for v in values if v.get('label') == label]
+    if msg_list:
+        msg = msg_list[0].strip()
+        if msg.startswith('.'):
+            msg = msg[1:]
+        return msg
+    return ""
 
 
 def default(*args):

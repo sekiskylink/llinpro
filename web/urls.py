@@ -12,7 +12,7 @@ from app.controllers.api import WarehouseRecord, DistributionRecord, VhtCode, De
 from app.controllers.api import DistributeVillageNets, ReportersEndpoint, ReceiveVillageNets
 from app.controllers.api import DistributeHouseholdNets
 from app.controllers.api2 import LocationsEndpoint, LocationsCSVEndpoint, ReportersXLEndpoint
-from app.controllers.api2 import DispatchSMS, DispatchSummary
+from app.controllers.api2 import DispatchSMS, DispatchSummary, Remarks
 from app.controllers.reporters_handler import Reporters
 from app.controllers.users_handler import Users
 from app.controllers.groups_handler import Groups
@@ -71,6 +71,7 @@ URLS = (
     r'/api/v1/got', ReceiveVillageNets,
     r'/api/v1/gave', DistributeHouseholdNets,
     r'/api/v1/distribute', DistributeVillageNets,
+    r'/api/v1/remark', Remarks,
     r'/api/v1/dispatchsms/(\d+)/?', DispatchSMS,
     r'/api/v1/subcounty_disribution_summary', DispatchSummary,
 )

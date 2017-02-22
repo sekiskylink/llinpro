@@ -523,6 +523,16 @@ CREATE TABLE distribution_log_schedules(
     UNIQUE(distribution_log_id, schedule_id, level)
 );
 
+CREATE TABLE alerts(
+    id BIGSERIAL PRIMARY KEY NOT NULL,
+    district_id BIGINT REFERENCES locations(id),
+    reporting_location BIGINT REFERENCES locations(id),
+    alert TEXT NOT NULL DEFAULT '',
+    comment TEXT NOT NULL DEFAULT '',
+    created TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
 DROP VIEW IF EXISTS distribution_log_w2sc_view;
 CREATE VIEW distribution_log_w2sc_view AS
     -- view to show distribution from warehouse to subcounty
