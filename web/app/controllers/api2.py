@@ -126,6 +126,24 @@ class DispatchSummary:
         return csv_file.getvalue()
 
 
+class DistrictDispatchSummary:
+    @require_login
+    def GET(self):
+        r = db.query(
+            "SELECT district, sum(quantity_bales) total_bales "
+            "FROM distribution_log_w2sc_view "
+            "GROUP by district "
+            "ORDER by district")
+        csv_file = StringIO()
+        csv_writer = csv.writer(csv_file)
+        csv_writer.writerow(['District', 'Total Bales'])
+        for i in r:
+            csv_writer.writerow([i['district'], i['total_bales']])
+        web.header('Content-Type', 'text/csv')
+        web.header('Content-disposition', 'attachment; filename=DistrictDispatchSummary.csv')
+        return csv_file.getvalue()
+
+
 class Remarks:
     def POST(self):
         web.header("Content-Type", "application/json; charset=utf-8")
