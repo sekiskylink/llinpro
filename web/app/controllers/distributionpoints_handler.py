@@ -1,11 +1,12 @@
 import web
+import json
 from . import csrf_protected, db, require_login, render, get_session
 
 
 class DistPoints:
     @require_login
     def GET(self):
-        params = web.input(page=1, ed="", d_id="")
+        params = web.input(page=1, ed="", d_id="", caller="web")
         edit_val = params.ed
         session = get_session()
         districts = db.query(
@@ -45,6 +46,9 @@ class DistPoints:
                     "DELETE FROM distribution_point_villages WHERE distribution_point=$id",
                     {'id': params.d_id})
                 db.query("DELETE FROM distribution_points WHERE id=$id", {'id': params.d_id})
+                if params.caller == "api":  # return json if API call
+                    web.header("Content-Type", "application/json; charset=utf-8")
+                    return json.dumps({'message': "success"})
 
         if session.role == 'Administrator':
             dpoints_SQL = (

@@ -211,7 +211,7 @@
                     function (isConfirm) {
                         if (isConfirm) {
                             $.get(
-                                '/reporters',
+                                '/distributionpoints',
                                 {d_id: del_id, caller: 'api'},
                                 function(data){
                                     if (data.message == "success"){
