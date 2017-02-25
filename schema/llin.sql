@@ -541,6 +541,7 @@ CREATE VIEW distribution_log_w2sc_view AS
         a.departure_date, a.departure_time,
         get_location_name(a.destination) as destination,
         a.destination destination_id,
+        a.district_id,
         get_location_name(a.district_id) as district, a.remarks,
         a.arrival_date, a.arrival_time, a.quantity_received,
         a.is_delivered, a.is_received, a.has_variance, a.created_by,
