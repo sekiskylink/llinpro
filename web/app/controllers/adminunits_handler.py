@@ -62,7 +62,7 @@ class AdminUnits:
             if params.ed and allow_edit:
                 r = db.query(
                     "UPDATE locations SET name = $name WHERE id = $id",
-                    {'name': params.location_name, 'id': params.location})
+                    {'name': params.location_name, 'id': edit_val})
                 if r:
                     log_dict = {
                         'logtype': 'Web', 'action': 'Edit', 'actor': session.username,
