@@ -28,6 +28,8 @@ from app.controllers.forgotpass_handler import ForgotPass
 from app.controllers.hotline_handler import Hotline
 from app.controllers.downloads_handler import Downloads
 from app.controllers.adminunits_handler import AdminUnits
+from app.controllers.subcounty_handler import SubCounty
+from app.controllers.parish_handler import Parish
 from app.controllers.stores_handler import Stores
 
 URLS = (
@@ -38,6 +40,8 @@ URLS = (
     r'/distributionpoints', DistPoints,
     r'/smslog', SMSLog,
     r'/adminunits', AdminUnits,
+    r'/subcounties', SubCounty,
+    r'/parishes', Parish,
     r'/coverage', Coverage,
     r'/coveragemap', CoverageMap,
     r'/hotline', Hotline,
