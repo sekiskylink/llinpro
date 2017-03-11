@@ -184,6 +184,17 @@ $delim$
     END;
 $delim$ LANGUAGE plpgsql;
 
+CREATE OR REPLACE FUNCTION child_count(loc_id bigint)
+    RETURNS INTEGER AS
+$delim$
+    DECLARE
+        c INTEGER := 0;
+    BEGIN
+        SELECT count(id) INTO c FROM locations WHERE tree_parent_id = loc_id;
+        RETURN c;
+    END;
+$delim$ LANGUAGE plpgsql;
+
 
 CREATE OR REPLACE FUNCTION gen_code() RETURNS TEXT AS
 $delim$
@@ -609,6 +620,28 @@ CREATE VIEW sms_stats AS
         created,
         updated
     FROM kannel_stats;
+
+CREATE TABLE district_stats(
+    id SERIAL NOT NULL PRIMARY KEY,
+    district_id BIGINT NOT NULL REFERENCES locations(id),
+    stats JSON NOT NULL DEFAULT '{}'::json,
+    created TIMESTAMP NOT NULL DEFAULT NOW(),
+    updated TIMESTAMP NOT NULL DEFAULT NOW()
+);
+
+CREATE VIEW district_stats_view AS
+    SELECT
+        id, district_id,
+        stats->>'name' as district,
+        stats->>'total_bales' as total_bales,
+        stats->>'total_subcounties' as total_subcounties,
+        stats->>'subcounties_served' as subcounties_served,
+        stats->>'coverage' as coverage,
+        stats->>'color' as color,
+        created,
+        updated
+    FROM district_stats;
+
 
 --location stuff
 --INSERT INTO locationtree (name)

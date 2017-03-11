@@ -170,3 +170,25 @@ class Remarks:
                     "INSERT INTO alerts (alert) VALUES($msg)", {'msg': remark})
             ret = ("Thank you for your report, this report will be sent to relevant authorities.")
             return json.dumps({"message": ret})
+
+
+class DistrictStats:
+    def GET(self):
+        # web.header("Content-Type", "application/json; charset=utf-8")
+        params = web.input(field="color")
+        field = params.field
+        rs = db.query(
+            "SELECT upper(district) district, total_bales, coverage, color, total_subcounties "
+            "FROM district_stats_view ORDER by district")
+        ret = {}
+        for r in rs:
+            if field == 'coverage':
+                val = (
+                    "<strong>District:</strong> %(district)s<br/>"
+                    "<strong>Total Sub-Counties:</strong> %(total_subcounties)s<br/>"
+                    "<strong>Coverage:</strong> %(coverage)s%%<br/>"
+                    "<strong>Bales Distributed:</strong> %(total_bales)s" % (r))
+                ret[r['district']] = val
+            else:
+                ret[r['district']] = r[field]
+        return json.dumps(ret)

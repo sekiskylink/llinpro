@@ -3,10 +3,15 @@
 
 {% block title %}LLIN.::.Settings{% endblock%}
 {% block stylesheets %}
-    <!-- Data Tables -->
-    <link href="/static/css/plugins/dataTables/dataTables.bootstrap.css" rel="stylesheet">
-    <link href="/static/css/plugins/dataTables/dataTables.responsive.css" rel="stylesheet">
-    <link href="/static/css/plugins/dataTables/dataTables.tableTools.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/plugins/ol3/css/ol.css" type="text/css" />
+    <link rel="stylesheet" href="/static/css/ol_controls.css" type="text/css" />
+    <style type="text/css">
+        map {
+            height: 500px;
+            width: 100%;
+            background-color: #b5d0d0;
+        }
+    </style>
 {% endblock %}
 
 {% block nav %}
@@ -16,30 +21,42 @@
 {% endblock %}
 
 {% block content %}
-
+	<div class="row">
+        <div class="col-lg-12">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+                    <h5>District Coverage Map <i class="fa fa-map-marker"></i></h5>
+                    <div class="ibox-tools">
+                        <a class="collapse-link">
+                            <i class="fa fa-chevron-up"></i>
+                        </a>
+                    </div>
+                </div>
+                <div class="ibox-content">
+					<div id="map" class="map">
+                        <div class="ol3-bottom ol3-right">
+                            <div class="ol3-control" id="">
+                                <img src="/static/images/distribution.png">
+                            </div>
+                        </div>
+                        <div class="ol3-top ol3-right">
+                            <div class="ol3-control alert alert-info" id="">
+                                <h3>District Statistics</h3>
+                                <div id="overlay"></div>
+                            </div>
+                        </div>
+                    </div>
+				</div>
+            </div>
+        </div>
+    </div>
 {% endblock %}
 
 {% block scripts %}
     {% call myscripts() %}
         <!-- Data Tables -->
-        <script src="/static/js/plugins/dataTables/jquery.dataTables.js"></script>
-        <script src="/static/js/plugins/dataTables/dataTables.bootstrap.js"></script>
-        <script src="/static/js/plugins/dataTables/dataTables.responsive.js"></script>
-        <script src="/static/js/plugins/dataTables/dataTables.tableTools.min.js"></script>
-
-        <script src="/static/js/plugins/bootstrap-validator/dist/validator.min.js"></script>
-        <script src="/static/js/llin/dpoints.js"></script>
-        <script>
-           $(document).ready(function() {
-            $('.dataTables-example').DataTable({
-                "dom": 'lTfigt',
-                "tableTools": {
-                    "sSwfPath": "/static/js/plugins/dataTables/swf/copy_csv_xls_pdf.swf"
-                }
-            });
-
-        });
-        </script>
+		<script src="/static/js/plugins/ol3/js/ol.js"></script>
+        <script src="/static/js/llin/map.js"></script>
     {% endcall %}
 {% endblock %}
 

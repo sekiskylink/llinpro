@@ -1,0 +1,43 @@
+.ol3-control {
+	position: relative;
+	z-index: 800;
+	pointer-events: visiblePainted; /* IE 9-10 doesn't have auto */
+	pointer-events: auto;
+	}
+.ol3-top,
+.ol3-bottom {
+	position: absolute;
+	z-index: 1000;
+	pointer-events: none;
+	}
+.ol3-top {
+	top: 0;
+	}
+.ol3-right {
+	right: 0;
+	}
+.ol3-bottom {
+	bottom: 0;
+	}
+.ol3-left {
+	left: 0;
+	}
+.ol3-control {
+	float: left;
+	clear: both;
+	}
+.ol3-right .ol3-control {
+	float: right;
+	}
+.ol3-top .ol3-control {
+	margin-top: 70px;
+	}
+.ol3-bottom .ol3-control {
+	margin-bottom: 80px;
+	}
+.ol3-left .ol3-control {
+	margin-left: 10px;
+	}
+.ol3-right .ol3-control {
+	margin-right: 40px;
+}
