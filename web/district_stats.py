@@ -42,7 +42,7 @@ for k in district_stats.keys():
     elif coverage > 50 and coverage < 100:
         color = 'rgba(255, 215, 0, 0.8)'
     elif coverage > 0 and coverage < 50:
-        color = 'rgba(30, 144, 225, 0.7)'
+        color = 'rgba(220, 20, 60, 0.7)'
     else:
         color = 'rgba(255, 100, 50, 0.1)'
     district_stats[k]['color'] = color
