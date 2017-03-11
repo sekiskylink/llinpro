@@ -192,3 +192,21 @@ class DistrictStats:
             else:
                 ret[r['district']] = r[field]
         return json.dumps(ret)
+
+
+class KannelSeries:
+    def GET(self):
+        params = web.input(id="")
+        if params.id:
+            rs = db.query(
+                "SELECT * FROM sms_stats WHERE id = $id", {'id': params.id})
+            ret = ""
+            if rs:
+                r = rs[0]
+                # period = "For %s (Last updated: %s)" % (r['month'], r['updated'])
+                incoming = "Incoming,%s,%s,%s,%s" % (r['mtn_in'], r['airtel_in'], r['africel_in'], r['utl_in'])
+                outgoing = "Outgoing,%s,%s,%s,%s" % (r['mtn_out'], r['airtel_out'], r['africel_out'], r['utl_out'])
+                # ret = period + "\n" + incoming + "\n" + outgoing
+                ret = incoming + "\n" + outgoing
+            return ret
+        return ""

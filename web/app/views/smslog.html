@@ -71,9 +71,9 @@
 									<td>{{ l.total_in }}</td>
 									<td>{{ l.total_out }}</td>
 									<td>
-										<a href="/refresh" class="btn btn-primary btn-x sregenerate" value={{ l.month }}><i class="fa fa-refresh"></i></a>
+										<a href="/refresh" class="btn btn-primary btn-xs sregenerate" value={{ l.month }}><i class="fa fa-refresh"></i></a>
 										&nbsp;&nbsp;&nbsp;
-										<a href="/smslogs?d_id={{ l.id }}&page={{ page }}" class="btn btn-danger btn-xs gwe" value={{ l.id }}><i class="icon-signal"></i></a>
+										<a href="/smslogs?d_id={{ l.id }}&page={{ page }}" class="btn btn-primary btn-xs gwe" value={{ l.id }}><i class="fa fa-signal"></i></a>
 									</td>
 								</tr>
 							{% endfor%}
@@ -89,6 +89,8 @@
 
 {% block scripts %}
     {% call myscripts() %}
+        <script type="text/javascript" src="/static/js/plugins/highcharts/highcharts.js"></script>
+        <script type="text/javascript" src="/static/js/plugins/highcharts/modules/exporting.js"></script>
         <!-- Data Tables -->
         <script src="/static/js/plugins/dataTables/jquery.dataTables.js"></script>
         <script src="/static/js/plugins/dataTables/dataTables.bootstrap.js"></script>

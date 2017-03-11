@@ -13,7 +13,7 @@ from app.controllers.api import DistributeVillageNets, ReportersEndpoint, Receiv
 from app.controllers.api import DistributeHouseholdNets
 from app.controllers.api2 import LocationsEndpoint, LocationsCSVEndpoint, ReportersXLEndpoint
 from app.controllers.api2 import DispatchSMS, DispatchSummary, Remarks, DistrictDispatchSummary
-from app.controllers.api2 import DistrictStats
+from app.controllers.api2 import DistrictStats, KannelSeries
 from app.controllers.reporters_handler import Reporters
 from app.controllers.users_handler import Users
 from app.controllers.groups_handler import Groups
@@ -55,6 +55,7 @@ URLS = (
     r'/groups', Groups,
     r'/logout', Logout,
     r'/forgotpass', ForgotPass,
+    r'/kannelseries', KannelSeries,
     # API stuff follows
     r'/api/v1/loc_children/(\d+)/?', LocationChildren,
     r'/api/v1/location/(\d+)/?', Location,
