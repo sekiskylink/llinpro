@@ -210,3 +210,25 @@ class KannelSeries:
                 ret = incoming + "\n" + outgoing
             return ret
         return ""
+
+
+class ChartData:
+    def GET(self):
+        params = web.input(chart_type="", wave="")
+        chart_type = params.chart_type
+        wave = params.wave
+
+        rs = db.query(
+            "SELECT district, total_bales, coverage,  total_subcounties "
+            "FROM district_stats_view "
+            "WHERE district_id IN (SELECT district_id FROM wave_districts WHERE wave_id = $wave) "
+            "ORDER by district", {'wave': wave})
+        districts = []
+        data = []
+        for r in rs:
+            districts.append(r['district'])
+            data.append(r[chart_type])
+        ret = ','.join(districts)
+        ret += "\n"
+        ret += ','.join(data)
+        return ret

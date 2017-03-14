@@ -642,6 +642,19 @@ CREATE VIEW district_stats_view AS
         updated
     FROM district_stats;
 
+CREATE TABLE waves(
+    id SERIAL NOT NULL PRIMARY KEY,
+    name TEXT NOT NULL DEFAULT '',
+    created TIMESTAMP NOT NULL DEFAULT NOW(),
+    updated TIMESTAMP NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE wave_districts(
+    id SERIAL NOT NULL PRIMARY KEY,
+    wave_id INTEGER NOT NULL REFERENCES waves(id),
+    district_id BIGINT NOT NULL REFERENCES locations(id),
+    UNIQUE(wave_id, district_id)
+);
 
 --location stuff
 --INSERT INTO locationtree (name)
