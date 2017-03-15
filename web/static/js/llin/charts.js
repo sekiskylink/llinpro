@@ -47,12 +47,18 @@ $(function (){
             chart_type == 'acks' ? 'Acknowledgements':
             chart_type == 'variance' ? 'Variance': 'Coverage';
 
-        var ytitle = chart_type == 'coverage' ? 'Percentage Coverage':
+        var ytitle = chart_type == 'coverage' ? 'Percentage':
             chart_type == 'total_bales' ? 'No. of Bales Distributed':
             chart_type == 'cb' ? 'Coverage & Bales Distributed':
             chart_type == 'acks' ? 'No. of Acknowledgements':
             chart_type == 'variance' ? 'No. of Variances': 'Coverage';
         options.title = {'text': "Wave " + wave + " " + title}
+
+        options.subtitle.text = chart_type == 'coverage' ? 'Percentage distribution per district':
+            chart_type == 'total_bales' ? 'Number of bales distributed per district':
+            chart_type == 'acks' ? 'Number of distribution acknowledgements per district':
+            chart_type == 'variance' ? 'Number of distributions with variance per district': '';
+
         options.series = [];
         options.yAxis.title.text = ytitle;
         $.get('chartdata', {chart_type: chart_type, wave: wave}, function(data){
