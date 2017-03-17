@@ -1,5 +1,5 @@
 {% extends "layout.html" %}
-{% from 'layout.html' import navbar, myscripts %}
+{% from 'layout.html' import navbar, myscripts, busted %}
 
 {% block title %}LLIN.::.Hotline{% endblock%}
 {% block stylesheets %}
@@ -17,7 +17,7 @@
 {% endblock %}
 
 {% block content %}
-    {% if ses.role in ('Administrator', 'Warehouse Manager') %}
+    {% if ses.role in ('Administrator', 'Warehouse Manager') or ses.can_view_reports %}
     <!-- DATA TABLE -->
     <div class="row">
         <div class="col-lg-12">
