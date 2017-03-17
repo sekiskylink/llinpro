@@ -33,6 +33,7 @@ from app.controllers.adminunits_handler import AdminUnits
 from app.controllers.subcounty_handler import SubCounty
 from app.controllers.parish_handler import Parish
 from app.controllers.stores_handler import Stores
+from app.controllers.smstool_handler import SMSTool
 
 URLS = (
     r'^/', Index,
@@ -56,6 +57,7 @@ URLS = (
     r'/users', Users,
     r'/groups', Groups,
     r'/logout', Logout,
+    r'/smstool', SMSTool,
     r'/forgotpass', ForgotPass,
     r'/kannelseries', KannelSeries,
     r'/chartdata', ChartData,
