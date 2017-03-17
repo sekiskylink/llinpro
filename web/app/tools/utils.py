@@ -55,7 +55,7 @@ def post_request(data, url=config['default_api_uri']):
 
 def auth_user(db, username, password):
     sql = (
-        "SELECT a.id, a.firstname, a.lastname, b.name as role "
+        "SELECT a.id, a.firstname, a.lastname, b.name as role, a.user_role "
         "FROM users a, user_roles b "
         "WHERE username = $username AND password = crypt($passwd, password) "
         "AND a.user_role = b.id AND is_active = 't'")
@@ -64,6 +64,21 @@ def auth_user(db, username, password):
         return False, "Wrong username or password"
     else:
         return True, res[0]
+
+
+def role_permissions(db, role):
+    sql = ("SELECT sys_module, sys_perms FROM user_role_permissions WHERE user_role = $role")
+    ret = {}
+    res = db.query(sql, {'role': role})
+    for r in res:
+        ret[r['sys_module']] = r['sys_perms']
+    return ret
+
+
+def has_perm(perms_dict, module, perm):
+    if module in perms_dict:
+        return perms_dict[module].__contains__(perm)
+    return False
 
 
 def audit_log(db, log_dict={}):

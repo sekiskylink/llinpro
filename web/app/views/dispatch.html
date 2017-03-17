@@ -22,9 +22,10 @@
 {% endblock %}
 
 {% block content %}
-    {% if ses.role in ('Administrator', 'Warehouse Manager') %}
+    {% if ses.role in ('Administrator', 'Warehouse Manager') or ses.can_view_warehouse or ses.can_manage_warehouse %}
     {{ err(ses.ddata_err)}}
 
+    {% if ses.can_manage_warehouse %}
     <form role="form" method="post" action="" class="form-horizontal" data-toggle="validator">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
         <div class="row">
@@ -177,6 +178,7 @@
             <!-- END RIGHT-->
         </div>
     </form>
+    {% endif %}
     <!-- DATA TABLE -->
     <div class="row">
         <div class="col-lg-12">
@@ -227,6 +229,7 @@
                                             {% endif%}
                                         </td>
                                         <td>
+                                            {% if ses.can_manage_warehouse %}
                                             <a href="/dispatch?ed={{ d.id }}" class="btn btn-info btn-xs" value={{ d.id }}>
                                                 <i title="Edit" class="fa fa-edit"></i></a>
                                             &nbsp;&nbsp;
@@ -241,6 +244,7 @@
                                                 data-target="#myModal3">
                                                  <i title="SMS" class="fa fa-envelope-o"></i>
                                             </button>
+                                            {% endif %}
                                         </td>
                                     </tr>
                                 {% endfor %}

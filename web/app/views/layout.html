@@ -108,10 +108,12 @@
                     <ul class="nav nav-second-level">
                         <li class=""><a href="/dashboard"><i class="fa fa-bar-chart-o"></i>Dashboard</a></li>
                         <li class=""><a href="/hotline"><i class="fa fa-exclamation-triangle"></i>Hotline</a></li>
+                        {% if ses.can_view_reports %}
                         <li class=""><a href="/coverage"><i class="fa fa-table"></i>Coverage Reports</a></li>
                         <li><a href="/coveragemap"><i class="fa fa-map-marker"></i>Coverage Map</a></li>
                         <li><a href="/charts"><i class="fa fa-line-chart"></i>Charts</a></li>
                         <li><a href="/downloads"><i class="fa fa-download"></i>My Downloads</a></li>
+                        {% endif %}
                     </ul>
                 </li>
                 {% if ses.role in ('Micro Planning', 'Administrator') %}
@@ -138,7 +140,7 @@
                 </li>
                 {% endif %}
 
-                {% if ses.role in ('Warehouse Manager', 'Administrator') %}
+                {% if ses.role in ('Warehouse Manager', 'Administrator') or ses.can_view_reports %}
                 <li>
                     <a href="/warehousedata"><i class="fa fa-institution"></i> <span class="nav-label">Warehouse Log</span></a>
                 </li>
@@ -149,6 +151,8 @@
                 <li>
                     <a href="/static/help/{{ses.role + " Manual.pdf"}}" target="_blank"><i class="fa fa-book"></i> <span class="nav-label">Help</span></a>
                 </li>
+
+                <li><a href="/smstool"><i class="fa fa-envelope-o"></i><span class="nav-label">SMS Tool Guide</span></a></li>
                 <!-- Put Other links here-->
                     {{ caller() }}
                 <!-- -->

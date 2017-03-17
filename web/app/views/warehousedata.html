@@ -21,8 +21,9 @@
 {% endblock %}
 
 {% block content %}
-    {% if ses.role in ('Administrator', 'Warehouse Manager') %}
+    {% if ses.role in ('Administrator', 'Warehouse Manager') or ses.can_view_reports %}
     {{ err(ses.wdata_err)}}
+    {% if ses.can_manage_warehouse %}
     <form role="form" id="wform" class="form-horizontal" data-toggle="validator" action="" method="post">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
         <div class="row">
@@ -36,96 +37,96 @@
                                 <i class="fa fa-chevron-up"></i>
                             </a>
                         </div>
-                        <div class="ibox-content">
-                            <div class="row">
-                                <div class="form-group"><label for="po_number" class="col-lg-5 control-label">PO Number:</label>
-                                    <div class="col-lg-7">
-                                    <input name="po_number" id="po_number" type="text" value="{{ po_number }}" required class="form-control"/>
-                                    </div>
+                    </div>
+                    <div class="ibox-content">
+                        <div class="row">
+                            <div class="form-group"><label for="po_number" class="col-lg-5 control-label">PO Number:</label>
+                                <div class="col-lg-7">
+                                <input name="po_number" id="po_number" type="text" value="{{ po_number }}" required class="form-control"/>
                                 </div>
-                                <div class="form-group"><label for="funding_source" class="col-lg-5 control-label">Funding Source:</label>
-                                    <div class="col-lg-7">
-                                    <select name="funding_source" id="funding_source" class="form-control" required>
-                                        <option value="">Select Funding Source</option>
-                                        {% for f in funding_sources %}
-                                            <option value="{{ f.id }}" {%if f.id == funding_source%}selected="yes"{% endif %}>{{ f.name }}</option>
-                                        {% endfor %}
-                                    </select>
-                                    </div>
-                                </div>
-                                <div class="form-group"><label for="manufacturer" class="col-lg-5 control-label">Manufacturer:</label>
-                                    <div class="col-lg-7">
-                                    <select name="manufacturer" id="manufacturer" class="form-control" required>
-                                        <option value="">Select Manufacturer</option>
-                                        {% for m in manufacturers %}
-                                            <option value="{{ m.id }}" {%if m.id == manufacturer %}selected="yes"{% endif %}>{{ m.name }}</option>
-                                        {% endfor %}
-                                    </select>
-                                    </div>
-                                </div>
-                                <div class="form-group"><label for="made_in" class="col-lg-5 control-label">Made In:</label>
-                                    <div class="col-lg-7">
-                                        <select name="made_in" id="made_in" class="form-control" required>
-                                            <option value="">Select Country</option>
-                                            {% for c in countries%}
-                                                <option value="{{c.id}}" {%if c.id == made_in %}selected="yes"{% endif %}>{{ c.name }}</option>
-                                            {% endfor %}
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="form-group"><label for="batch_number" class="col-lg-5 control-label">Batch Number:</label>
-                                    <div class="col-lg-7">
-                                        <input name="batch_number" id="batch_number" type="text" value="{{ batch_number }}" class="form-control"/>
-                                    </div>
-                                </div>
-                                <div class="form-group"><label for="nets_type" class="col-lg-5 control-label">Nets Type:</label>
-                                    <div class="col-lg-7">
-                                        <select name="nets_type" id="nets_type" class="form-control">
-                                            <option value="">Select Nets Type</option>
-                                            {% for t in net_types %}
-                                                <option value="{{t}}" {% if t == nets_type %} selected="yes" {% endif%}>{{t}}</option>
-                                            {% endfor %}
-
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="form-group"><label for="nets_color" class="col-lg-5 control-label">Nets Color:</label>
-                                    <div class="col-lg-7">
-                                        <select name="nets_color" id="nets_color" class="form-control">
-                                            <option value="">Select Color</option>
-                                            {% for color in ('Blue', 'Green', 'White', 'White & Blue') %}
-                                                <option value="{{color}}" {% if color == nets_color %} selected="yes" {% endif%}>{{color}}</option>
-                                            {% endfor %}
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="form-group"><label for="nets_size" class="col-lg-5 control-label">Nets Size:</label>
-                                    <div class="col-lg-7">
-                                        <input name="nets_size" id="nets_size" type="text" value="{{ nets_size }}" class="form-control"/>
-                                    </div>
-                                </div>
-                                <div class="form-group"><label for="quantity" class="col-lg-5 control-label">Quantity (Bales):</label>
-                                    <div class="col-lg-7">
-                                        <input name="quantity" id="quantity" type="number" value="{{quantity }}" required
-                                        pattern="^\d+$" class="form-control"/>
-                                    </div>
-                                </div>
-                                <div class="form-group"><label for="waybill" class="col-lg-5 control-label">Waybill:</label>
-                                    <div class="col-lg-7">
-                                        <input name="waybill" id="waybill" type="text" value="{{ waybill }}" required class="form-control"/>
-                                    </div>
-                                </div>
-                                <div class="form-group"><label for="grn" class="col-lg-5 control-label">Goods Received Note:</label>
-                                    <div class="col-lg-7">
-                                        <input name="goods_received_note" id="grn" type="text" value="{{ goods_received_note }}"
-                                            required class="form-control"/>
-                                    </div>
-                                </div>
-                                <br/>
-                                <br/>
-                                <br/>
-                                <br/>
                             </div>
+                            <div class="form-group"><label for="funding_source" class="col-lg-5 control-label">Funding Source:</label>
+                                <div class="col-lg-7">
+                                <select name="funding_source" id="funding_source" class="form-control" required>
+                                    <option value="">Select Funding Source</option>
+                                    {% for f in funding_sources %}
+                                        <option value="{{ f.id }}" {%if f.id == funding_source%}selected="yes"{% endif %}>{{ f.name }}</option>
+                                    {% endfor %}
+                                </select>
+                                </div>
+                            </div>
+                            <div class="form-group"><label for="manufacturer" class="col-lg-5 control-label">Manufacturer:</label>
+                                <div class="col-lg-7">
+                                <select name="manufacturer" id="manufacturer" class="form-control" required>
+                                    <option value="">Select Manufacturer</option>
+                                    {% for m in manufacturers %}
+                                        <option value="{{ m.id }}" {%if m.id == manufacturer %}selected="yes"{% endif %}>{{ m.name }}</option>
+                                    {% endfor %}
+                                </select>
+                                </div>
+                            </div>
+                            <div class="form-group"><label for="made_in" class="col-lg-5 control-label">Made In:</label>
+                                <div class="col-lg-7">
+                                    <select name="made_in" id="made_in" class="form-control" required>
+                                        <option value="">Select Country</option>
+                                        {% for c in countries%}
+                                            <option value="{{c.id}}" {%if c.id == made_in %}selected="yes"{% endif %}>{{ c.name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group"><label for="batch_number" class="col-lg-5 control-label">Batch Number:</label>
+                                <div class="col-lg-7">
+                                    <input name="batch_number" id="batch_number" type="text" value="{{ batch_number }}" class="form-control"/>
+                                </div>
+                            </div>
+                            <div class="form-group"><label for="nets_type" class="col-lg-5 control-label">Nets Type:</label>
+                                <div class="col-lg-7">
+                                    <select name="nets_type" id="nets_type" class="form-control">
+                                        <option value="">Select Nets Type</option>
+                                        {% for t in net_types %}
+                                            <option value="{{t}}" {% if t == nets_type %} selected="yes" {% endif%}>{{t}}</option>
+                                        {% endfor %}
+
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group"><label for="nets_color" class="col-lg-5 control-label">Nets Color:</label>
+                                <div class="col-lg-7">
+                                    <select name="nets_color" id="nets_color" class="form-control">
+                                        <option value="">Select Color</option>
+                                        {% for color in ('Blue', 'Green', 'White', 'White & Blue') %}
+                                            <option value="{{color}}" {% if color == nets_color %} selected="yes" {% endif%}>{{color}}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group"><label for="nets_size" class="col-lg-5 control-label">Nets Size:</label>
+                                <div class="col-lg-7">
+                                    <input name="nets_size" id="nets_size" type="text" value="{{ nets_size }}" class="form-control"/>
+                                </div>
+                            </div>
+                            <div class="form-group"><label for="quantity" class="col-lg-5 control-label">Quantity (Bales):</label>
+                                <div class="col-lg-7">
+                                    <input name="quantity" id="quantity" type="number" value="{{quantity }}" required
+                                    pattern="^\d+$" class="form-control"/>
+                                </div>
+                            </div>
+                            <div class="form-group"><label for="waybill" class="col-lg-5 control-label">Waybill:</label>
+                                <div class="col-lg-7">
+                                    <input name="waybill" id="waybill" type="text" value="{{ waybill }}" required class="form-control"/>
+                                </div>
+                            </div>
+                            <div class="form-group"><label for="grn" class="col-lg-5 control-label">Goods Received Note:</label>
+                                <div class="col-lg-7">
+                                    <input name="goods_received_note" id="grn" type="text" value="{{ goods_received_note }}"
+                                        required class="form-control"/>
+                                </div>
+                            </div>
+                            <br/>
+                            <br/>
+                            <br/>
+                            <br/>
                         </div>
                     </div>
                 </div>
@@ -238,6 +239,7 @@
             <!-- END RIGHT -->
         </div>
     </form>
+    {% endif %}
     <!-- DATA TABLE -->
     <div class="row">
         <div class="col-lg-12">
@@ -280,6 +282,7 @@
                                         <td>{{ d.waybill }}</td>
                                         <td>{{ d.warehouse }}</td>
                                         <td>
+                                            {% if ses.can_manage_warehouse %}
                                             <a href="/warehousedata?ed={{ d.id }}" class="btn btn-info btn-xs" value={{ d.id }}>
                                                 <i title="Edit" class="fa fa-edit"></i></a>
                                             &nbsp;&nbsp;
@@ -289,6 +292,7 @@
                                                 data-target="#myModal2">
                                                  <i title="Details" class="fa fa-list-alt"></i>
                                             </button>
+                                            {% endif %}
                                         </td>
                                     </tr>
                                 {% endfor %}
