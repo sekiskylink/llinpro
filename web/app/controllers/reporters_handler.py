@@ -7,7 +7,7 @@ import json
 class Reporters:
     @require_login
     def GET(self):
-        params = web.input(page=1, ed="", d_id="", caller="web")
+        params = web.input(page=1, ed="", d_id="", caller="web", search="")
         edit_val = params.ed
         session = get_session()
         districts = db.query(
@@ -90,11 +90,21 @@ class Reporters:
                         web.header("Content-Type", "application/json; charset=utf-8")
                         return json.dumps({'message': "success"})
         if session.role == 'Administrator':
-            REPORTER_SQL = "SELECT * FROM reporters_view4 WHERE id >  (SELECT max(id) - 8 FROM reporters);"
+            if params.search:
+                REPORTER_SQL = (
+                    "SELECT * FROM reporters_view4 WHERE  telephone ilike $search OR "
+                    " firstname ilike $search OR lastname ilike $search")
+            else:
+                REPORTER_SQL = "SELECT * FROM reporters_view4 WHERE id >  (SELECT max(id) - 8 FROM reporters);"
         else:
-            REPORTER_SQL = "SELECT * FROM reporters_view4 WHERE created_by = $user ORDER BY id DESC LIMIT 50"
+            if params.search:
+                REPORTER_SQL = (
+                    "SELECT * FROM reporters_view4 WHERE created_by = $user AND "
+                    " (firstname ilike $search OR lastname ilike $search OR telephone ilike $search)")
+            else:
+                REPORTER_SQL = "SELECT * FROM reporters_view4 WHERE created_by = $user ORDER BY id DESC LIMIT 50"
 
-        reporters = db.query(REPORTER_SQL, {'user': session.sesid})
+        reporters = db.query(REPORTER_SQL, {'user': session.sesid, 'search': '%%%s%%' % params.search})
         l = locals()
         del l['self']
         return render.reporters(**l)
