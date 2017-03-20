@@ -90,7 +90,7 @@ class Reporters:
                         web.header("Content-Type", "application/json; charset=utf-8")
                         return json.dumps({'message': "success"})
         if session.role == 'Administrator':
-            REPORTER_SQL = "SELECT * FROM reporters_view4 ORDER BY id DESC LIMIT 8"
+            REPORTER_SQL = "SELECT * FROM reporters_view4 WHERE id >  (SELECT max(id) - 8 FROM reporters);"
         else:
             REPORTER_SQL = "SELECT * FROM reporters_view4 WHERE created_by = $user ORDER BY id DESC LIMIT 50"
 
