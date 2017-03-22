@@ -176,6 +176,8 @@ class Dispatch:
                         db, 1, config['national_reporters'])
                     district_reporters = get_location_role_reporters(
                         db, params.district, config['district_reporters'])
+                    district_reporters += get_location_role_reporters(
+                        db, params.subcounty, ['Subcounty Supervisor'])
                     subcounty_reporters = get_location_role_reporters(
                         db, params.subcounty, config['subcounty_reporters'])
 
@@ -337,6 +339,8 @@ class Dispatch:
                     sms_text = config['national_sms_template'] % sms_args
 
                     district_reporters = get_location_role_reporters(db, params.district, config['district_reporters'])
+                    district_reporters += get_location_role_reporters(
+                        db, params.subcounty, ['Subcounty Supervisor'])
                     sms_params = {'text': sms_text, 'to': ' '.join(district_reporters)}
                     sched_id = queue_schedule(db, sms_params, sched_time, session.sesid)
                     log_schedule(db, log_id, sched_id, 'district')

@@ -428,6 +428,8 @@ class ReceiveNets:
                     }
                     district_reporters = get_location_role_reporters(
                         db, district_id, config['district_reporters'])
+                    district_reporters += get_location_role_reporters(
+                        db, dest_location, ['Subcounty Supervisor'])
                     national_reporters = get_location_role_reporters(
                         db, 1, config['national_reporters'])
 
@@ -639,7 +641,7 @@ class ReceiveVillageNets:
                     district_reporters = get_location_role_reporters(
                         db, district_id, config['district_reporters'])
                     subcounty_reporters = get_location_role_reporters(
-                        db, subcounty, config['subcounty_reporters'])
+                        db, subcounty, config['subcounty_reporters'] + ['Subcounty Supervisor'])
                     sms_args = {
                         'village': village,
                         'subcounty': subcounty_name,
@@ -781,7 +783,7 @@ class DistributeHouseholdNets:
                     district_reporters = get_location_role_reporters(
                         db, district_id, config['district_reporters'])
                     subcounty_reporters = get_location_role_reporters(
-                        db, subcounty, config['subcounty_reporters'])
+                        db, subcounty, config['subcounty_reporters'] + ['Subcounty Supervisor'])
                     sms_args = {
                         'village': village,
                         'subcounty': subcounty_name,
