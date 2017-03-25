@@ -535,7 +535,7 @@ class DistributeVillageNets:
         phone = params.phone.replace('+', '')
         with db.transaction():
             r = db.query(
-                "SELECT id, reporting_location, district_id, FROM reporters WHERE replace(telephone, '+', '') = $tel "
+                "SELECT id, reporting_location, district_id FROM reporters WHERE replace(telephone, '+', '') = $tel "
                 "OR replace(alternate_tel, '+', '') = $tel LIMIT 1", {'tel': phone})
             if r and waybill and nets:
                 reporter = r[0]
