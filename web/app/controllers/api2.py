@@ -232,3 +232,59 @@ class ChartData:
         ret += "\n"
         ret += ','.join(data)
         return ret
+
+
+class FixDistributeVillageNets:
+    """Fix:XXX Webhook issued when subcounty store managers distribute to the distribution points"""
+    def POST(self):
+        web.header("Content-Type", "application/json; charset=utf-8")
+        params = web.input(waybill="", nets="", phone="")
+        waybill = params.waybill
+        nets = params.nets
+        try:
+            nets = int(float(nets))
+        except:
+            return json.dumps({"message": "The nets distributed must be a number"})
+
+        phone = params.phone.replace('+', '')
+        with db.transaction():
+            r = db.query(
+                "SELECT id, reporting_location, district_id FROM reporters WHERE replace(telephone, '+', '') = $tel "
+                "OR replace(alternate_tel, '+', '') = $tel LIMIT 1", {'tel': phone})
+            if r and waybill and nets:
+                reporter = r[0]
+                reporter_id = reporter['id']
+                district_id = reporter['district_id']
+                res = db.query(
+                    "SELECT id FROM distribution_log_sc2dp_view WHERE waybill = $waybill AND "
+                    "reporter_id = $reporter_id", {'waybill': waybill, 'reporter_id': reporter_id})
+                if res:
+                    # entry already exists
+                    log_id = res[0]['id']
+                    db.query(
+                        "UPDATE distribution_log SET quantity_nets = $nets, updated = now() "
+                        "WHERE id = $id", {'nets': nets, 'id': log_id})
+                    ret = (
+                        "Distribution with Delivery Note No.: %s already recorded by you. "
+                        " %s nets have been recorded. If there's an error, please resend." % (waybill, nets))
+                    return json.dumps({"message": ret})
+                else:
+                    dres = db.query(
+                        "INSERT INTO distribution_log (source, dest, waybill, quantity_nets, "
+                        "delivered_by, departure_date, departure_time, district_id) VALUES ("
+                        "'subcounty', 'dp', $waybill, $nets, $reporter_id, current_date, "
+                        "current_time, $district_id) RETURNING id", {
+                            'waybill': waybill,
+                            'reporter_id': reporter_id,
+                            'nets': nets, 'district_id': district_id})
+                    if dres:
+                        # log_id = dres[0]['id']
+                        ret = (
+                            "Distribution of %s nets with Delivery Note No. %s successfully recorded. "
+                            " VHTs will have to confirm receipt of these nets."
+                            " If there's an error, please resend" % (nets, waybill))
+                        return json.dumps({"message": ret})
+            else:
+                pass
+            ret = "Something went wrong while recording distribution."
+            return json.dumps({"message": ret})
