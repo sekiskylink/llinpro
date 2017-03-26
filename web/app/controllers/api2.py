@@ -285,6 +285,5 @@ class FixDistributeVillageNets:
                             " If there's an error, please resend" % (nets, waybill))
                         return json.dumps({"message": ret})
             else:
-                pass
-            ret = "Something went wrong while recording distribution."
+                ret = "Your phone(%s) is not registered in the system." % phone
             return json.dumps({"message": ret})
