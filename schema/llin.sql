@@ -52,6 +52,21 @@ CREATE TABLE users (
 CREATE INDEX users_idx1 ON users(telephone);
 CREATE INDEX users_idx2 ON users(username);
 
+CREATE OR REPLACE FUNCTION public.get_user_name(userid bigint)
+ RETURNS text
+ LANGUAGE plpgsql
+AS $function$
+    DECLARE
+        xname TEXT;
+    BEGIN
+        SELECT INTO xname username FROM users WHERE id = userid;
+        IF xname IS NULL THEN
+            RETURN '';
+        END IF;
+        RETURN xname;
+    END;
+$function$;
+
 CREATE TABLE audit_log (
         id BIGSERIAL NOT NULL PRIMARY KEY,
         logtype VARCHAR(32) NOT NULL DEFAULT '',
@@ -848,7 +863,7 @@ CREATE VIEW reporters_view AS
 
 CREATE VIEW reporters_view2 AS
     SELECT a.id, a.firstname, a.lastname, a.telephone, a.alternate_tel, a.email, a.national_id,
-        a.reporting_location, a.created_by,
+        a.reporting_location, a.created_by, district_id,
         --get_district(a.reporting_location) as district,
         --get_district_id(a.reporting_location) as district_id,
         get_reporter_groups(a.id) as role, b.name as loc_name,

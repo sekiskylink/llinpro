@@ -44,10 +44,11 @@ class Downloads:
             if y:
                 district = y[0]['name']
             SQL = (
-                "select initcap(a.firstname) || ' ' || initcap(a.lastname) as name, a.telephone, "
-                "a.alternate_tel, a.role, a.email, district, loc_name as reporting_location, b.username "
-                "created_by from reporters_view4 a, users b WHERE district_id = $district ")
-            r = db.query(SQL, {'district': params.district})
+                "select initcap(firstname) || ' ' || initcap(lastname) as name, telephone, "
+                "alternate_tel, role, email, '%s' as district, loc_name as reporting_location, "
+                " get_user_name(created_by) created_by from reporters_view2 WHERE district_id = $district ")
+            r = db.query(SQL % district, {'district': params.district})
+            print "++++++++++++++++++", len(r)
             csv_writer.writerow(
                 ['Name', 'Telephone', 'Atl Telephone', 'Role', 'Email', 'District', 'Reporting Location', 'Created By'])
             for i in r:
