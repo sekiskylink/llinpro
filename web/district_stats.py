@@ -38,8 +38,12 @@ for k in district_stats.keys():
         coverage = 0
     district_stats[k]['coverage'] = float('%.2f' % coverage)
     if coverage == 100:
-        color = 'rgba(0, 225, 127, 0.7)'
-    elif coverage > 50 and coverage < 100:
+        # color = 'rgba(50, 205, 50, 0.7)'
+        color = 'rgba(0, 128, 0, 0.7)'
+    elif coverage >= 75 and coverage < 100:
+        color = 'rgba(0, 255, 0, 0.8)'
+        # color = 'rgba(255, 215, 0, 0.8)'
+    elif coverage >= 50 and coverage < 75:
         color = 'rgba(255, 215, 0, 0.8)'
     elif coverage > 0 and coverage < 50:
         color = 'rgba(220, 20, 60, 0.7)'
