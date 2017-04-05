@@ -61,7 +61,7 @@ class Dispatch:
                         "SELECT id, name FROM warehouse_branches WHERE warehouse_id = "
                         "$wid", {'wid': warehouse})
 
-        if session.role == 'Administrator':
+        if session.role in ('Administrator', 'Basic'):
             log_SQL = ("SELECT * FROM distribution_log_w2sc_view ORDER BY id DESC")
         else:
             log_SQL = (

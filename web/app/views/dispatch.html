@@ -203,7 +203,9 @@
                                     <th>Waybill</th>
                                     <th>Departure Date</th>
                                     <th>Status</th>
+                                    {% if ses.can_manage_warehouse %}
                                     <th>Action</th>
+                                    {% endif %}
                                 </tr>
                             </thead>
                             <tbody>
@@ -228,8 +230,8 @@
                                                 <span class="label label-primary"><i title="Variance" class="fa fa-check"></i> No Variance</span>
                                             {% endif%}
                                         </td>
+                                        {% if ses.can_manage_warehouse %}
                                         <td>
-                                            {% if ses.can_manage_warehouse %}
                                             <a href="/dispatch?ed={{ d.id }}" class="btn btn-info btn-xs" value={{ d.id }}>
                                                 <i title="Edit" class="fa fa-edit"></i></a>
                                             &nbsp;&nbsp;
@@ -244,8 +246,8 @@
                                                 data-target="#myModal3">
                                                  <i title="SMS" class="fa fa-envelope-o"></i>
                                             </button>
-                                            {% endif %}
                                         </td>
+                                        {% endif %}
                                     </tr>
                                 {% endfor %}
                             </tbody>
