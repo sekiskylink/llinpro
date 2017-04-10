@@ -123,8 +123,8 @@ class FormSerials:
             "SELECT id FROM reporters WHERE replace(telephone, '+', '') = $tel "
             "OR replace(alternate_tel, '+', '') = $tel LIMIT 1", {'tel': phone})
         if r and msg:
-            if len(msg) > 6:
-                return json.dumps({'message': 'Serial number longer than 6 characters'})
+            if len(msg) > 7:
+                return json.dumps({'message': 'Serial number longer than 7 characters'})
             reporter_id = r[0].id
             # check if form serial not captured yet
             res = db.query("SELECT id FROM registration_forms WHERE serial_number = $serial", {'serial': msg})
