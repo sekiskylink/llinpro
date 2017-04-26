@@ -40,6 +40,15 @@ db = web.database(
 SESSION = ''
 APP = None
 
+ourDistricts = []
+allDistricts = {}
+allDistrictsByName = {}  # make use in pages easy
+rs = db.query("SELECT id, name FROM  locations WHERE type_id = 3 ORDER BY name")
+for r in rs:
+    ourDistricts.append({'id': r['id'], 'name': r['name']})
+    allDistricts[r['id']] = r['name']
+    allDistrictsByName[r['name']] = r['id']
+
 
 def put_app(app):
     global APP
@@ -66,7 +75,7 @@ render = render_jinja(
 )
 
 render._lookup.globals.update(
-    ses=get_session()
+    ses=get_session(), ourDistricts=ourDistricts
 )
 
 

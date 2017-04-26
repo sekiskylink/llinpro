@@ -803,6 +803,19 @@ AS $function$
     END;
 $function$;
 
+CREATE OR REPLACE FUNCTION get_sorted_district_villages(districtid bigint, OUT subcounty text, OUT parish text, OUT village text, OUT code text)
+RETURNS SETOF record AS
+$$
+    SELECT
+        get_ancestor_by_type(tree_parent_id, 'subcounty') as subcounty,
+        get_location_name(tree_parent_id) as parish, name as village,
+        code from get_descendants($1)
+    WHERE
+        type_id = 6
+    ORDER BY
+        subcounty, parish, name;
+$$ LANGUAGE SQL;
+
 CREATE OR REPLACE FUNCTION public.get_distributionpoint_name(loc_id bigint)
  RETURNS text
  LANGUAGE plpgsql

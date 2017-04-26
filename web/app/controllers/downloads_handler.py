@@ -57,6 +57,42 @@ class Downloads:
                         i['name'], i['telephone'], i['alternate_tel'], i['role'], i['email'],
                         i['district'], i['reporting_location'], i['created_by']])
             filename = '%s-Reporters.csv' % district.capitalize()
+
+        elif params.download == 'District Villages':
+            district = ""
+            y = db.query(
+                "SELECT name FROM locations WHERE id = $district",
+                {'district': params.district})
+            if y:
+                district = y[0]['name']
+            res = db.query(
+                "SELECT * FROM get_sorted_district_villages($district)",
+                {'district': params.district})
+            csv_writer.writerow(['District', 'SubCounty', 'Parish', 'Village', 'Code'])
+            for i in res:
+                csv_writer.writerow([
+                    district.capitalize(), i['subcounty'], i['parish'], i['village'], i['code']])
+            filename = "%s_Villages.csv" % district.capitalize()
+
+        elif params.download == 'VHT Template':
+            district = ""
+            y = db.query(
+                "SELECT name FROM locations WHERE id = $district",
+                {'district': params.district})
+            if y:
+                district = y[0]['name']
+            res = db.query(
+                "SELECT * FROM get_sorted_district_villages($district)",
+                {'district': params.district})
+            csv_writer.writerow(
+                ['Name', 'Telephone', 'Other Tel', 'Role', 'SubCounty', 'Parish', 'Village', 'Code'])
+            for i in res:
+                csv_writer.writerow([
+                    '', '', '', 'VHT', i['subcounty'], i['parish'], i['village'], i['code']])
+                csv_writer.writerow([
+                    '', '', '', 'VHT', i['subcounty'], i['parish'], i['village'], i['code']])
+            filename = "%s_VHT_Template.csv" % district.capitalize()
+
         web.header('Content-Type', 'text/csv')
         web.header('Content-disposition', 'attachment; filename=%s' % filename)
         return csv_file.getvalue()

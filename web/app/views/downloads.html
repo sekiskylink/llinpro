@@ -137,6 +137,56 @@
    		</div>
 	</div>
     </form>
+    <form method="post" action="" role="form">
+    <div class="col-lg-3">
+		<div class="ibox float-e-margins">
+			<div class="ibox-title"><h5>District Villages</h5></div>
+			<div class="ibox-content">
+               <div class="form-group"><label for="district2" class="col-lg-3 control-label">District:</label>
+					<div class="col-lg-9">
+						<select name="district" id="district2" class="form-control" required>
+							<option value="">Select District</option>
+							{% for d in ourDistricts %}
+							<option value="{{ d.id}}">{{ d.name}}</option>
+							{% endfor %}
+						</select>
+					</div>
+                </div>
+				<div>
+                    <button name="download" class="btn btn-outline btn-success  dim" type="submit" value="District Villages">
+                    <i class="fa fa-download"></i>
+                    </button>
+				</div>
+			</div>
+   		</div>
+	</div>
+    </form>
+</div>
+<div class="row">
+    <form method="post" action="" role="form">
+    <div class="col-lg-3">
+		<div class="ibox float-e-margins">
+			<div class="ibox-title"><h5>District VHT Template</h5></div>
+			<div class="ibox-content">
+               <div class="form-group"><label for="district3" class="col-lg-3 control-label">District:</label>
+					<div class="col-lg-9">
+						<select name="district" id="district3" class="form-control" required>
+							<option value="">Select District</option>
+							{% for d in ourDistricts %}
+							<option value="{{ d.id}}">{{ d.name}}</option>
+							{% endfor %}
+						</select>
+					</div>
+                </div>
+				<div>
+                    <button name="download" class="btn btn-outline btn-success  dim" type="submit" value="VHT Template">
+                    <i class="fa fa-download"></i>
+                    </button>
+				</div>
+			</div>
+   		</div>
+	</div>
+    </form>
 </div>
 
 {% endblock %}
