@@ -76,7 +76,8 @@ $(function(){
                     markup = "<tr><td>" + i + "</td><td>" +txt + "</td><td><a href='/adminunits?ed=";
                     // markup += val + "' class='btn btn-primary btn-xs'><i class='fa fa-edit'></i></a>";
                     markup += val + "'><i class='fa fa-edit'></i></a>";
-                    markup += "&nbsp;&nbsp;&nbsp;<a href='/adminunits?d_id=" + val + "'><i class='fa fa-trash'></i></a>";
+                    markup += "&nbsp;&nbsp;&nbsp;<a href='/adminunits?d_id=" + val;
+                    markup += "' onclick='return confirm(\"Are you sure you want to delete?\")'><i class='fa fa-trash'></i></a>";
                     $('#village').append(
                             $("#mydata_body").append(markup)
                     );
@@ -85,5 +86,17 @@ $(function(){
             'json'
         );
     });
+
+   $('input, select').on('change', function(event) {
+    var $element = $(event.target),
+      $container = $element.closest('.example');
+
+    if (!$element.data('tagsinput'))
+      return;
+
+    var val = $element.val();
+    if (val === null)
+      val = "null";
+  }).trigger('change');
 
 });

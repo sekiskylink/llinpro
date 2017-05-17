@@ -18,6 +18,11 @@ class SubCounty:
             allow_edit = True
         except ValueError:
             pass
+        try:
+            del_val = int(params.d_id)
+            allow_del = True
+        except ValueError:
+            pass
         if params.ed and allow_edit:
             res = db.query("SELECT name FROM locations WHERE id = $id", {'id': edit_val})
             if res:
@@ -34,6 +39,17 @@ class SubCounty:
                             subcounties = db.query("SELECT id, name FROM get_children($id)", {'id': loc['id']})
                 else:
                     district = edit_val
+
+        if params.d_id and allow_del and session.role in ('Administrator', 'Data Manager'):
+            print "You seriously want to delete?"
+            rs = db.query(
+                "SELECT id FROM get_descendants_including_self($id) "
+                "ORDER BY type_id DESC;", {'id': params.d_id})
+            for r in rs:
+                try:
+                    db.query("SELECT delete_node(1, $id)", {'id': r['id']})
+                except:
+                    print "Failed to delete node:", r['id']
         l = locals()
         del l['self']
         return render.subcounties(**l)

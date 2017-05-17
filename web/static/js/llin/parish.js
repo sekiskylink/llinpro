@@ -40,7 +40,8 @@ $(function(){
                     markup = "<tr><td>" + i + "</td><td>" +txt + "</td><td><a href='/parishes?ed=";
                     // markup += val + "' class='btn btn-primary btn-xs'><i class='fa fa-edit'></i></a>";
                     markup += val + "'><i class='fa fa-edit'></i></a>";
-                    markup += "&nbsp;&nbsp;&nbsp;<a href='/parishes?d_id=" + val + "'><i class='fa fa-trash'></i></a>";
+                    markup += "&nbsp;&nbsp;&nbsp;<a href='/parishes?d_id=" + val;
+                    markup += "' onclick='return confirm(\"Are you sure you want to delete?\")'><i class='fa fa-trash'></i></a>";
                     $("#mydata_body").append(markup)
                 }
             },
