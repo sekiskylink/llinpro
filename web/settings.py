@@ -2,6 +2,7 @@
 
 """Default options for the application.
 """
+import os
 
 DEBUG = False
 
@@ -16,6 +17,8 @@ PAGE_LIMIT = 25
 
 QUANTITY_PER_BALE = 40
 SMS_OFFSET_TIME = 5
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DOMAIN = 'http://llin.gcinnovate.com'
 
 
 def absolute(path):
@@ -23,7 +26,6 @@ def absolute(path):
 
     ``path``: File or folder.
     """
-    import os
     PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
     return os.path.normpath(os.path.join(PROJECT_DIR, path))
 

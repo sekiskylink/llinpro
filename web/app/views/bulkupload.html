@@ -1,0 +1,75 @@
+{% extends "layout.html" %}
+{% from 'layout.html' import navbar, myscripts %}
+
+{% block title %}VHT Portal.::.Bulk Upload{% endblock%}
+{% block stylesheets %}
+    <!-- Data Tables -->
+    <link href="/static/css/plugins/dataTables/dataTables.bootstrap.css" rel="stylesheet">
+    <link href="/static/css/plugins/dataTables/dataTables.responsive.css" rel="stylesheet">
+    <link href="/static/css/plugins/dataTables/dataTables.tableTools.min.css" rel="stylesheet">
+{% endblock %}
+
+{% block nav %}
+    {% call navbar() %}
+
+    {% endcall %}
+{% endblock %}
+
+{% block content %}
+<form method="post" action="" role="form" enctype="multipart/form-data" class="form-horizontal" data-toggle="validator">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+    <div class="row">
+        <!-- LEFT -->
+            <div class="col-lg-6">
+                <div class="ibox float-e-margins">
+                    <div class="ibox-title">
+                        <h5>Bulk Upload<small></small></h5>
+                        <div class="ibox-tools">
+                            <a class="collapse-link">
+                                <i class="fa fa-chevron-up"></i>
+                            </a>
+                        </div>
+                        <div class="ibox-content">
+                            <div class="row">
+                                <div class="form-group"><label for="name" class="col-lg-3 control-label">Excel File (.xlsx):</label>
+                                    <div class="col-lg-9">
+                                        <input name="uploadfile" id="uploadfile" type="file" value="{{ name }}" class="form-control" required/>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <div class="col-lg-offset-3 col-lg-7">
+                                        <button class="btn btn-sm btn-primary" type="submit">Import</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- END LEFT -->
+    </div>
+</form>
+{% endblock %}
+
+{% block scripts %}
+    {% call myscripts() %}
+        <!-- Data Tables -->
+        <script src="/static/js/plugins/dataTables/jquery.dataTables.js"></script>
+        <script src="/static/js/plugins/dataTables/dataTables.bootstrap.js"></script>
+        <script src="/static/js/plugins/dataTables/dataTables.responsive.js"></script>
+        <script src="/static/js/plugins/dataTables/dataTables.tableTools.min.js"></script>
+
+        <script src="/static/js/plugins/bootstrap-validator/dist/validator.min.js"></script>
+        <script>
+           $(document).ready(function() {
+            $('.dataTables-example').DataTable({
+                "dom": 'lTfigt',
+                "tableTools": {
+                    "sSwfPath": "/static/js/plugins/dataTables/swf/copy_csv_xls_pdf.swf"
+                }
+            });
+
+        });
+        </script>
+    {% endcall %}
+{% endblock %}

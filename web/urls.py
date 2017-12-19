@@ -15,6 +15,7 @@ from app.controllers.api2 import LocationsEndpoint, LocationsCSVEndpoint, Report
 from app.controllers.api2 import DispatchSMS, DispatchSummary, Remarks, DistrictDispatchSummary
 from app.controllers.api2 import DistrictStats, KannelSeries, ChartData, FixDistributeVillageNets
 from app.controllers.api3 import FixReceiveVillageNets
+from app.controllers.api4 import WarehouseDataAPI
 from app.controllers.reporters_handler import Reporters
 from app.controllers.users_handler import Users
 from app.controllers.groups_handler import Groups
@@ -35,6 +36,7 @@ from app.controllers.subcounty_handler import SubCounty
 from app.controllers.parish_handler import Parish
 from app.controllers.stores_handler import Stores
 from app.controllers.smstool_handler import SMSTool
+from app.controllers.bulkupload_handler import BulkUpload
 
 URLS = (
     r'^/', Index,
@@ -62,6 +64,7 @@ URLS = (
     r'/forgotpass', ForgotPass,
     r'/kannelseries', KannelSeries,
     r'/chartdata', ChartData,
+    r'/bulkupload', BulkUpload,
     # API stuff follows
     r'/api/v1/loc_children/(\d+)/?', LocationChildren,
     r'/api/v1/location/(\d+)/?', Location,
@@ -69,6 +72,7 @@ URLS = (
     r'/api/v1/subcountylocations/(\d+)/?', SubcountyLocations,
     r'/api/v1/warehousebranches/(\d+)/?', WarehouseBranches,
     r'/api/v1/warehouserecord/(\d+)/?', WarehouseRecord,
+    r'/api/v1/warehousedataapi/?', WarehouseDataAPI,
     r'/api/v1/dispatchrecord/(\d+)/?', DistributionRecord,
     r'/api/v1/formserials', FormSerials,
     r'/api/v1/forms_endpoint/(\w+)/?', SerialsEndpoint,
