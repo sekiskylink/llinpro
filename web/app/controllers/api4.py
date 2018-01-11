@@ -42,7 +42,9 @@ class WarehouseDataAPI:
                 "AND goods_received_note = $grn",
                 {'waybill': params.waybill, 'grn': params.goods_received_note})
             if has_entry:
-                return json.dumps({'status': 'FAILED', 'messsage': 'Already Exists'})
+                return json.dumps({
+                    'status': 'FAILED', 'messsage':
+                    'Waybill or GRN Already Exists [%s: %s]' % (params.waybill, params.goods_received_note)})
             r = db.query(
                 "INSERT INTO national_delivery_log (po_number, funding_source, manufacturer, "
                 "made_in, batch_number, nets_type, nets_size, nets_color, quantity_bales, "
@@ -80,5 +82,6 @@ class WarehouseDataAPI:
                     'user': userid if userid else 1
                 }
                 audit_log(db, log_dict)
-            return json.dumps({'status': 'SUCCESS', 'message': 'successfully added!'})
-        return render.warehousedata({'status': 'SUCCESS', 'message': 'success'})
+                return json.dumps({'status': 'SUCCESS', 'message': 'successfully added!'})
+        return render.warehousedata({
+            'status': 'FAILED', 'message': 'Not Added [%s: %s]' % (params.waybill, params.goods_received_note)})

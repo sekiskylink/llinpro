@@ -108,7 +108,14 @@ for d in data:
     if not (d[order['waybill']] and d[order['goods_received_note']]):
         print "One of the mandatory fields (waybill or goods_received_note) missing"
         ignored.append(d)
+        print "================================================================="
+        print "=", d[5]
+        print "================================================================="
         continue
+    # print "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+    # print "#", d[5]
+    # print "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+
     po_number = d[order['po_number']].strip()
     waybill = d[order['waybill']].strip()
     goods_received_note = d[order['goods_received_note']].strip()
@@ -142,11 +149,13 @@ for d in data:
                 'country': countries[country], 'unbs_sample': unbs_samples,
                 'caller': 'api', 'user': user}
             # pprint.pprint(params)
+            resp = requests.post('%s/api/v1/warehousedataapi' % DOMAIN, data=params)
+            print resp.text
         except Exception, e:
             pass
         # pprint.pprint(params)
-        resp = requests.post('%s/api/v1/warehousedataapi' % DOMAIN, data=params)
-        # print resp.text
+    else:
+        print "ZZZZZZZZZZ", d
 
 # val = 0
 # if ignored:
