@@ -43,6 +43,7 @@
                             <div class="row">
                                 <div class="form-group"><label for="district" class="col-lg-3 control-label">District:</label>
                                     <div class="col-lg-9">
+                                        <input type="hidden" name="location" id="location" value=""/>
                                         <select name="district" id="district" class="form-control" required>
                                             <option value="">Select District</option>
                                             {% for d in districts %}
@@ -54,9 +55,19 @@
                                 <div class="form-group"><label for="subcounty" class="col-lg-3 control-label">Subcounty:</label>
                                     <div class="col-lg-9">
                                         <select name="subcounty" id="subcounty" class="form-control" required>
-                                            <option value="">Select Sub County</option>
+                                            <option value="0">Select Sub County</option>
                                             {% for s in subcounties %}
                                             <option value="{{ s.id }}" {% if s.id == subcounty %} selected="yes" {% endif %}>{{ s.name}}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group"><label for="parish" class="col-lg-3 control-label">Parish:</label>
+                                    <div class="col-lg-9">
+                                        <select name="parish" id="parish" class="form-control">
+                                            <option value="0">Select Parish</option>
+                                            {% for p in parishes %}
+                                            <option value="{{ p.id }}" {% if p.id == parish %} selected="yes" {% endif %}>{{ p.name}}</option>
                                             {% endfor %}
                                         </select>
                                     </div>
@@ -339,7 +350,7 @@
         <script src="/static/js/plugins/datapicker/bootstrap-datepicker.js"></script>
 
         <script src="/static/js/llin/dispatch.js"></script>
-        <script src="/static/js/llin/dpoints.js"></script>
+        <!--<script src="/static/js/llin/dpoints.js"></script>-->
         <script>
            $(document).ready(function() {
             $('.dataTables-example').DataTable({

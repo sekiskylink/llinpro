@@ -45,12 +45,15 @@ class Dispatch:
                 track_no_plate = r.track_no_plate
                 district = ""
                 subcounties = []
+                parish = r.dest_parish
+                parishes = []
                 ancestors = db.query(
                     "SELECT id, name, level FROM get_ancestors($loc) "
                     "WHERE level = 2 ORDER BY level DESC;", {'loc': r.destination})
                 if ancestors:
                     district = ancestors[0]
                     subcounties = db.query("SELECT id, name FROM get_children($id)", {'id': district['id']})
+                    parishes = db.query("SELECT id, name FROM get_children($id)", {'id': r.destination})
                 wx = db.query(
                     "SELECT id FROM warehouses WHERE id = "
                     "(SELECT warehouse_id FROM warehouse_branches "
@@ -79,7 +82,7 @@ class Dispatch:
             ed="", d_id="", district="", subcounty="", release_order="", waybill="",
             quantity_bales="", warehouse="", warehouse_branch="", departure_date="",
             departure_time="", driver="", driver_tel="", remarks="", track_no_plate="",
-            quantity_bales_old=0)
+            quantity_bales_old=0, parish="")
         session = get_session()
         current_time = datetime.datetime.now()
         allow_edit = False
@@ -147,12 +150,23 @@ class Dispatch:
                     data_id = r[0]['id']
                     subcounty = ""
                     district = ""
+                    parish = ""
                     # get subcounty name to use in SMS
                     sc = db.query(
                         "SELECT get_location_name($subcounty) as name;",
                         {'subcounty': params.subcounty})
                     if sc:
                         subcounty = sc[0]['name']
+
+                    # get parish name if available
+                    par = db.query(
+                        "SELECT get_location_name($parish) as name;",
+                        {'parish': params.parish})
+                    if par:
+                        parish = par[0]['name']
+                        db.query(
+                            "UPDATE distribution_log SET dest_parish = $parish "
+                            "WHERE id = $id", {'parish': params.parish, 'id': data_id})
 
                     # get district name to use in SMS
                     dist = db.query(
@@ -166,6 +180,7 @@ class Dispatch:
 
                     # appropriately edit scheduled messages
                     sms_args = {
+                        'parish': parish,
                         'subcounty': subcounty,
                         'district': district,
                         'waybill': params.waybill,
@@ -180,6 +195,8 @@ class Dispatch:
                         db, params.subcounty, ['Subcounty Supervisor'])
                     subcounty_reporters = get_location_role_reporters(
                         db, params.subcounty, config['subcounty_reporters'])
+                    parish_reporters = get_location_role_reporters(
+                        db, params.parish, config['parish_reporters'])
 
                     scheduled_msgs = db.query(
                         "SELECT a.schedule_id, a.level, a.triggered_by FROM distribution_log_schedules a, "
@@ -193,7 +210,10 @@ class Dispatch:
                                 "FOR UPDATE NOWAIT", {'sched_id': s['schedule_id']})
 
                             # build SMS to send to notifying parties
-                            sms_text = config['national_sms_template'] % sms_args
+                            sms_text = ""
+                            if parish:
+                                sms_text = config['parish_nets_sms_prefix_template'] % sms_args
+                            sms_text += config['national_sms_template'] % sms_args
                             if s['level'] == 'national':
                                 sms_params = {'text': sms_text, 'to': ' '.join(national_reporters)}
                                 update_queued_sms(db, s['schedule_id'], sms_params, sched_time, session.sesid)
@@ -203,14 +223,25 @@ class Dispatch:
                                 update_queued_sms(db, s['schedule_id'], sms_params, sched_time, session.sesid)
 
                             elif s['level'] == 'subcounty':
-                                sms_text += (
-                                    '\n Once received / offloaded, please send '
-                                    '"REC %(waybill)s %(quantity)s" to %(shortcode)s' % sms_args)
+                                if subcounty_reporters and not parish:
+                                    sms_text += (
+                                        '\n Once received / offloaded, please send '
+                                        '"REC %(waybill)s %(quantity)s" to %(shortcode)s' % sms_args)
                                 sms_params = {'text': sms_text, 'to': ' '.join(subcounty_reporters)}
                                 update_queued_sms(db, s['schedule_id'], sms_params, sched_time, session.sesid)
+                            elif s['level'] == 'parish':
+                                if parish_reporters:
+                                    sms_text += (
+                                        '\n Once received / offloaded, please send '
+                                        '"REC %(waybill)s %(quantity)s" to %(shortcode)s' % sms_args)
+                                    sms_params = {'text': sms_text, 'to': ' '.join(parish_reporters)}
+                                    update_queued_sms(db, s['schedule_id'], sms_params, sched_time, session.sesid)
 
                             elif s['level'] == 'driver':
-                                driver_sms_text = config['driver_sms_template'] % sms_args
+                                if parish:
+                                    driver_sms_text = config['driver_parish_sms_template'] % sms_args
+                                else:
+                                    driver_sms_text = config['driver_sms_template'] % sms_args
                                 sms_params = {'text': driver_sms_text, 'to': params.driver_tel}
                                 update_queued_sms(db, s['schedule_id'], sms_params, sched_time, session.sesid)
                     else:  # no ready schedules were found
@@ -224,17 +255,30 @@ class Dispatch:
                         sched_id = queue_schedule(db, sms_params, sched_time, session.sesid)
                         log_schedule(db, data_id, sched_id, 'national')
                         # print "*=======*=======*===>", national_reporters
-
-                        sms_text += (
-                            '\n Once received / offloaded, please send '
-                            '"REC %(waybill)s %(quantity)s" to %(shortcode)s' % sms_args)
+                        if subcounty_reporters and not parish:
+                            sms_text += (
+                                '\n Once received / offloaded, please send '
+                                '"REC %(waybill)s %(quantity)s" to %(shortcode)s' % sms_args)
                         sms_params = {'text': sms_text, 'to': ' '.join(subcounty_reporters)}
                         sched_id = queue_schedule(db, sms_params, sched_time, session.sesid)
                         log_schedule(db, data_id, sched_id, 'subcounty')
                         # print "@=======@=======@===>", subcounty_reporters
 
+                        if parish_reporters:
+                            sms_text += (
+                                '\n Once received / offloaded, please send '
+                                '"REC %(waybill)s %(quantity)s" to %(shortcode)s' % sms_args)
+                            sms_params = {'text': sms_text, 'to': ' '.join(parish_reporters)}
+                            sched_id = queue_schedule(db, sms_params, sched_time, session.sesid)
+                            log_schedule(db, data_id, sched_id, 'parish')
+                        # print "@=======@=======@===>", parish_reporters
+
                         # for the driver
-                        driver_sms_text = config['driver_sms_template'] % sms_args
+                        if parish:
+                            driver_sms_text = config['driver_parish_sms_template'] % sms_args
+                        else:
+                            driver_sms_text = config['driver_sms_template'] % sms_args
+
                         sms_params = {'text': driver_sms_text, 'to': params.driver_tel}
                         sched_id = queue_schedule(db, sms_params, sched_time, session.sesid)
                         log_schedule(db, data_id, sched_id, 'driver')
@@ -283,7 +327,7 @@ class Dispatch:
                         'groups': ['Driver'],
                     }
 
-                    sync_time = current_time + datetime.timedelta(seconds=5)  # XXX consider making the seconds configurable
+                    sync_time = current_time + datetime.timedelta(seconds=10)  # XXX consider making the seconds configurable
                     queue_schedule(db, contact_params, sync_time, session.sesid, 'push_contact')
 
                 r = db.query(
@@ -311,12 +355,22 @@ class Dispatch:
                     log_id = r[0]['id']
                     subcounty = ""
                     district = ""
+                    parish = ""
                     # get subcounty name to use in SMS
                     sc = db.query(
                         "SELECT get_location_name($subcounty) as name;",
                         {'subcounty': params.subcounty})
                     if sc:
                         subcounty = sc[0]['name']
+                    # get parish name if available
+                    par = db.query(
+                        "SELECT get_location_name($parish) as name;",
+                        {'parish': params.parish})
+                    if par:
+                        parish = par[0]['name']
+                        db.query(
+                            "UPDATE distribution_log SET dest_parish = $parish "
+                            "WHERE id = $id", {'parish': params.parish, 'id': log_id})
 
                     # get district name to use in SMS
                     dist = db.query(
@@ -330,13 +384,18 @@ class Dispatch:
 
                     # build SMS to send to notifying parties
                     sms_args = {
+                        'parish': parish,
                         'subcounty': subcounty,
                         'district': district,
                         'waybill': params.waybill,
                         'quantity': quantity_bales,
                         'shortcode': config.get('shortcode', '6400')
                     }
-                    sms_text = config['national_sms_template'] % sms_args
+                    sms_text = ""
+                    if parish:
+                        sms_text = config['parish_nets_sms_prefix_template'] % sms_args
+
+                    sms_text += config['national_sms_template'] % sms_args
 
                     district_reporters = get_location_role_reporters(db, params.district, config['district_reporters'])
                     district_reporters += get_location_role_reporters(
@@ -353,16 +412,31 @@ class Dispatch:
                     # print "*=======*=======*===>", national_reporters
 
                     subcounty_reporters = get_location_role_reporters(db, params.subcounty, config['subcounty_reporters'])
-                    sms_text += (
-                        '\n Once received / offloaded, please send '
-                        '"REC %(waybill)s %(quantity)s" to %(shortcode)s' % sms_args)
+                    parish_reporters = get_location_role_reporters(db, params.parish, config['parish_reporters'])
+
+                    if subcounty_reporters and not parish:
+                        sms_text += (
+                            '\n Once received / offloaded, please send '
+                            '"REC %(waybill)s %(quantity)s" to %(shortcode)s' % sms_args)
                     sms_params = {'text': sms_text, 'to': ' '.join(subcounty_reporters)}
                     sched_id = queue_schedule(db, sms_params, sched_time, session.sesid)
                     log_schedule(db, log_id, sched_id, 'subcounty')
                     # print "@=======@=======@===>", subcounty_reporters
 
+                    if parish_reporters:
+                        sms_text += (
+                            '\n Once received / offloaded, please send '
+                            '"REC %(waybill)s %(quantity)s" to %(shortcode)s' % sms_args)
+                        sms_params = {'text': sms_text, 'to': ' '.join(parish_reporters)}
+                        sched_id = queue_schedule(db, sms_params, sched_time, session.sesid)
+                        log_schedule(db, log_id, sched_id, 'parish')
+                    # print "@=======@=======@===>", parish_reporters
+
                     # for the driver
-                    driver_sms_text = config['driver_sms_template'] % sms_args
+                    if parish:
+                        driver_sms_text = config['driver_parish_sms_template'] % sms_args
+                    else:
+                        driver_sms_text = config['driver_sms_template'] % sms_args
                     sms_params = {'text': driver_sms_text, 'to': params.driver_tel}
                     sched_id = queue_schedule(db, sms_params, sched_time, session.sesid)
                     log_schedule(db, log_id, sched_id, 'driver')

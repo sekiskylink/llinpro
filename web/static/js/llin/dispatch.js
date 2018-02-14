@@ -58,4 +58,54 @@ $(function(){
         });
         return false;
     });
+
+    $('#district').change(function(){
+        var districtid = $(this).val();
+        if (districtid == '0' || districtid == "")
+            return;
+        $('#location').val(districtid);
+        $('#subcounty').empty();
+        $('#subcounty').append("<option value='' selected='selected'>Select Sub County</option>");
+        $.get(
+            '/api/v1/loc_children/' + districtid,
+            {xtype:'district', xid: districtid},
+            function(data){
+                var subcounties = data;
+                for(var i in subcounties){
+                    val = subcounties[i]["id"];
+                    txt = subcounties[i]["name"];
+                    $('#subcounty').append(
+                        $(document.createElement("option")).attr("value",val).text(txt)
+                    );
+                }
+            },
+            'json'
+        );
+    });
+
+    /*When subcounty is changed*/
+    $('#subcounty').change(function(){
+        var subcountyid = $(this).val();
+        if (subcountyid == '0' || subcountyid == '')
+            return;
+        $('#location').val(subcountyid);
+        $('#parish').empty();
+        $('#parish').append("<option value='' selected='selected'>Select Parish</option>");
+        $.get(
+            '/api/v1/loc_children/' + subcountyid,
+            {},
+            function(data){
+                var parishes = data;
+                for(var i in parishes){
+                    val = parishes[i]['id'];
+                    txt = parishes[i]['name'];
+                    $('#parish').append(
+                            $(document.createElement("option")).attr("value",val).text(txt)
+                    );
+                }
+            },
+            'json'
+        );
+    });
+
 });
